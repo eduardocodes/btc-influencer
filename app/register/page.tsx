@@ -1,46 +1,46 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useAuth } from '../../contexts/AuthContext';
+import { supabase } from '../../utils/supabase';
 
-export default function Login() {
+export default function Register() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const { signIn } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  
-  useEffect(() => {
-    // Verificar se o usuário acabou de se registrar
-    const registered = searchParams.get('registered');
-    if (registered === 'true') {
-      setSuccessMessage('Registro realizado com sucesso! Verifique seu email para confirmar sua conta.');
-    }
-  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    // Validar senhas
+    if (password !== confirmPassword) {
+      setError('As senhas não coincidem');
+      return;
+    }
+
     setLoading(true);
-    
+
     try {
-      const { error } = await signIn(email, password);
-      
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+      });
+
       if (error) {
         setError(error.message);
         return;
       }
-      
-      // Login bem-sucedido, redirecionar para a página inicial
-      router.push('/');
+
+      // Registro bem-sucedido
+      router.push('/login?registered=true');
     } catch (err) {
-      setError('Ocorreu um erro durante o login. Tente novamente.');
-      console.error('Erro de login:', err);
+      setError('Ocorreu um erro durante o registro. Tente novamente.');
+      console.error('Erro de registro:', err);
     } finally {
       setLoading(false);
     }
@@ -48,7 +48,7 @@ export default function Login() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-8">
-      <h1 className="text-4xl font-bold mb-8">Login Bitfluencer</h1>
+      <h1 className="text-4xl font-bold mb-8">Criar Conta</h1>
       
       <form onSubmit={handleSubmit} className="w-full max-w-md">
         <div className="mb-4">
@@ -65,7 +65,7 @@ export default function Login() {
           />
         </div>
         
-        <div className="mb-6">
+        <div className="mb-4">
           <label htmlFor="password" className="block text-sm font-medium mb-2">
             Senha
           </label>
@@ -76,6 +76,22 @@ export default function Login() {
             onChange={(e) => setPassword(e.target.value)}
             className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
+            minLength={6}
+          />
+        </div>
+
+        <div className="mb-6">
+          <label htmlFor="confirmPassword" className="block text-sm font-medium mb-2">
+            Confirmar Senha
+          </label>
+          <input
+            type="password"
+            id="confirmPassword"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+            minLength={6}
           />
         </div>
         
@@ -85,25 +101,19 @@ export default function Login() {
           </div>
         )}
         
-        {successMessage && (
-          <div className="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded">
-            {successMessage}
-          </div>
-        )}
-        
         <button
           type="submit"
           disabled={loading}
           className={`w-full px-6 py-3 bg-blue-600 text-white rounded-md transition-colors ${loading ? 'opacity-70 cursor-not-allowed' : 'hover:bg-blue-700'}`}
         >
-          {loading ? 'Entrando...' : 'Entrar'}
+          {loading ? 'Registrando...' : 'Registrar'}
         </button>
-        
+
         <div className="mt-4 text-center">
           <p>
-            Não tem uma conta?{' '}
-            <Link href="/register" className="text-blue-600 hover:underline">
-              Registre-se
+            Já tem uma conta?{' '}
+            <Link href="/login" className="text-blue-600 hover:underline">
+              Faça login
             </Link>
           </p>
         </div>
