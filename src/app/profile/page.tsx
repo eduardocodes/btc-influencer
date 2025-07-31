@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import ProtectedRoute from '../../components/ProtectedRoute';
-import { useAuth } from '../../contexts/AuthContext';
+import ProtectedRoute from '../../../components/ProtectedRoute';
+import { useAuth } from '../../../contexts/AuthContext';
 
 export default function Profile() {
   const { user, signOut } = useAuth();
