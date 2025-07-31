@@ -96,6 +96,19 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
           throw error;
         } else {
           console.log("Onboarding data saved to Supabase successfully");
+          
+          // Also save to localStorage for the results page
+          const onboardingDataForLocalStorage = {
+            companyName: formData.companyName,
+            productName: formData.productName,
+            productUrl: formData.productUrl,
+            productDescription: formData.productDescription,
+            keywords: [], // Will be populated by the API analysis
+            selectedNiches: [] // Will be populated by the API analysis
+          };
+          
+          localStorage.setItem('onboardingData', JSON.stringify(onboardingDataForLocalStorage));
+          console.log("Onboarding data saved to localStorage successfully");
         }
       } else {
         throw new Error("User not authenticated");
