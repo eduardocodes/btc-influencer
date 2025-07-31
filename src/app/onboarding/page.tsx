@@ -14,18 +14,33 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
     selectedNiches: [] as string[],
   });
 
-  useEffect(() => {
-    const savedOnboardingData = localStorage.getItem("onboardingData");
-    if (savedOnboardingData) {
-      const data = JSON.parse(savedOnboardingData);
-      setFormData({
-        companyName: data.companyName || "",
-        productName: data.productName || "",
-        productUrl: data.productUrl || "",
-        productDescription: data.productDescription || "",
-        selectedNiches: data.selectedNiches || []
-      });
+  const loadOnboardingData = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data, error } = await supabase
+          .from("onboarding_answers")
+          .select("*")
+          .eq("user_id", user.id)
+          .single();
+        
+        if (data && !error) {
+          setFormData({
+            companyName: data.company_name || "",
+            productName: data.product_name || "",
+            productUrl: data.product_url || "",
+            productDescription: data.product_description || "",
+            selectedNiches: [] // onboarding_answers does not have selected_niches
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Error loading onboarding data:", error);
     }
+  };
+
+  useEffect(() => {
+    loadOnboardingData();
   }, []);
 
   const handleNext = async () => {
@@ -40,35 +55,54 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
 
   const saveOnboardingData = async () => {
     try {
-      const onboardingData = {
-        companyName: formData.companyName,
-        productName: formData.productName,
-        productUrl: formData.productUrl,
-        productDescription: formData.productDescription,
-        completedAt: new Date().toISOString()
-      };
-      localStorage.setItem("onboardingData", JSON.stringify(onboardingData));
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        const { error } = await supabase
-          .from("onboarding")
-          .upsert({
-            user_id: user.id,
-            company_name: formData.companyName,
-            product_name: formData.productName,
-            product_url: formData.productUrl,
-            product_description: formData.productDescription,
-        selected_niches: formData.selectedNiches
-          }, { onConflict: "user_id" });
+        // Check if user already has onboarding data
+        const { data: existingData } = await supabase
+          .from("onboarding_answers")
+          .select("id")
+          .eq("user_id", user.id)
+          .single();
+        
+        let error;
+        if (existingData) {
+          // Update existing record
+          const result = await supabase
+            .from("onboarding_answers")
+            .update({
+              company_name: formData.companyName,
+              product_name: formData.productName,
+              product_url: formData.productUrl,
+              product_description: formData.productDescription
+            })
+            .eq("user_id", user.id);
+          error = result.error;
+        } else {
+          // Insert new record
+          const result = await supabase
+            .from("onboarding_answers")
+            .insert({
+              user_id: user.id,
+              company_name: formData.companyName,
+              product_name: formData.productName,
+              product_url: formData.productUrl,
+              product_description: formData.productDescription
+            });
+          error = result.error;
+        }
+        
         if (error) {
-          console.log("Supabase save failed (table may not exist):", error.message);
-          console.log("Data saved to localStorage instead");
+          console.error("Error saving onboarding data to Supabase:", error.message);
+          throw error;
         } else {
           console.log("Onboarding data saved to Supabase successfully");
         }
+      } else {
+        throw new Error("User not authenticated");
       }
     } catch (error) {
       console.error("Error saving onboarding data:", error);
+      throw error;
     }
   };
 
