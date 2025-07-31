@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '../contexts/AuthContext';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { supabase } from '../utils/supabase';
 
 interface Influencer {
   id: string;
@@ -17,6 +18,10 @@ interface Influencer {
   description: string;
   verified?: boolean;
 }
+
+// Onboarding Flow agora está em /onboarding/page.tsx
+// Bloco do antigo OnboardingFlow e funções relacionadas removidos
+
 
 const mockInfluencers: Influencer[] = [
   {
@@ -88,14 +93,55 @@ export default function Home() {
   const [currentPage, setCurrentPage] = useState(1)
   const [savedInfluencers, setSavedInfluencers] = useState<Set<string>>(new Set())
   const [isFirstVisit, setIsFirstVisit] = useState(true)
+  const [showOnboarding, setShowOnboarding] = useState(false)
+  const [onboardingData, setOnboardingData] = useState<any>(null)
   const influencersPerPage = 6
 
   useEffect(() => {
-    const hasVisited = localStorage.getItem('hasVisitedBefore')
-    if (hasVisited) {
-      setIsFirstVisit(false)
+    const loadOnboardingData = async () => {
+      const hasVisited = localStorage.getItem('hasVisitedBefore')
+      const savedOnboardingData = localStorage.getItem('onboardingData')
+      
+      // Try to load from Supabase if user is authenticated
+      if (user) {
+        try {
+          const { data, error } = await supabase
+            .from('onboarding')
+            .select('*')
+            .eq('user_id', user.id)
+            .single()
+          
+          if (data && !error) {
+            const supabaseData = {
+              companyName: data.company_name,
+              setupMethod: data.setup_method,
+              productName: data.product_name,
+              productUrl: data.product_url,
+              productDescription: data.product_description,
+              completedAt: data.created_at
+            }
+            setOnboardingData(supabaseData)
+            localStorage.setItem('onboardingData', JSON.stringify(supabaseData))
+            localStorage.setItem('hasVisitedBefore', 'true')
+            setIsFirstVisit(false)
+            return
+          }
+        } catch (error) {
+          console.log('Could not load from Supabase:', error)
+        }
+      }
+      
+      // Fallback to localStorage
+      if (hasVisited && savedOnboardingData) {
+        setIsFirstVisit(false)
+        setOnboardingData(JSON.parse(savedOnboardingData))
+      } else {
+        setIsFirstVisit(true)
+      }
     }
-  }, [])
+    
+    loadOnboardingData()
+  }, [user])
 
   const menuItems = ['Matches', 'Database']
 
@@ -123,8 +169,23 @@ export default function Home() {
   }
 
   const handleGetMatches = () => {
+    setShowOnboarding(true)
+  }
+
+  const handleOnboardingComplete = () => {
     localStorage.setItem('hasVisitedBefore', 'true')
     setIsFirstVisit(false)
+    setShowOnboarding(false)
+    
+    // Load the saved onboarding data
+    const savedOnboardingData = localStorage.getItem('onboardingData')
+    if (savedOnboardingData) {
+      setOnboardingData(JSON.parse(savedOnboardingData))
+    }
+  }
+
+  const handleEditOnboarding = () => {
+    setShowOnboarding(true)
   }
 
   const toggleSave = (influencerId: string) => {
@@ -177,99 +238,12 @@ export default function Home() {
     )
   }
 
-  if (isFirstVisit) {
-    return (
-      <div className="min-h-screen bg-black">
-        {/* Header */}
-        <header className="bg-black border-b border-gray-800">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center h-16">
-              <div className="flex items-center space-x-8">
-                <h1 className="text-xl font-bold text-white">Bitcoin Influencer</h1>
-                <nav className="hidden md:flex space-x-6">
-                  {menuItems.map((item) => (
-                    <button
-                      key={item}
-                      className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-                        item === 'Matches' 
-                          ? 'bg-gray-800 text-white' 
-                          : 'text-gray-300 hover:text-white hover:bg-gray-700'
-                      }`}
-                    >
-                      {item}
-                    </button>
-                  ))}
-                </nav>
-              </div>
-              <div className="flex items-center space-x-4">
-                <button className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-                  🔓 Full Access
-                </button>
-                <button 
-                  onClick={logout}
-                  className="text-gray-300 hover:text-white text-sm"
-                >
-                  Logout
-                </button>
-              </div>
-            </div>
-          </div>
-        </header>
-
-        {/* Notification Bar */}
-        <div className="bg-purple-900/20 border-b border-purple-800/30">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
-            <div className="flex items-center justify-center">
-              <div className="text-purple-300 text-sm animate-pulse">
-                🔍 512 creators vetted this week in health/wellness, fitness, nutrition, and more • 512 creators vetted this week in health/wellness, fitness, nutrition, and more • 512 creators vetted this week in health/wellness, fitness, nutrition, and more
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Main Content */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          {/* Vetting Section */}
-          <div className="text-center mb-12">
-            <div className="flex items-center justify-center mb-4">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-500 mr-3"></div>
-              <h2 className="text-2xl font-semibold text-white">Vetting creators...</h2>
-            </div>
-            <p className="text-gray-400 max-w-2xl mx-auto">
-              Our AI is constantly working to find the perfect creators for you
-            </p>
-            <div className="mt-4 text-right">
-              <span className="text-purple-400 text-sm">🤖 AI System live</span>
-            </div>
-          </div>
-
-          {/* Onboarding Card */}
-          <div className="max-w-2xl mx-auto">
-            <div className="bg-gray-900/50 border border-gray-700 rounded-2xl p-8 text-center border-dashed">
-              <div className="flex justify-center space-x-6 mb-6">
-                <div className="text-4xl">👥</div>
-                <div className="text-4xl">🎯</div>
-                <div className="text-4xl">📊</div>
-              </div>
-              
-              <h3 className="text-2xl font-bold text-white mb-4">Create Your AI List</h3>
-              
-              <p className="text-gray-400 mb-8 leading-relaxed">
-                Your personalized creator matches are waiting. Let our AI find the perfect creators for your brand.
-              </p>
-              
-              <button 
-                onClick={handleGetMatches}
-                className="bg-white text-black font-semibold py-3 px-8 rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                Get Creator Matches
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
+  if (showOnboarding) {
+    router.push("/onboarding");
+    return null;
   }
+
+
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -302,105 +276,29 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Stats Section */}
-       <div className="bg-black border-b border-gray-800">
-         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-           <div className="flex items-center space-x-4">
-             <div className="bg-gray-900 rounded-lg px-6 py-4 border border-gray-800">
-               <span className="text-gray-400 text-sm">Total Creators</span>
-               <div className="text-2xl font-bold">123</div>
-             </div>
-             <div className="bg-gray-900 rounded-lg px-6 py-4 border border-gray-800">
-               <span className="text-gray-400 text-sm">Total Views</span>
-               <div className="text-2xl font-bold">2.1M</div>
-             </div>
-           </div>
-         </div>
-       </div>
-
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {/* Filters and Actions */}
-         <div className="flex items-center justify-between mb-6">
-           <div className="flex items-center space-x-4">
-             <span className="text-2xl font-bold">BTC</span>
-           </div>
-           
-           <div className="flex items-center space-x-4">
-             <button
-               onClick={saveAll}
-               className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded text-sm transition-colors flex items-center space-x-2"
-             >
-               <span>💾</span>
-               <span>Save All</span>
-             </button>
-             <div className="text-sm text-gray-400">
-               Showing 1-21 of 123 creators
-             </div>
-           </div>
-         </div>
-
-        {/* Influencers Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {mockInfluencers.map((influencer) => (
-            <div key={influencer.id} className="bg-gray-800 rounded-lg p-6 border border-gray-700 hover:border-gray-600 transition-colors">
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 bg-gray-700 rounded-full flex items-center justify-center text-2xl">
-                    {influencer.profileImage}
-                  </div>
-                  <div>
-                    <div className="flex items-center space-x-1">
-                      <h3 className="font-semibold">{influencer.name}</h3>
-                      {influencer.verified && <span className="text-blue-400">✓</span>}
-                    </div>
-                    <p className="text-gray-400 text-sm">{influencer.username}</p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => toggleSave(influencer.id)}
-                  className={`text-xl ${savedInfluencers.has(influencer.id) ? 'text-yellow-400' : 'text-gray-400 hover:text-yellow-400'} transition-colors`}
-                >
-                  {savedInfluencers.has(influencer.id) ? '⭐' : '☆'}
-                </button>
-              </div>
-              
-              <div className="grid grid-cols-3 gap-4 mb-4">
-                <div className="text-center">
-                  <div className="text-lg font-semibold">{influencer.followers}</div>
-                  <div className="text-xs text-gray-400">Followers</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-lg font-semibold">{influencer.views}</div>
-                  <div className="text-xs text-gray-400">Views</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-lg font-semibold text-green-400">{influencer.engagementRate}</div>
-                  <div className="text-xs text-gray-400">Engagement</div>
-                </div>
-              </div>
-              
-              <p className="text-sm text-gray-300 mb-4 line-clamp-2">{influencer.description}</p>
-              
-              <div className="flex items-center justify-between">
-                <div className="flex space-x-1">
-                  {influencer.tags.map((tag, index) => (
-                    <span key={index} className="bg-green-600 text-white px-2 py-1 rounded text-xs">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
+      <div className="flex flex-col items-center justify-center flex-1 px-4 py-20">
+        <div className="max-w-2xl w-full text-center">
+          <div className="border-2 border-dashed border-gray-600 rounded-lg p-12">
+            <div className="flex justify-center mb-6">
+              <div className="flex space-x-4 text-4xl">
+                <span>👥</span>
+                <span>📊</span>
+                <span>🎯</span>
               </div>
             </div>
-          ))}
-        </div>
-        
-        {/* Pagination */}
-        <div className="flex items-center justify-center mt-8">
-          <div className="flex items-center space-x-2">
-            <button className="px-3 py-1 bg-gray-700 rounded text-sm hover:bg-gray-600 transition-colors">←</button>
-            <span className="text-sm text-gray-400">Page 1 of 1</span>
-            <button className="px-3 py-1 bg-gray-700 rounded text-sm hover:bg-gray-600 transition-colors">→</button>
+            
+            <h2 className="text-2xl font-bold mb-4">Create Your AI List</h2>
+            <p className="text-gray-400 mb-8">
+              Your personalized creator matches are waiting. Let our AI find the perfect creators for your brand.
+            </p>
+            
+            <button
+              onClick={handleGetMatches}
+              className="bg-white text-black px-8 py-3 rounded-lg font-semibold hover:bg-gray-200 transition-colors"
+            >
+              Get Creator Matches
+            </button>
           </div>
         </div>
       </div>
