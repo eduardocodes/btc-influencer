@@ -2,7 +2,8 @@
 
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../contexts/AuthContext';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
 
 interface Influencer {
   id: string;
@@ -84,7 +85,19 @@ export default function Home() {
   const router = useRouter();
   const { user, signOut, isLoading } = useAuth();
   const [activeFilter, setActiveFilter] = useState('All');
-  const [savedInfluencers, setSavedInfluencers] = useState<string[]>([]);
+  const [currentPage, setCurrentPage] = useState(1)
+  const [savedInfluencers, setSavedInfluencers] = useState<Set<string>>(new Set())
+  const [isFirstVisit, setIsFirstVisit] = useState(true)
+  const influencersPerPage = 6
+
+  useEffect(() => {
+    const hasVisited = localStorage.getItem('hasVisitedBefore')
+    if (hasVisited) {
+      setIsFirstVisit(false)
+    }
+  }, [])
+
+  const menuItems = ['Matches', 'Database']
 
   const handleLogin = () => {
     router.push('/login');
@@ -95,17 +108,39 @@ export default function Home() {
     router.push('/login');
   };
 
+  const logout = handleLogout;
+
+  const handleSaveInfluencer = (id: string) => {
+    setSavedInfluencers(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(id)) {
+        newSet.delete(id)
+      } else {
+        newSet.add(id)
+      }
+      return newSet
+    })
+  }
+
+  const handleGetMatches = () => {
+    localStorage.setItem('hasVisitedBefore', 'true')
+    setIsFirstVisit(false)
+  }
+
   const toggleSave = (influencerId: string) => {
-    setSavedInfluencers(prev => 
-      prev.includes(influencerId) 
-        ? prev.filter(id => id !== influencerId)
-        : [...prev, influencerId]
-    );
+    setSavedInfluencers(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(influencerId)) {
+        newSet.delete(influencerId)
+      } else {
+        newSet.add(influencerId)
+      }
+      return newSet
+    })
   };
 
   const saveAll = () => {
-    const allIds = mockInfluencers.map(inf => inf.id);
-    setSavedInfluencers(allIds);
+    setSavedInfluencers(new Set(mockInfluencers.map(inf => inf.id)));
   };
 
   if (isLoading) {
@@ -118,25 +153,122 @@ export default function Home() {
 
   if (!user) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen p-8 bg-black text-white">
-        <h1 className="text-4xl font-bold mb-8">Bitcoin Influencer</h1>
-        <div className="flex flex-col items-center gap-4">
-          <button
-            onClick={handleLogin}
-            className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-          >
-            Entrar
-          </button>
-          
-          <button
-            onClick={() => router.push('/register')}
-            className="px-6 py-3 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
-          >
-            Registrar
-          </button>
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="max-w-md w-full space-y-8 p-8">
+          <div className="text-center">
+            <h1 className="text-3xl font-bold text-white mb-8">Bitcoin Influencer</h1>
+            <div className="space-y-4">
+              <Link 
+                href="/login" 
+                className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-lg transition duration-200 block text-center"
+              >
+                Login
+              </Link>
+              <Link 
+                href="/register" 
+                className="w-full bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-4 rounded-lg transition duration-200 block text-center"
+              >
+                Register
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
-    );
+    )
+  }
+
+  if (isFirstVisit) {
+    return (
+      <div className="min-h-screen bg-black">
+        {/* Header */}
+        <header className="bg-black border-b border-gray-800">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center h-16">
+              <div className="flex items-center space-x-8">
+                <h1 className="text-xl font-bold text-white">Bitcoin Influencer</h1>
+                <nav className="hidden md:flex space-x-6">
+                  {menuItems.map((item) => (
+                    <button
+                      key={item}
+                      className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                        item === 'Matches' 
+                          ? 'bg-gray-800 text-white' 
+                          : 'text-gray-300 hover:text-white hover:bg-gray-700'
+                      }`}
+                    >
+                      {item}
+                    </button>
+                  ))}
+                </nav>
+              </div>
+              <div className="flex items-center space-x-4">
+                <button className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                  🔓 Full Access
+                </button>
+                <button 
+                  onClick={logout}
+                  className="text-gray-300 hover:text-white text-sm"
+                >
+                  Logout
+                </button>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* Notification Bar */}
+        <div className="bg-purple-900/20 border-b border-purple-800/30">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
+            <div className="flex items-center justify-center">
+              <div className="text-purple-300 text-sm animate-pulse">
+                🔍 512 creators vetted this week in health/wellness, fitness, nutrition, and more • 512 creators vetted this week in health/wellness, fitness, nutrition, and more • 512 creators vetted this week in health/wellness, fitness, nutrition, and more
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          {/* Vetting Section */}
+          <div className="text-center mb-12">
+            <div className="flex items-center justify-center mb-4">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-500 mr-3"></div>
+              <h2 className="text-2xl font-semibold text-white">Vetting creators...</h2>
+            </div>
+            <p className="text-gray-400 max-w-2xl mx-auto">
+              Our AI is constantly working to find the perfect creators for you
+            </p>
+            <div className="mt-4 text-right">
+              <span className="text-purple-400 text-sm">🤖 AI System live</span>
+            </div>
+          </div>
+
+          {/* Onboarding Card */}
+          <div className="max-w-2xl mx-auto">
+            <div className="bg-gray-900/50 border border-gray-700 rounded-2xl p-8 text-center border-dashed">
+              <div className="flex justify-center space-x-6 mb-6">
+                <div className="text-4xl">👥</div>
+                <div className="text-4xl">🎯</div>
+                <div className="text-4xl">📊</div>
+              </div>
+              
+              <h3 className="text-2xl font-bold text-white mb-4">Create Your AI List</h3>
+              
+              <p className="text-gray-400 mb-8 leading-relaxed">
+                Your personalized creator matches are waiting. Let our AI find the perfect creators for your brand.
+              </p>
+              
+              <button 
+                onClick={handleGetMatches}
+                className="bg-white text-black font-semibold py-3 px-8 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                Get Creator Matches
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -227,9 +359,9 @@ export default function Home() {
                 </div>
                 <button
                   onClick={() => toggleSave(influencer.id)}
-                  className={`text-xl ${savedInfluencers.includes(influencer.id) ? 'text-yellow-400' : 'text-gray-400 hover:text-yellow-400'} transition-colors`}
+                  className={`text-xl ${savedInfluencers.has(influencer.id) ? 'text-yellow-400' : 'text-gray-400 hover:text-yellow-400'} transition-colors`}
                 >
-                  {savedInfluencers.includes(influencer.id) ? '⭐' : '☆'}
+                  {savedInfluencers.has(influencer.id) ? '⭐' : '☆'}
                 </button>
               </div>
               
