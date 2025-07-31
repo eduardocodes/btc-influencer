@@ -114,7 +114,6 @@ export default function Home() {
           if (data && !error) {
             const supabaseData = {
               companyName: data.company_name,
-              setupMethod: data.setup_method,
               productName: data.product_name,
               productUrl: data.product_url,
               productDescription: data.product_description,
