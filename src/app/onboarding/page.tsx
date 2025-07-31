@@ -11,7 +11,6 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
     productName: "",
     productUrl: "",
     productDescription: "",
-    selectedNiches: [] as string[],
   });
 
   const loadOnboardingData = async () => {
@@ -30,7 +29,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
             productName: data.product_name || "",
             productUrl: data.product_url || "",
             productDescription: data.product_description || "",
-            selectedNiches: [] // onboarding_answers does not have selected_niches
+            // onboarding_answers does not have selected_niches
           });
         }
       }
@@ -44,7 +43,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
   }, []);
 
   const handleNext = async () => {
-    if (currentStep < 4) {
+    if (currentStep < 3) {
       setCurrentStep(currentStep + 1);
     } else {
       await saveOnboardingData();
@@ -136,7 +135,6 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
       case 1: return formData.companyName.trim() !== "";
       case 2: return formData.productName.trim() !== "";
       case 3: return formData.productDescription.trim() !== "";
-      case 4: return true; // Step 4 validation
       default: return false;
     }
   };
@@ -150,7 +148,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
         {/* Progress Indicators */}
         <div className="flex justify-center mb-8">
           <div className="flex space-x-4">
-            {[1, 2, 3, 4].map((step) => (
+            {[1, 2, 3].map((step) => (
               <div
                 key={step}
                 className={`w-3 h-3 rounded-full ${
@@ -227,7 +225,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
                   <span className="text-2xl">📝</span>
                 </div>
                 <h2 className="text-3xl font-bold text-white mb-2">Product Description</h2>
-                <p className="text-white/70">What does BTC do and who does it help? Be specific and highlight the main thing.</p>
+                <p className="text-white/70">What does {formData.productName || 'your product'} do and who does it help? Be specific and highlight the main thing.</p>
               </div>
               <div className="text-left mb-4">
                 <label className="block text-white text-sm font-medium mb-2">Product Description (300 chars max.)</label>
@@ -263,90 +261,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
               </div>
             </div>
           )}
-          {currentStep === 4 && (
-            <div className="text-center">
-              <div className="mb-6">
-                <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <span className="text-2xl">🎯</span>
-                </div>
-                <h2 className="text-3xl font-bold text-white mb-2">Target Niches</h2>
-                <p className="text-white/70">Select the niches that best match your product to find suitable creators</p>
-              </div>
-              <div className="text-left mb-6">
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
-                  {[
-                    { id: 'tech', label: 'Technology', emoji: '💻' },
-                    { id: 'education', label: 'Education', emoji: '📚' },
-                    { id: 'news', label: 'News', emoji: '📰' },
-                    { id: 'mining', label: 'Mining', emoji: '⛏️' },
-                    { id: 'podcast', label: 'Podcast', emoji: '🎙️' },
-                    { id: 'macro-research', label: 'Macro Research', emoji: '📊' },
-                    { id: 'trading', label: 'Trading', emoji: '📈' },
-                    { id: 'defi', label: 'DeFi', emoji: '🏦' },
-                    { id: 'nft', label: 'NFT', emoji: '🖼️' },
-                  ].map((niche) => (
-                    <button
-                      key={niche.id}
-                      type="button"
-                      onClick={() => {
-                        const isSelected = formData.selectedNiches.includes(niche.id);
-                        if (isSelected) {
-                          setFormData({
-                            ...formData,
-                            selectedNiches: formData.selectedNiches.filter(n => n !== niche.id)
-                          });
-                        } else {
-                          setFormData({
-                            ...formData,
-                            selectedNiches: [...formData.selectedNiches, niche.id]
-                          });
-                        }
-                      }}
-                      className={`p-3 rounded-lg border-2 transition-all text-center ${
-                        formData.selectedNiches.includes(niche.id)
-                          ? 'bg-blue-600 border-blue-600 text-white'
-                          : 'bg-white/10 border-white/20 text-white hover:border-white/40'
-                      }`}
-                    >
-                      <div className="text-xl mb-1">{niche.emoji}</div>
-                      <div className="text-sm">{niche.label}</div>
-                    </button>
-                  ))}
-                </div>
 
-                {formData.selectedNiches.length > 0 && (
-                  <div>
-                    <h3 className="text-white text-sm font-medium mb-2">
-                      Selected niches ({formData.selectedNiches.length})
-                    </h3>
-                    <div className="flex flex-wrap gap-2">
-                      {formData.selectedNiches.map((nicheId) => {
-                        const niche = [
-                          { id: 'tech', label: 'Technology' },
-                          { id: 'education', label: 'Education' },
-                          { id: 'news', label: 'News' },
-                          { id: 'mining', label: 'Mining' },
-                          { id: 'podcast', label: 'Podcast' },
-                          { id: 'macro-research', label: 'Macro Research' },
-                          { id: 'trading', label: 'Trading' },
-                          { id: 'defi', label: 'DeFi' },
-                          { id: 'nft', label: 'NFT' },
-                        ].find(n => n.id === nicheId);
-                        return (
-                          <span
-                            key={nicheId}
-                            className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-600 text-white"
-                          >
-                            {niche?.label}
-                          </span>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
           {/* Navigation Buttons */}
           <div className="flex justify-between mt-8">
             <button
@@ -369,7 +284,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
                   : 'bg-white/10 text-white/30 cursor-not-allowed'
               }`}
             >
-              {currentStep < 4 ? 'Next' : 'Finish'}
+              {currentStep < 3 ? 'Next' : 'Finish'}
             </button>
           </div>
         </div>
