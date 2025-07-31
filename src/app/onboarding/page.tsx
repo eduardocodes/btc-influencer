@@ -184,7 +184,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
                     type="text"
                     value={formData.productName}
                     onChange={(e) => updateFormData('productName', e.target.value)}
-                    placeholder="BTC"
+                    placeholder="Your Product Name"
                     className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:border-white/40"
                   />
                 </div>
