@@ -8,11 +8,12 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
     companyName: "",
-    setupMethod: "",
     productName: "",
     productUrl: "",
-    productDescription: ""
+    productDescription: "",
+    keywords: [] as string[]
   });
+  const [currentKeyword, setCurrentKeyword] = useState("");
 
   useEffect(() => {
     const savedOnboardingData = localStorage.getItem("onboardingData");
@@ -20,10 +21,10 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
       const data = JSON.parse(savedOnboardingData);
       setFormData({
         companyName: data.companyName || "",
-        setupMethod: data.setupMethod || "",
         productName: data.productName || "",
         productUrl: data.productUrl || "",
-        productDescription: data.productDescription || ""
+        productDescription: data.productDescription || "",
+        keywords: data.keywords || []
       });
     }
   }, []);
@@ -41,10 +42,10 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
     try {
       const onboardingData = {
         companyName: formData.companyName,
-        setupMethod: formData.setupMethod,
         productName: formData.productName,
         productUrl: formData.productUrl,
         productDescription: formData.productDescription,
+        keywords: formData.keywords,
         completedAt: new Date().toISOString()
       };
       localStorage.setItem("onboardingData", JSON.stringify(onboardingData));
@@ -55,10 +56,10 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
           .upsert({
             user_id: user.id,
             company_name: formData.companyName,
-            setup_method: formData.setupMethod,
             product_name: formData.productName,
             product_url: formData.productUrl,
-            product_description: formData.productDescription
+            product_description: formData.productDescription,
+            keywords: formData.keywords
           }, { onConflict: "user_id" });
         if (error) {
           console.log("Supabase save failed (table may not exist):", error.message);
@@ -82,12 +83,27 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  const addKeyword = () => {
+    const keyword = currentKeyword.trim().toLowerCase();
+    if (keyword && !formData.keywords.includes(keyword) && keyword.split(' ').length <= 2) {
+      setFormData(prev => ({ ...prev, keywords: [...prev.keywords, keyword] }));
+      setCurrentKeyword("");
+    }
+  };
+
+  const removeKeyword = (keywordToRemove: string) => {
+    setFormData(prev => ({
+      ...prev,
+      keywords: prev.keywords.filter(keyword => keyword !== keywordToRemove)
+    }));
+  };
+
   const isStepValid = () => {
     switch (currentStep) {
       case 1: return formData.companyName.trim() !== "";
-      case 2: return formData.setupMethod !== "";
-      case 3: return formData.productName.trim() !== "" && formData.productUrl.trim() !== "";
-      case 4: return formData.productDescription.trim() !== "";
+      case 2: return formData.productName.trim() !== "";
+      case 3: return formData.productDescription.trim() !== "";
+      case 4: return true; // Keywords are optional
       default: return false;
     }
   };
@@ -137,40 +153,6 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
           {currentStep === 2 && (
             <div className="text-center">
               <div className="mb-6">
-                <h2 className="text-3xl font-bold text-white mb-2">How would you like to proceed?</h2>
-                <p className="text-white/70">Choose your preferred method to set up your product information</p>
-              </div>
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                <button
-                  onClick={() => updateFormData('setupMethod', 'manual')}
-                  className={`p-6 rounded-xl border-2 transition-all ${
-                    formData.setupMethod === 'manual'
-                      ? 'border-white bg-white/10'
-                      : 'border-white/20 hover:border-white/40'
-                  }`}
-                >
-                  <div className="text-4xl mb-3">📝</div>
-                  <h3 className="text-xl font-bold text-white mb-2">Manual</h3>
-                  <p className="text-white/70 text-sm">Fill out the information step by step. Perfect for detailed customization and control.</p>
-                </button>
-                <button
-                  onClick={() => updateFormData('setupMethod', 'auto')}
-                  className={`p-6 rounded-xl border-2 transition-all ${
-                    formData.setupMethod === 'auto'
-                      ? 'border-white bg-white/10'
-                      : 'border-white/20 hover:border-white/40'
-                  }`}
-                >
-                  <div className="text-4xl mb-3">⚡</div>
-                  <h3 className="text-xl font-bold text-white mb-2">Auto-Magic ✨</h3>
-                  <p className="text-white/70 text-sm">Just provide your website URL and our AI will analyze it automatically.</p>
-                </button>
-              </div>
-            </div>
-          )}
-          {currentStep === 3 && (
-            <div className="text-center">
-              <div className="mb-6">
                 <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
                   <span className="text-2xl">ℹ️</span>
                 </div>
@@ -200,12 +182,12 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
                       className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:border-white/40"
                     />
                   </div>
-                  <p className="text-white/50 text-xs mt-1">Optional: Include if you have a landing page</p>
+                  <p className="text-white/50 text-xs mt-1">Opcional: Inclua se você tiver uma landing page</p>
                 </div>
               </div>
             </div>
           )}
-          {currentStep === 4 && (
+          {currentStep === 3 && (
             <div className="text-center">
               <div className="mb-6">
                 <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
@@ -245,6 +227,71 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
                   className="bg-green-500 h-2 rounded-full transition-all duration-300"
                   style={{ width: `${Math.min((formData.productDescription.length / 300) * 100, 100)}%` }}
                 ></div>
+              </div>
+            </div>
+          )}
+          {currentStep === 4 && (
+            <div className="text-center">
+              <div className="mb-6">
+                <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <span className="text-2xl">🔍</span>
+                </div>
+                <h2 className="text-3xl font-bold text-white mb-2">Target Keywords</h2>
+                <p className="text-white/70">What content are your ideal users watching and searching for?</p>
+              </div>
+              <div className="text-left mb-6">
+                <div className="flex gap-2 mb-4">
+                  <input
+                    type="text"
+                    value={currentKeyword}
+                    onChange={(e) => setCurrentKeyword(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && addKeyword()}
+                    placeholder="Enter a keyword (1-2 words)"
+                    className="flex-1 px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:border-white/40"
+                  />
+                  <button
+                    onClick={addKeyword}
+                    className="px-4 py-3 bg-white/20 text-white rounded-lg hover:bg-white/30 transition-all"
+                  >
+                    +
+                  </button>
+                  <button
+                    className="px-4 py-3 bg-white/20 text-white rounded-lg hover:bg-white/30 transition-all"
+                  >
+                    🔍
+                  </button>
+                </div>
+                
+                <div className="mb-4">
+                  <h3 className="text-white text-sm font-medium mb-2">Your Keywords</h3>
+                  {formData.keywords.length === 0 ? (
+                    <div className="text-center py-8 text-white/50">
+                      <div className="text-2xl mb-2">⚡</div>
+                      <p>Generating suggestions...</p>
+                    </div>
+                  ) : (
+                    <div className="flex flex-wrap gap-2">
+                      {formData.keywords.map((keyword, index) => (
+                        <span
+                          key={index}
+                          className="inline-flex items-center gap-2 px-3 py-1 bg-blue-600 text-white rounded-full text-sm"
+                        >
+                          {keyword}
+                          <button
+                            onClick={() => removeKeyword(keyword)}
+                            className="text-white/70 hover:text-white"
+                          >
+                            ×
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  <div className="flex justify-between items-center mt-2 text-sm text-white/70">
+                    <span>{formData.keywords.length} more keywords available</span>
+                    <span>{formData.keywords.length}/10 keywords</span>
+                  </div>
+                </div>
               </div>
             </div>
           )}
