@@ -1,7 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { supabase } from '../../../utils/supabase';
+import { useAuth } from '../../../contexts/AuthContext';
 
 interface Creator {
   id: string;
@@ -18,66 +20,160 @@ interface Creator {
 }
 
 interface OnboardingData {
-  companyName: string;
-  productName: string;
-  productUrl: string;
-  productDescription: string;
-  keywords: string[];
-  selectedNiches: string[];
+  id: string;
+  user_id: string;
+  company_name: string;
+  product_name: string;
+  product_url: string;
+  product_description: string;
+  product_category: string;
+  is_bitcoin_suitable: boolean;
+  created_at: string;
 }
 
 export default function SearchResultsPage() {
+  const { user, isLoading } = useAuth();
   const [creators, setCreators] = useState<Creator[]>([]);
   const [loading, setLoading] = useState(true);
   const [onboardingData, setOnboardingData] = useState<OnboardingData | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    // Load onboarding data from localStorage
-    const savedData = localStorage.getItem('onboardingData');
-    if (savedData) {
-      const data = JSON.parse(savedData);
-      setOnboardingData(data);
-      searchCreators(data.selectedNiches);
-    } else {
-      setError('No onboarding data found');
-      setLoading(false);
-    }
-  }, []);
+  console.log('User:', user?.id)
+  if (!isLoading && !user) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen text-white">
+        <h2 className="text-2xl font-bold mb-4">Authentication Required</h2>
+        <p className="mb-8">Please log in to see your creator matches.</p>
+        <Link href="/login" className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+          Go to Login
+        </Link>
+      </div>
+    );
+  }
 
-  const searchCreators = async (selectedNiches: string[]) => {
-    try {
-      setLoading(true);
-      
-      // Check if selectedNiches is valid
-      if (!selectedNiches || selectedNiches.length === 0) {
-        setCreators([]);
+  useEffect(() => {
+    console.log('🔍 [DEBUG] Results page effect triggered. isLoading:', isLoading, 'user:', !!user);
+
+    if (isLoading) {
+      console.log('🔍 [DEBUG] Still loading authentication state, waiting...');
+      return;
+    }
+    const loadOnboardingData = async () => {
+      console.log('🔍 [DEBUG] loadOnboardingData called.');
+      if (!user) {
+        console.error('❌ [DEBUG] No user found');
+        setError('User not authenticated');
         setLoading(false);
         return;
       }
-      
-      // Query creators that have overlapping categories with selected niches
-      const { data, error } = await supabase
-        .from('creators')
-        .select('*')
-        .overlaps('categories', selectedNiches)
-        .order('total_followers', { ascending: false })
-        .limit(20);
 
-      if (error) {
-        console.error('Error fetching creators:', error);
-        setError('Failed to fetch creators');
-      } else {
-        // Ensure categories is always an array
-        const processedData = (data || []).map(creator => ({
-          ...creator,
-          categories: creator.categories || []
-        }));
-        setCreators(processedData);
+      try {
+        console.log('🔍 [DEBUG] Loading onboarding data for user:', user.id);
+        
+        const { data, error } = await supabase
+          .from('onboarding_answers')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single();
+
+        if (error) {
+          console.error('❌ [DEBUG] Error loading onboarding data from Supabase:', error);
+          setError('Failed to load onboarding data');
+          setLoading(false);
+          return;
+        }
+
+        if (!data) {
+          console.error('❌ [DEBUG] No onboarding data found for user in Supabase');
+          setError('No onboarding data found');
+          setLoading(false);
+          return;
+        }
+
+        console.log('✅ [DEBUG] Successfully loaded onboarding data:', data);
+        console.log('🔍 [DEBUG] Raw product_category from data:', data.product_category);
+        
+        setOnboardingData(data);
+        
+        // Convert product_category string to array (robust split)
+        let selectedNiches: string[] = [];
+        if (data.product_category) {
+          selectedNiches = data.product_category.includes(', ')
+            ? data.product_category.split(',').map((niche: string) => niche.trim())
+            : [data.product_category.trim()];
+        }
+        console.log('✅ [DEBUG] Parsed niches to search:', selectedNiches);
+        
+        if (selectedNiches.length > 0) {
+          searchCreators(selectedNiches);
+        } else {
+          console.warn('⚠️ [DEBUG] No niches to search. searchCreators will not be called.');
+          setCreators([]);
+          setLoading(false);
+        }
+      } catch (err) {
+        console.error('❌ [DEBUG] Catch block error:', err);
+        setError('An error occurred while loading data');
+        setLoading(false);
       }
+    };
+
+    loadOnboardingData();
+  }, [user, isLoading]);
+
+  const searchCreators = async (selectedNiches: string[]) => {
+    console.log('🔍 [DEBUG] searchCreators called with:', selectedNiches);
+    console.log('🔍 [DEBUG] selectedNiches is array:', Array.isArray(selectedNiches));
+    
+    if (!selectedNiches || selectedNiches.length === 0) {
+      console.log('🔍 [DEBUG] No niches selected, setting empty creators');
+      setCreators([]);
+      setLoading(false);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      console.log('🔍 [DEBUG] Calling API to search creators for categories:', selectedNiches);
+      
+      const response = await fetch('/api/creators/search', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ categories: selectedNiches }),
+      });
+      
+      if (!response.ok) {
+        throw new Error(`API request failed: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      
+      console.log('🔍 [DEBUG] API response:');
+      console.log('🔍 [DEBUG] - Creators count:', result.creators?.length || 0);
+      console.log('🔍 [DEBUG] - First 3 results:', result.creators?.slice(0, 3) || []);
+
+      if (result.error) {
+        console.error('🚨 [DEBUG] API error:', result.error);
+        setError('Failed to fetch creators');
+        return;
+      }
+
+      const processedData = result.creators?.map((creator: any) => ({
+        ...creator,
+        categories: creator.categories || []
+      })) || [];
+      
+      console.log('🔍 [DEBUG] Processed data length:', processedData.length);
+      console.log('🔍 [DEBUG] Sample processed creator:', processedData[0]);
+      
+      setCreators(processedData);
     } catch (err) {
-      console.error('Error:', err);
-      setError('An error occurred while searching');
+      console.error('🚨 [DEBUG] Exception in searchCreators:', err);
+      setError('An error occurred while searching for creators');
     } finally {
       setLoading(false);
     }
@@ -134,18 +230,18 @@ export default function SearchResultsPage() {
             Creator Matches
           </h1>
           <p className="text-white/70 mb-4">
-            Found {creators.length} creators matching your product: <span className="font-semibold">{onboardingData?.productName}</span>
+            Found {creators.length} creators matching your product: <span className="font-semibold">{onboardingData?.product_name}</span>
           </p>
           
-          {onboardingData?.selectedNiches && onboardingData.selectedNiches.length > 0 && (
+          {onboardingData?.product_category && (
             <div className="flex flex-wrap justify-center gap-2 mb-6">
               <span className="text-white/60 text-sm">Target niches:</span>
-              {onboardingData.selectedNiches.map((niche) => (
+              {onboardingData.product_category.split(', ').map((niche: string, index: number) => (
                 <span
-                  key={niche}
+                  key={index}
                   className="px-3 py-1 bg-white/20 rounded-full text-white text-sm"
                 >
-                  {niche}
+                  {niche.trim()}
                 </span>
               ))}
             </div>
@@ -173,7 +269,7 @@ export default function SearchResultsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {creators.map((creator) => {
               const creatorCategories = creator.categories || [];
-              const selectedNiches = onboardingData?.selectedNiches || [];
+              const selectedNiches = onboardingData?.product_category ? onboardingData.product_category.split(', ').map((niche: string) => niche.trim()) : [];
               const matchingNiches = getMatchingNiches(creatorCategories, selectedNiches);
               const matchScore = Math.round((matchingNiches.length / (selectedNiches.length || 1)) * 100);
               
