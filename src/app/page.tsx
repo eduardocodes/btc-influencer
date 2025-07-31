@@ -143,6 +143,12 @@ export default function Home() {
     loadOnboardingData()
   }, [user])
 
+  useEffect(() => {
+    if (showOnboarding) {
+      router.push("/onboarding");
+    }
+  }, [showOnboarding, router]);
+
   const menuItems = ['Matches', 'Database']
 
   const handleLogin = () => {
@@ -237,13 +243,6 @@ export default function Home() {
       </div>
     )
   }
-
-  if (showOnboarding) {
-    router.push("/onboarding");
-    return null;
-  }
-
-
 
   return (
     <div className="min-h-screen bg-black text-white">
