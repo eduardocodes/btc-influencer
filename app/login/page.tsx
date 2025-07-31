@@ -48,7 +48,7 @@ export default function Login() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-8">
-      <h1 className="text-4xl font-bold mb-8">Login Bitfluencer</h1>
+      <h1 className="text-4xl font-bold mb-8">Login Bitcoin Influencer</h1>
       
       <form onSubmit={handleSubmit} className="w-full max-w-md">
         <div className="mb-4">

@@ -1,4 +1,4 @@
-# Bitfluencer
+# Bitcoin Influencer
 
 Este é um projeto [Next.js](https://nextjs.org) para uma plataforma de influenciadores de criptomoedas, com autenticação integrada ao Supabase.
 
