@@ -269,7 +269,7 @@ export default function MainPage() {
             reserved.
           </p>
           <a
-            href="mailto:support@bitcoininfluencer.com"
+            href="mailto:empreendimentoscommaestria@gmail.com"
             className="hover:text-white transition"
           >
             Contact us
