@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../../../utils/supabase';
@@ -43,6 +43,7 @@ export default function SearchResultsPage() {
   const [onboardingData, setOnboardingData] = useState<OnboardingData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const searchExecutedRef = useRef<string | null>(null); // Track if search was executed for current onboarding data
 
   const formatNumber = (num: number) => {
     if (num >= 1000000) {
@@ -182,10 +183,13 @@ export default function SearchResultsPage() {
   };
 
   const loadOnboardingData = async () => {
-    if (!user) return;
+    if (!user) {
+      console.log('🚫 [DEBUG] Usuário não encontrado, saindo de loadOnboardingData');
+      return;
+    }
 
     try {
-      console.log('Loading onboarding data for user:', user.id);
+      console.log('📋 [DEBUG] Carregando dados de onboarding para usuário:', user.id);
       
       const { data, error } = await supabase
         .from('onboarding_answers')
@@ -196,30 +200,73 @@ export default function SearchResultsPage() {
         .single();
 
       if (error) {
-        console.error('Error loading onboarding data:', error);
+        console.error('❌ [DEBUG] Erro ao carregar dados de onboarding:', error);
         setError('Failed to load search criteria');
         return;
       }
 
-      console.log('Onboarding data loaded:', data);
+      console.log('✅ [DEBUG] Dados de onboarding carregados:', data);
       setOnboardingData(data);
       
-      // Parse categories from the onboarding data
-      const categories = data.product_category ? data.product_category.split(', ').map((cat: string) => cat.trim()) : [];
-      console.log('Parsed categories for search:', categories);
-      
-      // Search for creators using the new API
-      await searchCreators(categories);
-      
     } catch (err) {
-      console.error('Unexpected error:', err);
+      console.error('❌ [DEBUG] Erro inesperado em loadOnboardingData:', err);
       setError('An unexpected error occurred');
+    }
+  };
+
+  const saveUserMatches = async (creators: Creator[], categories: string[], onboardingAnswerId: string) => {
+    console.log('💾 [DEBUG] Iniciando saveUserMatches com parâmetros:', {
+      creatorsCount: creators.length,
+      searchCriteria: categories,
+      onboardingAnswerId,
+      userId: user?.id
+    });
+
+    if (!user?.id) {
+      console.error('❌ [DEBUG] User ID não encontrado');
+      return;
+    }
+
+    try {
+      // Preparar dados para envio à API
+      const matchData = {
+        user_id: user.id,
+        creator_ids: creators.map(c => c.id),
+        search_criteria: categories,
+        onboarding_answer_id: onboardingAnswerId
+      };
+
+      console.log('📝 [DEBUG] Dados preparados para envio à API:', matchData);
+
+      // Fazer requisição para a API route
+      const response = await fetch('/api/user-matches', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(matchData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('❌ [DEBUG] Erro da API ao salvar:', {
+          status: response.status,
+          error: errorData
+        });
+        return;
+      }
+
+      const result = await response.json();
+      console.log('✅ [DEBUG] Dados salvos com sucesso via API:', result);
+    } catch (err) {
+      console.error('❌ [DEBUG] Erro inesperado ao salvar:', err);
     }
   };
 
   const searchCreators = async (categories: string[]) => {
     try {
-      console.log('Searching creators with categories:', categories);
+      console.log('🔍 [DEBUG] Iniciando busca de creators com categorias:', categories);
+      console.log('🔍 [DEBUG] Estado do onboardingData:', onboardingData);
       
       const response = await fetch('/api/creators/search', {
         method: 'POST',
@@ -234,12 +281,35 @@ export default function SearchResultsPage() {
       }
 
       const data = await response.json();
-      console.log('API response:', data);
+      console.log('🔍 [DEBUG] Resposta da API:', data);
       
-      setCreators(data.creators || []);
+      const foundCreators = data.creators || [];
+      console.log('🔍 [DEBUG] Creators encontrados:', foundCreators.length);
+      setCreators(foundCreators);
+      
+      // Verificar condições antes de salvar
+      console.log('🔍 [DEBUG] Verificando condições para salvar:', {
+        foundCreatorsLength: foundCreators.length,
+        hasOnboardingData: !!onboardingData,
+        onboardingDataId: onboardingData?.id,
+        userId: user?.id
+      });
+      
+      // Salvar os resultados na tabela user_matches
+      // onboardingData should be available now since this runs in a separate useEffect
+      if (foundCreators.length > 0 && onboardingData && onboardingData.id) {
+        console.log('✅ [DEBUG] Condições atendidas, chamando saveUserMatches...');
+        await saveUserMatches(foundCreators, categories, onboardingData.id);
+      } else {
+        console.log('❌ [DEBUG] Condições não atendidas para salvar:', {
+          hasCreators: foundCreators.length > 0,
+          hasOnboardingData: !!onboardingData,
+          onboardingDataId: onboardingData?.id
+        });
+      }
       
     } catch (err) {
-      console.error('Error searching creators:', err);
+      console.error('❌ [DEBUG] Erro na busca de creators:', err);
       setError('Failed to search creators');
     }
   };
@@ -247,7 +317,12 @@ export default function SearchResultsPage() {
   useEffect(() => {
     const initializeData = async () => {
       setLoading(true);
-      await loadOnboardingData();
+      // Reset search execution flag when user changes
+      searchExecutedRef.current = null;
+      // Only load if we don't already have onboarding data for this user
+      if (!onboardingData || onboardingData.user_id !== user?.id) {
+        await loadOnboardingData();
+      }
       setLoading(false);
     };
 
@@ -255,6 +330,29 @@ export default function SearchResultsPage() {
       initializeData();
     }
   }, [user]);
+
+  // Separate useEffect to search creators when onboardingData is available
+  useEffect(() => {
+    const performSearch = async () => {
+      if (onboardingData && searchExecutedRef.current !== onboardingData.id) {
+        console.log('🚀 [DEBUG] Dados de onboarding disponíveis, iniciando busca de creators...');
+        
+        // Mark this onboarding data as processed
+        searchExecutedRef.current = onboardingData.id;
+        
+        // Parse categories from the onboarding data
+        const categories = onboardingData.product_category ? onboardingData.product_category.split(', ').map((cat: string) => cat.trim()) : [];
+        console.log('🏷️ [DEBUG] Categorias parseadas para busca:', categories);
+        
+        // Search for creators using the new API
+        await searchCreators(categories);
+      } else if (onboardingData && searchExecutedRef.current === onboardingData.id) {
+        console.log('⏭️ [DEBUG] Busca já executada para este onboarding data, pulando...');
+      }
+    };
+
+    performSearch();
+  }, [onboardingData]); // This will run when onboardingData changes
 
   if (!user) {
     return (
