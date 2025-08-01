@@ -772,20 +772,40 @@ export default function Home() {
             ))}
           </div>
           
-          {/* Action Buttons */}
-          <div className="mt-8 flex justify-center gap-4">
-            <button
-              onClick={handleGetMatches}
-              className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
-            >
-              Refazer Busca
-            </button>
-            <Link
-              href="/search/results"
-              className="bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
-            >
-              Ver Todos os Resultados
-            </Link>
+          {/* CTA Section */}
+          <div className="mt-12 text-center">
+            <div className="bg-gradient-to-r from-orange-500/20 to-yellow-500/20 backdrop-blur-sm rounded-2xl p-8 border border-orange-500/30">
+              <div className="mb-4">
+                <span className="text-4xl mb-4 block">🔒</span>
+                <h3 className="text-2xl font-bold text-white mb-2">
+                  Preview Only - Subscribe to Unlock More
+                </h3>
+                <p className="text-white/70 mb-6">
+                   Get access to hundreds of high-quality content creators that match your product.
+                 </p>
+              </div>
+              
+              <div className="flex justify-center items-center">
+                <button className="px-8 py-3 bg-gradient-to-r from-orange-500 to-yellow-500 text-white font-semibold rounded-lg hover:from-orange-600 hover:to-yellow-600 transition-all transform hover:scale-105">
+                  Upgrade to Pro
+                </button>
+              </div>
+              
+              <div className="mt-6 flex justify-center items-center gap-6 text-sm text-white/60">
+                <div className="flex items-center gap-2">
+                  <span className="text-green-400">✓</span>
+                  <span>Unlimited searches</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-green-400">✓</span>
+                  <span>Contact information</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-green-400">✓</span>
+                  <span>Advanced filters</span>
+                </div>
+              </div>
+            </div>
           </div>
 
 
@@ -1006,32 +1026,7 @@ export default function Home() {
               ))}
             </div>
 
-            {/* CTA Section */}
-            <div className="mt-12 text-center">
-              <div className="bg-gradient-to-r from-orange-500/20 to-yellow-500/20 rounded-xl p-8 border border-orange-500/30">
-                <h3 className="text-2xl font-bold text-white mb-4">
-                  Encontre Creators Perfeitos para Seu Produto
-                </h3>
-                <p className="text-gray-300 mb-6 max-w-2xl mx-auto">
-                  Nossa IA analisa milhares de creators e encontra os matches perfeitos baseados no seu produto, 
-                  categoria e objetivos de marketing. Comece agora e descubra creators que realmente fazem sentido para sua marca.
-                </p>
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <button
-                    onClick={handleGetMatches}
-                    className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
-                  >
-                    🎯 Encontrar Meus Matches
-                  </button>
-                  <Link
-                    href="/search/results"
-                    className="bg-white/10 hover:bg-white/20 text-white px-8 py-3 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
-                  >
-                    🔍 Explorar Database
-                  </Link>
-                </div>
-              </div>
-            </div>
+
           </div>
         </div>
       )}
