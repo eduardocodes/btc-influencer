@@ -44,6 +44,14 @@ export default function MainPage() {
     router.push('/home');
   };
 
+  const handleFindCreators = () => {
+    if (user) {
+      router.push('/home');
+    } else {
+      router.push('/login');
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-8 bg-black text-white">
@@ -149,12 +157,12 @@ export default function MainPage() {
           Bitcoin&nbsp;Influencer gives you a hand-picked list of Bitcoin-only
           and crypto creators — shaving hours off your research.
         </p>
-        <a
-          href="#pricing"
+        <button
+          onClick={handleFindCreators}
           className="mt-10 inline-block rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 px-8 py-4 text-lg font-semibold text-white hover:scale-105 transition-all duration-300 shadow-lg shadow-orange-500/25 cursor-pointer"
         >
-          View pricing
-        </a>
+          🔍 Find Creators
+        </button>
       </section>
 
       {/* FEATURES */}
