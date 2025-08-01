@@ -300,35 +300,23 @@ export default function SearchResultsPage() {
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-white mb-4">
-            Search Results
+            Creator Matches
           </h1>
+          <p className="text-xl text-white/80 mb-6">
+            We found hundreds of creators for {onboardingData?.product_name || 'your product'}
+          </p>
           {onboardingData && (
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 max-w-2xl mx-auto">
-              <h2 className="text-xl font-semibold text-white mb-2">
-                Results for: {onboardingData.product_name}
-              </h2>
-              <p className="text-white/80 mb-4">
-                {onboardingData.product_description}
-              </p>
-              <div className="flex flex-wrap justify-center gap-2">
-                {onboardingData.product_category.split(', ').map((category, index) => (
-                  <span
-                    key={index}
-                    className="px-3 py-1 bg-blue-500/30 text-blue-200 rounded-full text-sm"
-                  >
-                    {category.trim()}
-                  </span>
-                ))}
-              </div>
+            <div className="flex flex-wrap justify-center gap-2 mb-6">
+              {onboardingData.product_category.split(', ').map((category, index) => (
+                <span
+                  key={index}
+                  className="px-3 py-1 bg-blue-500/30 text-blue-200 rounded-full text-sm"
+                >
+                  {category.trim()}
+                </span>
+              ))}
             </div>
           )}
-        </div>
-
-        {/* Results Count */}
-        <div className="mb-8">
-          <p className="text-white/80 text-center">
-            Found {creators.length} creators matching your criteria
-          </p>
         </div>
 
         {/* Results Grid */}
