@@ -534,9 +534,9 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black text-white">
       {/* Header */}
-      <header className="bg-gray-800 border-b border-gray-700">
+      <header className="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 border-b border-gray-600/50 shadow-lg shadow-black/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-8">
@@ -575,7 +575,9 @@ export default function Home() {
       ) : matchedCreators.length > 0 ? (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-2">Your Creator Matches</h1>
+            <h1 className="text-3xl font-bold mb-2">
+              <span>🔥</span> <span className="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">Your Creator Matches</span>
+            </h1>
             <p className="text-gray-400">Creators that match your product</p>
           </div>
           
@@ -610,7 +612,7 @@ export default function Home() {
                   : getMatchingNiches(creator.categories, mockNiches);
                 
                 return (
-                  <div key={creator.id} className="bg-gray-800 rounded-lg p-6 border border-gray-700 hover:border-orange-500 transition-colors">
+                  <div key={creator.id} className="bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800 rounded-xl p-6 border border-gray-600/50 shadow-2xl shadow-black/50 backdrop-blur-sm hover:border-orange-500 hover:scale-110 hover:-translate-y-2 hover:shadow-3xl hover:z-10 transition-all duration-300 cursor-pointer">
                     {/* Creator Header */}
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex-1">
@@ -707,7 +709,7 @@ export default function Home() {
             
             {/* Mock Blurred Results */}
             {[...Array(6)].map((_, index) => (
-              <div key={`mock-blurred-${index}`} className="bg-gray-800 rounded-lg p-6 border border-gray-700 relative overflow-hidden">
+              <div key={`mock-blurred-${index}`} className="bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800 rounded-xl p-6 border border-gray-600/50 shadow-2xl shadow-black/50 backdrop-blur-sm relative overflow-hidden">
                 {/* Blur overlay */}
                 <div className="absolute inset-0 backdrop-blur-sm bg-white/5 z-10"></div>
                 
@@ -768,8 +770,8 @@ export default function Home() {
 
                   {/* Action Buttons */}
                   <div className="flex gap-2">
-                    <div className="flex-1 h-8 bg-red-600/50 rounded"></div>
-                    <div className="flex-1 h-8 bg-gray-700/50 rounded"></div>
+                    <div className="flex-1 h-8 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-400 hover:to-red-500 rounded shadow-lg shadow-red-500/25 hover:shadow-xl hover:shadow-red-500/40 hover:scale-105 transform transition-all duration-300 cursor-pointer"></div>
+                    <div className="flex-1 h-8 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-400 hover:to-purple-500 rounded shadow-lg shadow-pink-500/25 hover:shadow-xl hover:shadow-pink-500/40 hover:scale-105 transform transition-all duration-300 cursor-pointer"></div>
                   </div>
                 </div>
               </div>
@@ -819,7 +821,7 @@ export default function Home() {
           {/* Welcome Section */}
           <div className="flex flex-col items-center justify-center text-center mb-16">
             <div className="max-w-2xl w-full">
-              <div className="border-2 border-dashed border-gray-600 rounded-lg p-12">
+              <div className="bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800 rounded-xl p-12 border border-gray-600/50 shadow-2xl shadow-black/50 backdrop-blur-sm">
                 <div className="flex justify-center mb-6">
                   <div className="flex space-x-4 text-4xl">
                     <span>👥</span>
@@ -828,22 +830,30 @@ export default function Home() {
                   </div>
                 </div>
                 
-                <h2 className="text-2xl font-bold mb-4">Create Your AI List</h2>
-                <p className="text-gray-400 mb-8">
-                  Your personalized creator matches are waiting. Let our AI find the perfect creators for your brand.
+                <h1 className="text-4xl font-bold mb-6">
+                  <span>🔥</span> <span className="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">Find Your Perfect Crypto Influencers</span>
+                </h1>
+                <p className="text-gray-400 text-lg mb-8">
+                  Get matched with the most relevant crypto content creators for your brand in seconds.
                 </p>
                 
-                <div className="flex gap-4">
-                  <button
-                    onClick={handleGetMatches}
-                    className="bg-white text-black px-8 py-3 rounded-lg font-semibold hover:bg-gray-200 transition-colors"
-                  >
-                    Get Creator Matches
-                  </button>
-                  
+                <button
+                  onClick={handleGetMatches}
+                  className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 text-white font-bold py-4 px-8 rounded-xl text-lg shadow-lg shadow-orange-500/25 hover:shadow-xl hover:shadow-orange-500/40 hover:scale-105 transform transition-all duration-300 mb-8"
+                >
+                  Get My Matches
+                </button>
+                
+                <div className="text-sm text-gray-500">
+                  <p>✓ 100+ verified crypto influencers</p>
+                  <p>✓ Real-time engagement metrics</p>
+                  <p>✓ Instant matching algorithm</p>
+                </div>
+                
+                <div className="mt-6">
                   <button
                     onClick={testLoadMatches}
-                    className="bg-orange-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-orange-600 transition-colors"
+                    className="bg-gradient-to-r from-gray-600 to-gray-700 text-white px-4 py-2 rounded-lg text-sm hover:from-gray-500 hover:to-gray-600 transition-all duration-300"
                   >
                     🧪 Test Load Matches
                   </button>
@@ -853,184 +863,62 @@ export default function Home() {
           </div>
 
           {/* Mock Creators Section */}
-          <div>
-            <div className="mb-8">
-              <h2 className="text-2xl font-bold mb-2">Popular Creators</h2>
-              <p className="text-gray-400">Discover some of the most popular creators on our platform</p>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {mockCreators.map((creator) => {
-                const mockNiches = ['Bitcoin', 'Cryptocurrency'];
-                const matchingNiches = getMatchingNiches(creator.categories, mockNiches);
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {mockCreators.slice(0, 6).map((creator) => (
+              <div key={creator.id} className="bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800 rounded-xl p-6 border border-gray-600/50 shadow-2xl shadow-black/50 backdrop-blur-sm relative overflow-hidden hover:scale-110 hover:-translate-y-2 hover:shadow-3xl hover:z-10 transition-all duration-300 cursor-pointer">
+                {/* Blur overlay */}
+                <div className="absolute inset-0 backdrop-blur-sm bg-white/5 z-10"></div>
                 
-                return (
-                  <div key={creator.id} className="bg-gray-800 rounded-lg p-6 border border-gray-700 hover:border-orange-500 transition-colors">
-                    {/* Creator Header */}
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex-1">
-                        <h3 className="text-xl font-bold text-white mb-1">{creator.full_name}</h3>
-                        <p className="text-gray-400 text-sm mb-2">@{creator.username}</p>
-                        <div className="flex items-center gap-2 mb-3">
-                          <span className="text-xs px-2 py-1 bg-gray-700 rounded text-gray-300">
-                            {getCountryFlag(creator.location)} {creator.location}
-                          </span>
-                        </div>
+                {/* Mock content */}
+                <div className="relative">
+                  {/* Creator Header */}
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex-1">
+                      <div className="h-6 bg-white/20 rounded mb-2 w-3/4"></div>
+                      <div className="h-4 bg-white/15 rounded mb-2 w-1/2"></div>
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="h-5 bg-gray-700 rounded w-20"></div>
                       </div>
-                    </div>
-
-                    {/* Bio */}
-                    <p className="text-gray-300 text-sm mb-4 line-clamp-2">{creator.bio}</p>
-
-                    {/* Categories */}
-                    <div className="mb-4">
-                      <div className="flex flex-wrap gap-1">
-                        {creator.categories.slice(0, 3).map((category, index) => (
-                          <span 
-                            key={index} 
-                            className={`text-xs px-2 py-1 rounded ${
-                              matchingNiches.includes(category)
-                                ? 'bg-orange-500 text-white'
-                                : 'bg-gray-700 text-gray-300'
-                            }`}
-                          >
-                            {category}
-                          </span>
-                        ))}
-                        {creator.categories.length > 3 && (
-                          <span className="text-xs px-2 py-1 bg-gray-700 text-gray-300 rounded">
-                            +{creator.categories.length - 3}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Platform Stats */}
-                    <div className="space-y-3 mb-4">
-                      {/* YouTube Stats */}
-                      <div className="flex items-center justify-between p-3 bg-gray-900 rounded">
-                        <div className="flex items-center gap-2">
-                          {getPlatformData('youtube').icon}
-                          <span className="text-sm font-medium">YouTube</span>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-sm font-bold">{formatNumber(creator.youtube_followers)}</div>
-                          <div className="text-xs text-gray-400">{creator.youtube_engagement_rate}% eng</div>
-                        </div>
-                      </div>
-
-                      {/* TikTok Stats (if available) */}
-                      {creator.tiktok_followers && (
-                        <div className="flex items-center justify-between p-3 bg-gray-900 rounded">
-                          <div className="flex items-center gap-2">
-                            {getPlatformData('tiktok').icon}
-                            <span className="text-sm font-medium">TikTok</span>
-                          </div>
-                          <div className="text-right">
-                            <div className="text-sm font-bold">{formatNumber(creator.tiktok_followers)}</div>
-                            <div className="text-xs text-gray-400">{creator.tiktok_engagement_rate}% eng</div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="flex gap-2">
-                      <a
-                        href={creator.youtube_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex-1 bg-red-600 hover:bg-red-700 text-white text-sm py-2 px-3 rounded text-center transition-colors"
-                      >
-                        YouTube
-                      </a>
-                      {creator.tiktok_url && (
-                        <a
-                          href={creator.tiktok_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex-1 bg-gray-700 hover:bg-gray-600 text-white text-sm py-2 px-3 rounded text-center transition-colors"
-                        >
-                          TikTok
-                        </a>
-                      )}
                     </div>
                   </div>
-                );
-              })}
-              
-              {/* Mock Blurred Results */}
-              {[...Array(6)].map((_, index) => (
-                <div key={`mock-blurred-${index}`} className="bg-gray-800 rounded-lg p-6 border border-gray-700 relative overflow-hidden">
-                  {/* Blur overlay */}
-                  <div className="absolute inset-0 backdrop-blur-sm bg-white/5 z-10"></div>
-                  
-                  {/* Mock content */}
-                  <div className="relative">
-                    {/* Creator Header */}
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex-1">
-                        <div className="h-6 bg-white/20 rounded mb-2 w-3/4"></div>
-                        <div className="h-4 bg-white/15 rounded mb-2 w-1/2"></div>
-                        <div className="flex items-center gap-2 mb-3">
-                          <div className="h-5 bg-gray-700 rounded w-20"></div>
-                        </div>
+
+                  {/* Bio */}
+                  <div className="mb-4">
+                    <div className="h-3 bg-white/15 rounded mb-1 w-full"></div>
+                    <div className="h-3 bg-white/15 rounded w-3/4"></div>
+                  </div>
+
+                  {/* Categories */}
+                  <div className="mb-4">
+                    <div className="flex flex-wrap gap-1">
+                      <div className="h-6 bg-orange-500/50 rounded w-16"></div>
+                      <div className="h-6 bg-gray-700 rounded w-20"></div>
+                      <div className="h-6 bg-gray-700 rounded w-12"></div>
+                    </div>
+                  </div>
+
+                  {/* Platform Stats */}
+                  <div className="space-y-3 mb-4">
+                    <div className="flex items-center justify-between p-3 bg-gray-900/50 rounded">
+                      <div className="flex items-center gap-2">
+                        <div className="h-4 w-4 bg-red-500/50 rounded"></div>
+                        <div className="h-4 bg-white/20 rounded w-16"></div>
+                      </div>
+                      <div className="text-right">
+                        <div className="h-4 bg-white/20 rounded w-12 mb-1"></div>
+                        <div className="h-3 bg-white/15 rounded w-10"></div>
                       </div>
                     </div>
+                  </div>
 
-                    {/* Bio */}
-                    <div className="mb-4">
-                      <div className="h-3 bg-white/15 rounded mb-1 w-full"></div>
-                      <div className="h-3 bg-white/15 rounded w-3/4"></div>
-                    </div>
-
-                    {/* Categories */}
-                    <div className="mb-4">
-                      <div className="flex flex-wrap gap-1">
-                        <div className="h-6 bg-orange-500/30 rounded w-16"></div>
-                        <div className="h-6 bg-gray-700 rounded w-20"></div>
-                        <div className="h-6 bg-gray-700 rounded w-14"></div>
-                      </div>
-                    </div>
-
-                    {/* Platform Stats */}
-                    <div className="space-y-3 mb-4">
-                      {/* YouTube Stats */}
-                      <div className="flex items-center justify-between p-3 bg-gray-900 rounded">
-                        <div className="flex items-center gap-2">
-                          <div className="h-4 w-4 bg-red-500/50 rounded"></div>
-                          <div className="h-4 bg-white/20 rounded w-16"></div>
-                        </div>
-                        <div className="text-right">
-                          <div className="h-4 bg-white/20 rounded w-12 mb-1"></div>
-                          <div className="h-3 bg-white/15 rounded w-10"></div>
-                        </div>
-                      </div>
-
-                      {/* TikTok Stats */}
-                      <div className="flex items-center justify-between p-3 bg-gray-900 rounded">
-                        <div className="flex items-center gap-2">
-                          <div className="h-4 w-4 bg-pink-500/50 rounded"></div>
-                          <div className="h-4 bg-white/20 rounded w-14"></div>
-                        </div>
-                        <div className="text-right">
-                          <div className="h-4 bg-white/20 rounded w-12 mb-1"></div>
-                          <div className="h-3 bg-white/15 rounded w-10"></div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="flex gap-2">
-                      <div className="flex-1 h-8 bg-red-600/50 rounded"></div>
-                      <div className="flex-1 h-8 bg-gray-700/50 rounded"></div>
-                    </div>
+                  {/* Action Buttons */}
+                  <div className="flex gap-2">
+                    <div className="flex-1 h-8 bg-red-600/50 rounded"></div>
+                    <div className="flex-1 h-8 bg-gray-700/50 rounded"></div>
                   </div>
                 </div>
-              ))}
-            </div>
-
-
+              </div>
+            ))}
           </div>
         </div>
       )}
