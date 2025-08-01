@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "../../utils/supabase";
+import { supabase } from "../../lib/supabase";
 
 const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
   const [currentStep, setCurrentStep] = useState(1);

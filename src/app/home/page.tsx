@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '../../contexts/AuthContext';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { supabase } from '../../utils/supabase';
+import { supabase } from '@/src/lib/supabase';
 
 interface Influencer {
   id: string;

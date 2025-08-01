@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { supabase } from '../../utils/supabase';
+import { supabase } from '../../lib/supabase';
 
 export default function Register() {
   const router = useRouter();

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '../../contexts/AuthContext';
 import ProtectedRoute from '../../components/ProtectedRoute';
-import { supabase } from '../../utils/supabase';
+import { supabase } from '../../lib/supabase';
 
 export default function DatabasePage() {
   const router = useRouter();
