@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { supabase } from '../../../utils/supabase';
 import { useAuth } from '../../../contexts/AuthContext';
 
@@ -37,6 +38,7 @@ interface OnboardingData {
 
 export default function SearchResultsPage() {
   const { user } = useAuth();
+  const router = useRouter();
   const [creators, setCreators] = useState<Creator[]>([]);
   const [onboardingData, setOnboardingData] = useState<OnboardingData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -586,7 +588,7 @@ export default function SearchResultsPage() {
         {/* Back Button */}
         <div className="text-center mt-12">
           <button 
-            onClick={() => window.location.href = '/onboarding'}
+            onClick={() => router.push('/')}
             className="px-6 py-3 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-colors"
           >
             New Search
