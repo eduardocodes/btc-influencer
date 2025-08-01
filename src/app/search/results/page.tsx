@@ -51,6 +51,98 @@ export default function SearchResultsPage() {
     return num?.toString() || '0';
   };
 
+  const getCountryFlag = (location: string) => {
+    if (!location) return '🌍';
+    
+    const normalizedLocation = location.toLowerCase().trim();
+    
+    const countryFlags: { [key: string]: string } = {
+      // Brasil
+      'brasil': '🇧🇷',
+      'brazil': '🇧🇷',
+      'br': '🇧🇷',
+      // Estados Unidos
+      'estados unidos': '🇺🇸',
+      'united states': '🇺🇸',
+      'usa': '🇺🇸',
+      'us': '🇺🇸',
+      'america': '🇺🇸',
+      // Reino Unido
+      'reino unido': '🇬🇧',
+      'united kingdom': '🇬🇧',
+      'uk': '🇬🇧',
+      'england': '🇬🇧',
+      'inglaterra': '🇬🇧',
+      // Canadá
+      'canada': '🇨🇦',
+      'canadá': '🇨🇦',
+      'ca': '🇨🇦',
+      // Alemanha
+      'alemanha': '🇩🇪',
+      'germany': '🇩🇪',
+      'de': '🇩🇪',
+      // França
+      'frança': '🇫🇷',
+      'france': '🇫🇷',
+      'fr': '🇫🇷',
+      // Japão
+      'japão': '🇯🇵',
+      'japan': '🇯🇵',
+      'jp': '🇯🇵',
+      // Espanha
+      'espanha': '🇪🇸',
+      'spain': '🇪🇸',
+      'es': '🇪🇸',
+      // Itália
+      'itália': '🇮🇹',
+      'italy': '🇮🇹',
+      'it': '🇮🇹',
+      // México
+      'méxico': '🇲🇽',
+      'mexico': '🇲🇽',
+      'mx': '🇲🇽',
+      // Argentina
+      'argentina': '🇦🇷',
+      'ar': '🇦🇷',
+      // Austrália
+      'austrália': '🇦🇺',
+      'australia': '🇦🇺',
+      'au': '🇦🇺',
+      // Índia
+      'índia': '🇮🇳',
+      'india': '🇮🇳',
+      'in': '🇮🇳',
+      // China
+      'china': '🇨🇳',
+      'cn': '🇨🇳',
+      // Rússia
+      'rússia': '🇷🇺',
+      'russia': '🇷🇺',
+      'ru': '🇷🇺',
+      // Portugal
+      'portugal': '🇵🇹',
+      'pt': '🇵🇹',
+      // Holanda
+      'holanda': '🇳🇱',
+      'netherlands': '🇳🇱',
+      'nl': '🇳🇱',
+      // Suécia
+      'suécia': '🇸🇪',
+      'sweden': '🇸🇪',
+      'se': '🇸🇪',
+      // Noruega
+      'noruega': '🇳🇴',
+      'norway': '🇳🇴',
+      'no': '🇳🇴',
+      // Dinamarca
+      'dinamarca': '🇩🇰',
+      'denmark': '🇩🇰',
+      'dk': '🇩🇰'
+    };
+    
+    return countryFlags[normalizedLocation] || '🌍';
+  };
+
   const getMatchingNiches = (creatorCategories: string[], selectedNiches: string[]) => {
     return creatorCategories.filter(category => 
       selectedNiches.some(niche => 
@@ -280,7 +372,7 @@ export default function SearchResultsPage() {
                         </p>
                         {creator.location && (
                           <p className="text-white/50 text-xs">
-                            📍 {creator.location}
+                            {getCountryFlag(creator.location)} {creator.location}
                           </p>
                         )}
                         {platformData && (
@@ -473,7 +565,7 @@ export default function SearchResultsPage() {
                     Preview Only - Subscribe to Unlock More
                   </h3>
                   <p className="text-white/70 mb-6">
-                     Get access to {creators.length > 6 ? creators.length - 6 + 6 : 6}+ additional high-quality creators matching your product
+                     Get access to hundreds of high-quality content creators that match your product.
                    </p>
                 </div>
                 
