@@ -295,5 +295,5 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
 
 export default function OnboardingPage() {
   const router = useRouter();
-  return <OnboardingFlow onComplete={() => router.push("/")} />;
+  return <OnboardingFlow onComplete={() => router.push("/home")} />;
 }

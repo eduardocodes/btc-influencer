@@ -86,7 +86,7 @@ export default function DatabasePage() {
   };
 
   const handleMatchesClick = () => {
-    router.push('/');
+    router.push('/home');
   };
 
   if (isLoading) {
@@ -110,7 +110,7 @@ export default function DatabasePage() {
                 </div>
                 
                 <nav className="flex space-x-6">
-                  <a href="/" onClick={handleMatchesClick} className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium cursor-pointer">Matches</a>
+                  <a href="/home" onClick={handleMatchesClick} className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium cursor-pointer">Matches</a>
                   <a href="#" className="text-white hover:text-gray-300 px-3 py-2 text-sm font-medium">Database</a>
                 </nav>
               </div>

@@ -697,7 +697,7 @@ export default function SearchResultsPage() {
         {/* Back Button */}
         <div className="text-center mt-12">
           <button 
-            onClick={() => router.push('/')}
+            onClick={() => router.push('/home')}
             className="cursor-pointer px-6 py-3 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 text-white rounded-lg transition-all transform hover:scale-105 shadow-lg shadow-orange-500/25"
           >
             New Search
