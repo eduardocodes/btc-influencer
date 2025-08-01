@@ -87,9 +87,9 @@ export default function DatabasePage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-black text-white">
+      <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black text-white">
         {/* Header */}
-        <header className="bg-gray-800 border-b border-gray-700">
+        <header className="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 border-b border-gray-600/50 shadow-lg shadow-black/20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-16">
               <div className="flex items-center space-x-8">
@@ -120,19 +120,23 @@ export default function DatabasePage() {
         {/* Main Content */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-2">🔥 Creators Database</h1>
+            <h1 className="text-3xl font-bold mb-2">
+              <span>🔥</span> <span className="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">Creators Database</span>
+            </h1>
             <p className="text-gray-400">Find, filter, and export the most relevant crypto profiles on the internet.</p>
           </div>
           
           <div className="max-w-2xl mx-auto">
-            <div className="bg-gray-800 rounded-lg p-8 border border-gray-700">
-               <h2 className="text-xl font-semibold mb-6 text-center">📥 Download Influencer Dataset</h2>
+            <div className="bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800 rounded-xl p-8 border border-gray-600/50 shadow-2xl shadow-black/50 backdrop-blur-sm">
+               <h2 className="text-xl font-semibold mb-6 text-center">
+                 <span>📥</span> <span className="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">Download Influencer Dataset</span>
+               </h2>
                
                <div className="text-center">
                  <button
                    onClick={handleDatabaseAction}
                    disabled={loading}
-                   className="bg-orange-600 hover:bg-orange-700 disabled:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200"
+                   className="cursor-pointer bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 disabled:bg-gray-600 text-white font-bold py-3 px-8 rounded-xl shadow-lg shadow-orange-500/25 hover:shadow-xl hover:shadow-orange-500/40 hover:scale-105 transform transition-all duration-300"
                  >
                      {loading ? (
                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
