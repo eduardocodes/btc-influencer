@@ -142,7 +142,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
   return (
     <div 
       className="min-h-screen bg-cover bg-center bg-no-repeat flex items-center justify-center p-4"
-      style={{ backgroundImage: 'url(/onboard-bg.webp)' }}
+      style={{ backgroundImage: 'linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url(/onboard-bg.webp)' }}
     >
       <div className="w-full max-w-2xl">
         {/* Progress Indicators */}
