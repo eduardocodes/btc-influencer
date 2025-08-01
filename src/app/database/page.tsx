@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '../../contexts/AuthContext';
 import ProtectedRoute from '../../components/ProtectedRoute';
+import { supabase } from '../../utils/supabase';
 
 export default function DatabasePage() {
   const router = useRouter();
@@ -17,12 +18,51 @@ export default function DatabasePage() {
     setMessage('');
     
     try {
-      // Simple database action - for now just showing a success message
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
-      setMessage('Database operation completed successfully!');
+      // Fetch all creators from Supabase
+      const { data: creators, error } = await supabase
+        .from('creators')
+        .select('*');
+      
+      if (error) {
+        throw error;
+      }
+      
+      if (!creators || creators.length === 0) {
+        setMessage('No creators found in the database.');
+        return;
+      }
+      
+      // Convert data to CSV format
+      const headers = Object.keys(creators[0]);
+      const csvContent = [
+        headers.join(','), // Header row
+        ...creators.map(creator => 
+          headers.map(header => {
+            const value = creator[header];
+            // Escape commas and quotes in CSV
+            if (typeof value === 'string' && (value.includes(',') || value.includes('"'))) {
+              return `"${value.replace(/"/g, '""')}"`;
+            }
+            return value || '';
+          }).join(',')
+        )
+      ].join('\n');
+      
+      // Create and download CSV file
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `crypto_creators_${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      setMessage('Successfully exported!');
     } catch (error) {
-      setMessage('Error performing database operation.');
-      console.error('Database operation error:', error);
+      setMessage('Error exporting creators data.');
+      console.error('Export error:', error);
     } finally {
       setLoading(false);
     }
@@ -92,7 +132,7 @@ export default function DatabasePage() {
                  <button
                    onClick={handleDatabaseAction}
                    disabled={loading}
-                   className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200"
+                   className="bg-orange-600 hover:bg-orange-700 disabled:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200"
                  >
                    {loading ? 'Processing...' : 'Export the complete list of crypto creators now'}
                  </button>
