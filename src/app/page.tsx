@@ -125,6 +125,100 @@ const mockInfluencers: Influencer[] = [
   }
 ];
 
+// Mock creators para exibir na Home
+const mockCreators: Creator[] = [
+  {
+    id: 'mock-1',
+    full_name: 'Alex Bitcoin',
+    username: 'alexbitcoin',
+    categories: ['Bitcoin', 'Cryptocurrency', 'Finance'],
+    youtube_followers: 245000,
+    total_followers: 245000,
+    youtube_engagement_rate: 4.2,
+    youtube_average_views: 18500,
+    location: 'Estados Unidos',
+    youtube_url: 'https://youtube.com/@alexbitcoin',
+    bio: 'Bitcoin educator and crypto analyst. Helping people understand the future of money 🚀'
+  },
+  {
+    id: 'mock-2',
+    full_name: 'Crypto Sarah',
+    username: 'cryptosarah',
+    categories: ['Cryptocurrency', 'Trading', 'DeFi'],
+    youtube_followers: 156000,
+    total_followers: 156000,
+    youtube_engagement_rate: 5.8,
+    youtube_average_views: 12300,
+    tiktok_followers: 89000,
+    tiktok_engagement_rate: 7.2,
+    tiktok_average_views: 25000,
+    location: 'Canadá',
+    youtube_url: 'https://youtube.com/@cryptosarah',
+    tiktok_url: 'https://tiktok.com/@cryptosarah',
+    bio: 'Making crypto simple for everyone. Daily market updates and trading tips 📈'
+  },
+  {
+    id: 'mock-3',
+    full_name: 'Bitcoin Brasil',
+    username: 'bitcoinbrasil',
+    categories: ['Bitcoin', 'Blockchain', 'Technology'],
+    youtube_followers: 98000,
+    total_followers: 98000,
+    youtube_engagement_rate: 6.1,
+    youtube_average_views: 8900,
+    location: 'Brasil',
+    youtube_url: 'https://youtube.com/@bitcoinbrasil',
+    bio: 'O maior canal de Bitcoin do Brasil. Educação financeira e tecnologia blockchain 🇧🇷'
+  },
+  {
+    id: 'mock-4',
+    full_name: 'Tech Crypto',
+    username: 'techcrypto',
+    categories: ['Technology', 'Blockchain', 'Innovation'],
+    youtube_followers: 187000,
+    total_followers: 187000,
+    youtube_engagement_rate: 3.9,
+    youtube_average_views: 15600,
+    tiktok_followers: 124000,
+    tiktok_engagement_rate: 8.4,
+    tiktok_average_views: 32000,
+    location: 'Reino Unido',
+    youtube_url: 'https://youtube.com/@techcrypto',
+    tiktok_url: 'https://tiktok.com/@techcrypto',
+    bio: 'Exploring the intersection of technology and finance. Blockchain developer and educator 💻'
+  },
+  {
+    id: 'mock-5',
+    full_name: 'Crypto Insights',
+    username: 'cryptoinsights',
+    categories: ['Finance', 'Investment', 'Market Analysis'],
+    youtube_followers: 312000,
+    total_followers: 312000,
+    youtube_engagement_rate: 4.7,
+    youtube_average_views: 22100,
+    location: 'Austrália',
+    youtube_url: 'https://youtube.com/@cryptoinsights',
+    bio: 'Professional crypto analyst with 10+ years in traditional finance. Weekly market reports 📊'
+  },
+  {
+    id: 'mock-6',
+    full_name: 'Digital Money',
+    username: 'digitalmoney',
+    categories: ['Digital Currency', 'Economics', 'Future Tech'],
+    youtube_followers: 134000,
+    total_followers: 134000,
+    youtube_engagement_rate: 5.3,
+    youtube_average_views: 9800,
+    tiktok_followers: 67000,
+    tiktok_engagement_rate: 9.1,
+    tiktok_average_views: 18500,
+    location: 'Alemanha',
+    youtube_url: 'https://youtube.com/@digitalmoney',
+    tiktok_url: 'https://tiktok.com/@digitalmoney',
+    bio: 'Exploring the future of digital currencies and their impact on society 🌍'
+  }
+];
+
 export default function Home() {
   const router = useRouter();
   const { user, signOut, isLoading } = useAuth();
@@ -617,38 +711,313 @@ export default function Home() {
               Ver Todos os Resultados
             </Link>
           </div>
-        </div>
-      ) : (
-        <div className="flex flex-col items-center justify-center flex-1 px-4 py-20">
-          <div className="max-w-2xl w-full text-center">
-            <div className="border-2 border-dashed border-gray-600 rounded-lg p-12">
-              <div className="flex justify-center mb-6">
-                <div className="flex space-x-4 text-4xl">
-                  <span>👥</span>
-                  <span>📊</span>
-                  <span>🎯</span>
+
+          {/* Mock Creators Section */}
+          <div className="mt-16">
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold mb-2">Explore Mais Creators</h2>
+              <p className="text-gray-400">Descubra outros criadores populares em nossa plataforma</p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {mockCreators.map((creator) => {
+                const mockNiches = ['Bitcoin', 'Cryptocurrency'];
+                const matchingNiches = getMatchingNiches(creator.categories, mockNiches);
+                
+                return (
+                  <div key={creator.id} className="bg-gray-800 rounded-lg p-6 border border-gray-700 hover:border-orange-500 transition-colors">
+                    {/* Creator Header */}
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1">
+                        <h3 className="text-xl font-bold text-white mb-1">{creator.full_name}</h3>
+                        <p className="text-gray-400 text-sm mb-2">@{creator.username}</p>
+                        <div className="flex items-center gap-2 mb-3">
+                          <span className="text-xs px-2 py-1 bg-gray-700 rounded text-gray-300">
+                            {getCountryFlag(creator.location)} {creator.location}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Bio */}
+                    <p className="text-gray-300 text-sm mb-4 line-clamp-2">{creator.bio}</p>
+
+                    {/* Categories */}
+                    <div className="mb-4">
+                      <div className="flex flex-wrap gap-1">
+                        {creator.categories.slice(0, 3).map((category, index) => (
+                          <span 
+                            key={index} 
+                            className={`text-xs px-2 py-1 rounded ${
+                              matchingNiches.includes(category)
+                                ? 'bg-orange-500 text-white'
+                                : 'bg-gray-700 text-gray-300'
+                            }`}
+                          >
+                            {category}
+                          </span>
+                        ))}
+                        {creator.categories.length > 3 && (
+                          <span className="text-xs px-2 py-1 bg-gray-700 text-gray-300 rounded">
+                            +{creator.categories.length - 3}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Platform Stats */}
+                    <div className="space-y-3 mb-4">
+                      {/* YouTube Stats */}
+                      <div className="flex items-center justify-between p-3 bg-gray-900 rounded">
+                        <div className="flex items-center gap-2">
+                          {getPlatformData('youtube').icon}
+                          <span className="text-sm font-medium">YouTube</span>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-sm font-bold">{formatNumber(creator.youtube_followers)}</div>
+                          <div className="text-xs text-gray-400">{creator.youtube_engagement_rate}% eng</div>
+                        </div>
+                      </div>
+
+                      {/* TikTok Stats (if available) */}
+                      {creator.tiktok_followers && (
+                        <div className="flex items-center justify-between p-3 bg-gray-900 rounded">
+                          <div className="flex items-center gap-2">
+                            {getPlatformData('tiktok').icon}
+                            <span className="text-sm font-medium">TikTok</span>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-sm font-bold">{formatNumber(creator.tiktok_followers)}</div>
+                            <div className="text-xs text-gray-400">{creator.tiktok_engagement_rate}% eng</div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex gap-2">
+                      <a
+                        href={creator.youtube_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-1 bg-red-600 hover:bg-red-700 text-white text-sm py-2 px-3 rounded text-center transition-colors"
+                      >
+                        YouTube
+                      </a>
+                      {creator.tiktok_url && (
+                        <a
+                          href={creator.tiktok_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex-1 bg-gray-700 hover:bg-gray-600 text-white text-sm py-2 px-3 rounded text-center transition-colors"
+                        >
+                          TikTok
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* CTA Section */}
+            <div className="mt-12 text-center">
+              <div className="bg-gradient-to-r from-orange-500/20 to-yellow-500/20 rounded-xl p-8 border border-orange-500/30">
+                <h3 className="text-2xl font-bold text-white mb-4">
+                  Encontre Creators Perfeitos para Seu Produto
+                </h3>
+                <p className="text-gray-300 mb-6 max-w-2xl mx-auto">
+                  Nossa IA analisa milhares de creators e encontra os matches perfeitos baseados no seu produto, 
+                  categoria e objetivos de marketing. Comece agora e descubra creators que realmente fazem sentido para sua marca.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <button
+                    onClick={handleGetMatches}
+                    className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
+                  >
+                    🎯 Encontrar Meus Matches
+                  </button>
+                  <Link
+                    href="/search/results"
+                    className="bg-white/10 hover:bg-white/20 text-white px-8 py-3 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
+                  >
+                    🔍 Explorar Database
+                  </Link>
                 </div>
               </div>
-              
-              <h2 className="text-2xl font-bold mb-4">Create Your AI List</h2>
-              <p className="text-gray-400 mb-8">
-                Your personalized creator matches are waiting. Let our AI find the perfect creators for your brand.
-              </p>
-              
-              <div className="flex gap-4">
-                <button
-                  onClick={handleGetMatches}
-                  className="bg-white text-black px-8 py-3 rounded-lg font-semibold hover:bg-gray-200 transition-colors"
-                >
-                  Get Creator Matches
-                </button>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Welcome Section */}
+          <div className="flex flex-col items-center justify-center text-center mb-16">
+            <div className="max-w-2xl w-full">
+              <div className="border-2 border-dashed border-gray-600 rounded-lg p-12">
+                <div className="flex justify-center mb-6">
+                  <div className="flex space-x-4 text-4xl">
+                    <span>👥</span>
+                    <span>📊</span>
+                    <span>🎯</span>
+                  </div>
+                </div>
                 
-                <button
-                  onClick={testLoadMatches}
-                  className="bg-orange-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-orange-600 transition-colors"
-                >
-                  🧪 Test Load Matches
-                </button>
+                <h2 className="text-2xl font-bold mb-4">Create Your AI List</h2>
+                <p className="text-gray-400 mb-8">
+                  Your personalized creator matches are waiting. Let our AI find the perfect creators for your brand.
+                </p>
+                
+                <div className="flex gap-4">
+                  <button
+                    onClick={handleGetMatches}
+                    className="bg-white text-black px-8 py-3 rounded-lg font-semibold hover:bg-gray-200 transition-colors"
+                  >
+                    Get Creator Matches
+                  </button>
+                  
+                  <button
+                    onClick={testLoadMatches}
+                    className="bg-orange-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-orange-600 transition-colors"
+                  >
+                    🧪 Test Load Matches
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Mock Creators Section */}
+          <div>
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold mb-2">Creators Populares</h2>
+              <p className="text-gray-400">Descubra alguns dos criadores mais populares em nossa plataforma</p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {mockCreators.map((creator) => {
+                const mockNiches = ['Bitcoin', 'Cryptocurrency'];
+                const matchingNiches = getMatchingNiches(creator.categories, mockNiches);
+                
+                return (
+                  <div key={creator.id} className="bg-gray-800 rounded-lg p-6 border border-gray-700 hover:border-orange-500 transition-colors">
+                    {/* Creator Header */}
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1">
+                        <h3 className="text-xl font-bold text-white mb-1">{creator.full_name}</h3>
+                        <p className="text-gray-400 text-sm mb-2">@{creator.username}</p>
+                        <div className="flex items-center gap-2 mb-3">
+                          <span className="text-xs px-2 py-1 bg-gray-700 rounded text-gray-300">
+                            {getCountryFlag(creator.location)} {creator.location}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Bio */}
+                    <p className="text-gray-300 text-sm mb-4 line-clamp-2">{creator.bio}</p>
+
+                    {/* Categories */}
+                    <div className="mb-4">
+                      <div className="flex flex-wrap gap-1">
+                        {creator.categories.slice(0, 3).map((category, index) => (
+                          <span 
+                            key={index} 
+                            className={`text-xs px-2 py-1 rounded ${
+                              matchingNiches.includes(category)
+                                ? 'bg-orange-500 text-white'
+                                : 'bg-gray-700 text-gray-300'
+                            }`}
+                          >
+                            {category}
+                          </span>
+                        ))}
+                        {creator.categories.length > 3 && (
+                          <span className="text-xs px-2 py-1 bg-gray-700 text-gray-300 rounded">
+                            +{creator.categories.length - 3}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Platform Stats */}
+                    <div className="space-y-3 mb-4">
+                      {/* YouTube Stats */}
+                      <div className="flex items-center justify-between p-3 bg-gray-900 rounded">
+                        <div className="flex items-center gap-2">
+                          {getPlatformData('youtube').icon}
+                          <span className="text-sm font-medium">YouTube</span>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-sm font-bold">{formatNumber(creator.youtube_followers)}</div>
+                          <div className="text-xs text-gray-400">{creator.youtube_engagement_rate}% eng</div>
+                        </div>
+                      </div>
+
+                      {/* TikTok Stats (if available) */}
+                      {creator.tiktok_followers && (
+                        <div className="flex items-center justify-between p-3 bg-gray-900 rounded">
+                          <div className="flex items-center gap-2">
+                            {getPlatformData('tiktok').icon}
+                            <span className="text-sm font-medium">TikTok</span>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-sm font-bold">{formatNumber(creator.tiktok_followers)}</div>
+                            <div className="text-xs text-gray-400">{creator.tiktok_engagement_rate}% eng</div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex gap-2">
+                      <a
+                        href={creator.youtube_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-1 bg-red-600 hover:bg-red-700 text-white text-sm py-2 px-3 rounded text-center transition-colors"
+                      >
+                        YouTube
+                      </a>
+                      {creator.tiktok_url && (
+                        <a
+                          href={creator.tiktok_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex-1 bg-gray-700 hover:bg-gray-600 text-white text-sm py-2 px-3 rounded text-center transition-colors"
+                        >
+                          TikTok
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* CTA Section */}
+            <div className="mt-12 text-center">
+              <div className="bg-gradient-to-r from-orange-500/20 to-yellow-500/20 rounded-xl p-8 border border-orange-500/30">
+                <h3 className="text-2xl font-bold text-white mb-4">
+                  Encontre Creators Perfeitos para Seu Produto
+                </h3>
+                <p className="text-gray-300 mb-6 max-w-2xl mx-auto">
+                  Nossa IA analisa milhares de creators e encontra os matches perfeitos baseados no seu produto, 
+                  categoria e objetivos de marketing. Comece agora e descubra creators que realmente fazem sentido para sua marca.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <button
+                    onClick={handleGetMatches}
+                    className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
+                  >
+                    🎯 Encontrar Meus Matches
+                  </button>
+                  <Link
+                    href="/search/results"
+                    className="bg-white/10 hover:bg-white/20 text-white px-8 py-3 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
+                  >
+                    🔍 Explorar Database
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
