@@ -277,11 +277,11 @@ export default function Home() {
   const getPlatformData = (platform: string) => {
     const platforms = {
       youtube: {
-        icon: <span className="text-red-500">▶️</span>,
+        icon: <img src="/youtube-icon.svg" alt="YouTube" className="w-5 h-5" />,
         color: 'red'
       },
       tiktok: {
-        icon: <span className="text-pink-500">🎵</span>,
+        icon: <img src="/tiktok-icon.svg" alt="TikTok" className="w-5 h-5" />,
         color: 'pink'
       }
     };
