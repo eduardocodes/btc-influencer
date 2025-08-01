@@ -57,13 +57,9 @@ export default function Login() {
         {/* Header */}
         <div className="text-center mb-12">
           <div className="flex justify-center mb-6">
-            <div className="text-6xl">₿</div>
+            <img src="/btc-influencer-icon.svg" alt="Bitcoin Influencer" className="h-16 w-auto" />
           </div>
-          <h1 className="text-5xl font-bold mb-4">
-            <span className="bg-gradient-to-r from-orange-400 to-yellow-500 bg-clip-text text-transparent">
-              Bitcoin Influencer
-            </span>
-          </h1>
+
           <p className="text-xl text-gray-300 max-w-2xl mx-auto">
             Sign in to access your account
           </p>
@@ -127,7 +123,7 @@ export default function Login() {
               <button
                 type="submit"
                 disabled={loading}
-                className={`w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 transform shadow-lg shadow-orange-500/25 hover:shadow-xl hover:shadow-orange-500/40 ${
+                className={`cursor-pointer w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 transform shadow-lg shadow-orange-500/25 hover:shadow-xl hover:shadow-orange-500/40 ${
                   loading ? 'opacity-70 cursor-not-allowed' : 'hover:scale-105'
                 }`}
               >
@@ -156,7 +152,7 @@ export default function Login() {
 
         {/* Footer */}
         <div className="mt-12 text-center text-gray-500 text-sm">
-          <p>© 2024 Bitcoin Influencer. Todos os direitos reservados.</p>
+          <p>© {new Date().getFullYear()} Bitcoin Influencer. All rights reserved.</p>
         </div>
       </div>
     </div>
