@@ -32,18 +32,30 @@ export default function DatabasePage() {
         return;
       }
       
-      // Convert data to CSV format
-      const headers = Object.keys(creators[0]);
+      // Convert data to CSV format (excluding 'id' column)
+      const headers = Object.keys(creators[0]).filter(key => key !== 'id');
       const csvContent = [
         headers.join(','), // Header row
         ...creators.map(creator => 
           headers.map(header => {
             const value = creator[header];
-            // Escape commas and quotes in CSV
-            if (typeof value === 'string' && (value.includes(',') || value.includes('"'))) {
-              return `"${value.replace(/"/g, '""')}"`;
+            // Handle null/undefined values
+            if (value === null || value === undefined) {
+              return '';
             }
-            return value || '';
+            // Handle boolean values
+            if (typeof value === 'boolean') {
+              return value.toString();
+            }
+            // Handle arrays
+            if (Array.isArray(value)) {
+              return `"${value.join(';')}"`;
+            }
+            // Escape commas, quotes, and newlines in CSV for strings
+            if (typeof value === 'string' && (value.includes(',') || value.includes('"') || value.includes('\n') || value.includes('\r'))) {
+              return `"${value.replace(/"/g, '""').replace(/\n/g, ' ').replace(/\r/g, ' ')}"`;
+            }
+            return value.toString();
           }).join(',')
         )
       ].join('\n');
