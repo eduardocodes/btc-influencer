@@ -57,22 +57,21 @@ export default function SearchResultsPage() {
     const normalizedLocation = location.toLowerCase().trim();
     
     const countryFlags: { [key: string]: string } = {
+      // Austrália
+      'austrália': '🇦🇺',
+      'australia': '🇦🇺',
+      'au': '🇦🇺',
+      // Bangladesh
+      'bangladesh': '🇧🇩',
+      'bd': '🇧🇩',
+      // Bélgica
+      'bélgica': '🇧🇪',
+      'belgium': '🇧🇪',
+      'be': '🇧🇪',
       // Brasil
       'brasil': '🇧🇷',
       'brazil': '🇧🇷',
       'br': '🇧🇷',
-      // Estados Unidos
-      'estados unidos': '🇺🇸',
-      'united states': '🇺🇸',
-      'usa': '🇺🇸',
-      'us': '🇺🇸',
-      'america': '🇺🇸',
-      // Reino Unido
-      'reino unido': '🇬🇧',
-      'united kingdom': '🇬🇧',
-      'uk': '🇬🇧',
-      'england': '🇬🇧',
-      'inglaterra': '🇬🇧',
       // Canadá
       'canada': '🇨🇦',
       'canadá': '🇨🇦',
@@ -81,63 +80,65 @@ export default function SearchResultsPage() {
       'alemanha': '🇩🇪',
       'germany': '🇩🇪',
       'de': '🇩🇪',
-      // França
-      'frança': '🇫🇷',
-      'france': '🇫🇷',
-      'fr': '🇫🇷',
-      // Japão
-      'japão': '🇯🇵',
-      'japan': '🇯🇵',
-      'jp': '🇯🇵',
       // Espanha
       'espanha': '🇪🇸',
       'spain': '🇪🇸',
       'es': '🇪🇸',
-      // Itália
-      'itália': '🇮🇹',
-      'italy': '🇮🇹',
-      'it': '🇮🇹',
-      // México
-      'méxico': '🇲🇽',
-      'mexico': '🇲🇽',
-      'mx': '🇲🇽',
-      // Argentina
-      'argentina': '🇦🇷',
-      'ar': '🇦🇷',
-      // Austrália
-      'austrália': '🇦🇺',
-      'australia': '🇦🇺',
-      'au': '🇦🇺',
+      // Reino Unido
+      'reino unido': '🇬🇧',
+      'united kingdom': '🇬🇧',
+      'uk': '🇬🇧',
+      'gb': '🇬🇧',
+      'england': '🇬🇧',
+      'inglaterra': '🇬🇧',
+      // Hong Kong
+      'hong kong': '🇭🇰',
+      'hk': '🇭🇰',
+      // Indonésia
+      'indonésia': '🇮🇩',
+      'indonesia': '🇮🇩',
+      'id': '🇮🇩',
       // Índia
       'índia': '🇮🇳',
       'india': '🇮🇳',
       'in': '🇮🇳',
-      // China
-      'china': '🇨🇳',
-      'cn': '🇨🇳',
-      // Rússia
-      'rússia': '🇷🇺',
-      'russia': '🇷🇺',
-      'ru': '🇷🇺',
-      // Portugal
-      'portugal': '🇵🇹',
-      'pt': '🇵🇹',
+      // Lituânia
+      'lituânia': '🇱🇹',
+      'lithuania': '🇱🇹',
+      'lt': '🇱🇹',
+      // Nigéria
+      'nigéria': '🇳🇬',
+      'nigeria': '🇳🇬',
+      'ng': '🇳🇬',
       // Holanda
       'holanda': '🇳🇱',
       'netherlands': '🇳🇱',
       'nl': '🇳🇱',
+      // Peru
+      'peru': '🇵🇪',
+      'pe': '🇵🇪',
+      // Filipinas
+      'filipinas': '🇵🇭',
+      'philippines': '🇵🇭',
+      'ph': '🇵🇭',
       // Suécia
       'suécia': '🇸🇪',
       'sweden': '🇸🇪',
       'se': '🇸🇪',
-      // Noruega
-      'noruega': '🇳🇴',
-      'norway': '🇳🇴',
-      'no': '🇳🇴',
-      // Dinamarca
-      'dinamarca': '🇩🇰',
-      'denmark': '🇩🇰',
-      'dk': '🇩🇰'
+      // Eslovênia
+      'eslovênia': '🇸🇮',
+      'slovenia': '🇸🇮',
+      'si': '🇸🇮',
+      // Estados Unidos
+      'estados unidos': '🇺🇸',
+      'united states': '🇺🇸',
+      'usa': '🇺🇸',
+      'us': '🇺🇸',
+      'america': '🇺🇸',
+      // Uruguai
+      'uruguai': '🇺🇾',
+      'uruguay': '🇺🇾',
+      'uy': '🇺🇾'
     };
     
     return countryFlags[normalizedLocation] || '🌍';
