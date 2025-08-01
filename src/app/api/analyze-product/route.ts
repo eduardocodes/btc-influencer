@@ -12,13 +12,39 @@ const supabase = createClient(
 );
 
 const AVAILABLE_CATEGORIES = [
-  'accounting', 'altcoins', 'beginner', 'BTC-only', 'content-creation',
-  'courses', 'custody', 'education', 'environment', 'general-crypto',
-  'interviews', 'investing', 'libertarian', 'lifestyle', 'macro',
-  'macro-research', 'market-analysis', 'mining', 'news', 'podcast',
-  'privacy', 'security', 'storytelling', 'survivalism', 'taxation',
-  'tech', 'technical-analysis', 'trading', 'trading-education',
-  'travel', 'tutorials', 'vlog'
+  "accounting",
+  "altcoins",
+  "beginner",
+  "btc-only",
+  "content-creation",
+  "courses",
+  "crypto",
+  "custody",
+  "education",
+  "environment",
+  "general-crypto",
+  "interviews",
+  "investing",
+  "libertarian",
+  "lifestyle",
+  "macro",
+  "macro-research",
+  "market-analysis",
+  "mining",
+  "news",
+  "podcast",
+  "privacy",
+  "security",
+  "storytelling",
+  "survivalism",
+  "taxation",
+  "tech",
+  "technical-analysis",
+  "trading",
+  "trading-education",
+  "travel",
+  "tutorials",
+  "vlog"
 ];
 
 export async function POST(request: NextRequest) {
