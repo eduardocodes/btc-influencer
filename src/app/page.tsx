@@ -479,6 +479,10 @@ export default function Home() {
     setShowOnboarding(true)
   }
 
+  const handleDatabaseClick = () => {
+    router.push('/database')
+  }
+
   const toggleSave = (influencerId: string) => {
     setSavedInfluencers(prev => {
       const newSet = new Set(prev)
@@ -543,7 +547,7 @@ export default function Home() {
               
               <nav className="flex space-x-6">
                 <a href="#" className="text-white hover:text-gray-300 px-3 py-2 text-sm font-medium">Matches</a>
-                <a href="#" className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium">Database</a>
+                <a href="/database" onClick={handleDatabaseClick} className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium cursor-pointer">Database</a>
               </nav>
             </div>
             
