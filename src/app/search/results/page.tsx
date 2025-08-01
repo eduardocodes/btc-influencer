@@ -675,7 +675,7 @@ export default function SearchResultsPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-green-400">✓</span>
-                    <span>Advanced filters</span>
+                    <span>Download full list</span>
                   </div>
                 </div>
               </div>

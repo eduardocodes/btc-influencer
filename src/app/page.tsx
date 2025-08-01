@@ -806,7 +806,7 @@ export default function Home() {
               </div>
               
               <div className="flex justify-center items-center">
-                <button className="px-8 py-3 bg-gradient-to-r from-orange-500 to-yellow-500 text-white font-semibold rounded-lg hover:from-orange-600 hover:to-yellow-600 transition-all transform hover:scale-105">
+                <button className="cursor-pointer px-8 py-3 bg-gradient-to-r from-orange-500 to-yellow-500 text-white font-semibold rounded-lg hover:from-orange-600 hover:to-yellow-600 transition-all transform hover:scale-105">
                   Upgrade to Pro
                 </button>
               </div>
@@ -822,7 +822,7 @@ export default function Home() {
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-green-400">✓</span>
-                  <span>Advanced filters</span>
+                  <span>Download full list</span>
                 </div>
               </div>
             </div>
