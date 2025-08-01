@@ -576,13 +576,13 @@ export default function Home() {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {matchedCreators.map((creator) => {
+            {(() => {
+              const combinedCreators = [...matchedCreators, ...mockCreators];
               const selectedNiches = onboardingData?.productCategory && Array.isArray(onboardingData.productCategory)
                 ? onboardingData.productCategory
                 : typeof onboardingData?.productCategory === 'string'
                   ? onboardingData.productCategory.split(',').map((niche: string) => niche.trim()).filter(Boolean)
                   : [];
-              console.log('[DEBUG] onboardingData.productCategory:', onboardingData?.productCategory, 'selectedNiches:', selectedNiches, 'typeof:', typeof selectedNiches);
               
               // Parse search_criteria se for string JSON, senão use selectedNiches
               let searchCriteria = selectedNiches;
@@ -597,132 +597,13 @@ export default function Home() {
                 }
               }
               
-              console.log('[DEBUG] searchCriteria final:', searchCriteria, 'typeof:', typeof searchCriteria);
-              const matchingNiches = getMatchingNiches(creator.categories, searchCriteria);
+              const mockNiches = ['Bitcoin', 'Cryptocurrency'];
               
-              return (
-                <div key={creator.id} className="bg-gray-800 rounded-lg p-6 border border-gray-700 hover:border-orange-500 transition-colors">
-                  {/* Creator Header */}
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex-1">
-                      <h3 className="text-xl font-bold text-white mb-1">{creator.full_name}</h3>
-                      <p className="text-gray-400 text-sm mb-2">@{creator.username}</p>
-                      <div className="flex items-center gap-2 mb-3">
-                        <span className="text-xs px-2 py-1 bg-gray-700 rounded text-gray-300">
-                          {getCountryFlag(creator.location)} {creator.location}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Bio */}
-                  <p className="text-gray-300 text-sm mb-4 line-clamp-2">{creator.bio}</p>
-
-                  {/* Categories */}
-                  <div className="mb-4">
-                    <div className="flex flex-wrap gap-1">
-                      {creator.categories.slice(0, 3).map((category, index) => (
-                        <span 
-                          key={index} 
-                          className={`text-xs px-2 py-1 rounded ${
-                            matchingNiches.includes(category)
-                              ? 'bg-orange-500 text-white'
-                              : 'bg-gray-700 text-gray-300'
-                          }`}
-                        >
-                          {category}
-                        </span>
-                      ))}
-                      {creator.categories.length > 3 && (
-                        <span className="text-xs px-2 py-1 bg-gray-700 text-gray-300 rounded">
-                          +{creator.categories.length - 3}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Platform Stats */}
-                  <div className="space-y-3 mb-4">
-                    {/* YouTube Stats */}
-                    <div className="flex items-center justify-between p-3 bg-gray-900 rounded">
-                      <div className="flex items-center gap-2">
-                        {getPlatformData('youtube').icon}
-                        <span className="text-sm font-medium">YouTube</span>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-sm font-bold">{formatNumber(creator.youtube_followers)}</div>
-                        <div className="text-xs text-gray-400">{creator.youtube_engagement_rate}% eng</div>
-                      </div>
-                    </div>
-
-                    {/* TikTok Stats (if available) */}
-                    {creator.tiktok_followers && (
-                      <div className="flex items-center justify-between p-3 bg-gray-900 rounded">
-                        <div className="flex items-center gap-2">
-                          {getPlatformData('tiktok').icon}
-                          <span className="text-sm font-medium">TikTok</span>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-sm font-bold">{formatNumber(creator.tiktok_followers)}</div>
-                          <div className="text-xs text-gray-400">{creator.tiktok_engagement_rate}% eng</div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="flex gap-2">
-                    <a
-                      href={creator.youtube_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex-1 bg-red-600 hover:bg-red-700 text-white text-sm py-2 px-3 rounded text-center transition-colors"
-                    >
-                      YouTube
-                    </a>
-                    {creator.tiktok_url && (
-                      <a
-                        href={creator.tiktok_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex-1 bg-gray-700 hover:bg-gray-600 text-white text-sm py-2 px-3 rounded text-center transition-colors"
-                      >
-                        TikTok
-                      </a>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-          
-          {/* Action Buttons */}
-          <div className="mt-8 flex justify-center gap-4">
-            <button
-              onClick={handleGetMatches}
-              className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
-            >
-              Refazer Busca
-            </button>
-            <Link
-              href="/search/results"
-              className="bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
-            >
-              Ver Todos os Resultados
-            </Link>
-          </div>
-
-          {/* Mock Creators Section */}
-          <div className="mt-16">
-            <div className="mb-8">
-              <h2 className="text-2xl font-bold mb-2">Explore Mais Creators</h2>
-              <p className="text-gray-400">Descubra outros criadores populares em nossa plataforma</p>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {mockCreators.map((creator) => {
-                const mockNiches = ['Bitcoin', 'Cryptocurrency'];
-                const matchingNiches = getMatchingNiches(creator.categories, mockNiches);
+              return combinedCreators.slice(0, 6).map((creator) => {
+                const isRealMatch = matchedCreators.some(mc => mc.id === creator.id);
+                const matchingNiches = isRealMatch 
+                  ? getMatchingNiches(creator.categories, searchCriteria)
+                  : getMatchingNiches(creator.categories, mockNiches);
                 
                 return (
                   <div key={creator.id} className="bg-gray-800 rounded-lg p-6 border border-gray-700 hover:border-orange-500 transition-colors">
@@ -817,36 +698,97 @@ export default function Home() {
                     </div>
                   </div>
                 );
-              })}
-            </div>
+              });
+            })()}
+            
+            {/* Mock Blurred Results */}
+            {[...Array(6)].map((_, index) => (
+              <div key={`mock-blurred-${index}`} className="bg-gray-800 rounded-lg p-6 border border-gray-700 relative overflow-hidden">
+                {/* Blur overlay */}
+                <div className="absolute inset-0 backdrop-blur-sm bg-white/5 z-10"></div>
+                
+                {/* Mock content */}
+                <div className="relative">
+                  {/* Creator Header */}
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex-1">
+                      <div className="h-6 bg-white/20 rounded mb-2 w-3/4"></div>
+                      <div className="h-4 bg-white/15 rounded mb-2 w-1/2"></div>
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="h-5 bg-gray-700 rounded w-20"></div>
+                      </div>
+                    </div>
+                  </div>
 
-            {/* CTA Section */}
-            <div className="mt-12 text-center">
-              <div className="bg-gradient-to-r from-orange-500/20 to-yellow-500/20 rounded-xl p-8 border border-orange-500/30">
-                <h3 className="text-2xl font-bold text-white mb-4">
-                  Encontre Creators Perfeitos para Seu Produto
-                </h3>
-                <p className="text-gray-300 mb-6 max-w-2xl mx-auto">
-                  Nossa IA analisa milhares de creators e encontra os matches perfeitos baseados no seu produto, 
-                  categoria e objetivos de marketing. Comece agora e descubra creators que realmente fazem sentido para sua marca.
-                </p>
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <button
-                    onClick={handleGetMatches}
-                    className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
-                  >
-                    🎯 Encontrar Meus Matches
-                  </button>
-                  <Link
-                    href="/search/results"
-                    className="bg-white/10 hover:bg-white/20 text-white px-8 py-3 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
-                  >
-                    🔍 Explorar Database
-                  </Link>
+                  {/* Bio */}
+                  <div className="mb-4">
+                    <div className="h-3 bg-white/15 rounded mb-1 w-full"></div>
+                    <div className="h-3 bg-white/15 rounded w-3/4"></div>
+                  </div>
+
+                  {/* Categories */}
+                  <div className="mb-4">
+                    <div className="flex flex-wrap gap-1">
+                      <div className="h-6 bg-orange-500/30 rounded w-16"></div>
+                      <div className="h-6 bg-gray-700 rounded w-20"></div>
+                      <div className="h-6 bg-gray-700 rounded w-14"></div>
+                    </div>
+                  </div>
+
+                  {/* Platform Stats */}
+                  <div className="space-y-3 mb-4">
+                    {/* YouTube Stats */}
+                    <div className="flex items-center justify-between p-3 bg-gray-900 rounded">
+                      <div className="flex items-center gap-2">
+                        <div className="h-4 w-4 bg-red-500/50 rounded"></div>
+                        <div className="h-4 bg-white/20 rounded w-16"></div>
+                      </div>
+                      <div className="text-right">
+                        <div className="h-4 bg-white/20 rounded w-12 mb-1"></div>
+                        <div className="h-3 bg-white/15 rounded w-10"></div>
+                      </div>
+                    </div>
+
+                    {/* TikTok Stats */}
+                    <div className="flex items-center justify-between p-3 bg-gray-900 rounded">
+                      <div className="flex items-center gap-2">
+                        <div className="h-4 w-4 bg-pink-500/50 rounded"></div>
+                        <div className="h-4 bg-white/20 rounded w-14"></div>
+                      </div>
+                      <div className="text-right">
+                        <div className="h-4 bg-white/20 rounded w-12 mb-1"></div>
+                        <div className="h-3 bg-white/15 rounded w-10"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex gap-2">
+                    <div className="flex-1 h-8 bg-red-600/50 rounded"></div>
+                    <div className="flex-1 h-8 bg-gray-700/50 rounded"></div>
+                  </div>
                 </div>
               </div>
-            </div>
+            ))}
           </div>
+          
+          {/* Action Buttons */}
+          <div className="mt-8 flex justify-center gap-4">
+            <button
+              onClick={handleGetMatches}
+              className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+            >
+              Refazer Busca
+            </button>
+            <Link
+              href="/search/results"
+              className="bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+            >
+              Ver Todos os Resultados
+            </Link>
+          </div>
+
+
         </div>
       ) : (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -992,6 +934,76 @@ export default function Home() {
                   </div>
                 );
               })}
+              
+              {/* Mock Blurred Results */}
+              {[...Array(6)].map((_, index) => (
+                <div key={`mock-blurred-${index}`} className="bg-gray-800 rounded-lg p-6 border border-gray-700 relative overflow-hidden">
+                  {/* Blur overlay */}
+                  <div className="absolute inset-0 backdrop-blur-sm bg-white/5 z-10"></div>
+                  
+                  {/* Mock content */}
+                  <div className="relative">
+                    {/* Creator Header */}
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1">
+                        <div className="h-6 bg-white/20 rounded mb-2 w-3/4"></div>
+                        <div className="h-4 bg-white/15 rounded mb-2 w-1/2"></div>
+                        <div className="flex items-center gap-2 mb-3">
+                          <div className="h-5 bg-gray-700 rounded w-20"></div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Bio */}
+                    <div className="mb-4">
+                      <div className="h-3 bg-white/15 rounded mb-1 w-full"></div>
+                      <div className="h-3 bg-white/15 rounded w-3/4"></div>
+                    </div>
+
+                    {/* Categories */}
+                    <div className="mb-4">
+                      <div className="flex flex-wrap gap-1">
+                        <div className="h-6 bg-orange-500/30 rounded w-16"></div>
+                        <div className="h-6 bg-gray-700 rounded w-20"></div>
+                        <div className="h-6 bg-gray-700 rounded w-14"></div>
+                      </div>
+                    </div>
+
+                    {/* Platform Stats */}
+                    <div className="space-y-3 mb-4">
+                      {/* YouTube Stats */}
+                      <div className="flex items-center justify-between p-3 bg-gray-900 rounded">
+                        <div className="flex items-center gap-2">
+                          <div className="h-4 w-4 bg-red-500/50 rounded"></div>
+                          <div className="h-4 bg-white/20 rounded w-16"></div>
+                        </div>
+                        <div className="text-right">
+                          <div className="h-4 bg-white/20 rounded w-12 mb-1"></div>
+                          <div className="h-3 bg-white/15 rounded w-10"></div>
+                        </div>
+                      </div>
+
+                      {/* TikTok Stats */}
+                      <div className="flex items-center justify-between p-3 bg-gray-900 rounded">
+                        <div className="flex items-center gap-2">
+                          <div className="h-4 w-4 bg-pink-500/50 rounded"></div>
+                          <div className="h-4 bg-white/20 rounded w-14"></div>
+                        </div>
+                        <div className="text-right">
+                          <div className="h-4 bg-white/20 rounded w-12 mb-1"></div>
+                          <div className="h-3 bg-white/15 rounded w-10"></div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex gap-2">
+                      <div className="flex-1 h-8 bg-red-600/50 rounded"></div>
+                      <div className="flex-1 h-8 bg-gray-700/50 rounded"></div>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
 
             {/* CTA Section */}
