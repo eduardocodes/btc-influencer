@@ -189,12 +189,14 @@ export default function SearchLoadingPage() {
   }, [router, analysisComplete, error]); // Removido user e messages das dependências
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-purple-900 flex items-center justify-center p-4">
-      <div className="max-w-md w-full text-center">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 relative flex items-center justify-center p-4">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,165,0,0.1),transparent_50%)] pointer-events-none"></div>
+      <div className="relative z-10 max-w-md w-full text-center">
         {/* Loading Animation */}
         <div className="mb-8">
-          <div className="w-24 h-24 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
-            <div className="w-12 h-12 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
+          <div className="w-24 h-24 bg-gradient-to-br from-gray-800/50 to-gray-900/50 border border-orange-500/20 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse shadow-lg shadow-orange-500/25">
+            <div className="w-12 h-12 border-4 border-orange-500/30 border-t-orange-500 rounded-full animate-spin"></div>
           </div>
           
           <h1 className="text-3xl font-bold text-white mb-2">
@@ -207,9 +209,9 @@ export default function SearchLoadingPage() {
         </div>
 
         {/* Progress Bar */}
-        <div className="w-full bg-white/20 rounded-full h-2 mb-4">
+        <div className="w-full bg-gray-800/50 rounded-full h-2 mb-4">
           <div 
-            className="bg-white h-2 rounded-full transition-all duration-300 ease-out"
+            className="bg-gradient-to-r from-orange-500 to-orange-600 h-2 rounded-full transition-all duration-300 ease-out shadow-lg shadow-orange-500/25"
             style={{ width: `${progress}%` }}
           ></div>
         </div>
@@ -221,15 +223,15 @@ export default function SearchLoadingPage() {
         {/* Features being analyzed */}
         <div className="mt-12 space-y-3">
           <div className="flex items-center justify-center space-x-2 text-white/60">
-            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+            <div className="w-2 h-2 bg-orange-400 rounded-full animate-pulse"></div>
             <span className="text-sm">Audience compatibility</span>
           </div>
           <div className="flex items-center justify-center space-x-2 text-white/60">
-            <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse" style={{ animationDelay: '0.5s' }}></div>
+            <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse" style={{ animationDelay: '0.5s' }}></div>
             <span className="text-sm">Engagement metrics</span>
           </div>
           <div className="flex items-center justify-center space-x-2 text-white/60">
-            <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse" style={{ animationDelay: '1s' }}></div>
+            <div className="w-2 h-2 bg-orange-600 rounded-full animate-pulse" style={{ animationDelay: '1s' }}></div>
             <span className="text-sm">Content relevance</span>
           </div>
         </div>
