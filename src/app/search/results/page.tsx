@@ -409,7 +409,7 @@ export default function SearchResultsPage() {
                       </div>
                       <div className="text-right">
                         <div className="bg-green-500/20 text-green-300 px-2 py-1 rounded-full text-xs font-medium">
-                          {85 + Math.floor(Math.random() * 15)}% match
+                          90% match
                         </div>
                       </div>
                     </div>
@@ -435,7 +435,7 @@ export default function SearchResultsPage() {
                       <div className="w-full bg-white/20 rounded-full h-2">
                         <div 
                           className="bg-blue-400 h-2 rounded-full"
-                          style={{ width: `${30 + Math.random() * 50}%` }}
+                          style={{ width: '45%' }}
                         ></div>
                       </div>
                     </div>
@@ -444,8 +444,8 @@ export default function SearchResultsPage() {
                     <div className="mb-4">
                       <p className="text-white/60 text-xs mb-2">Matching niches:</p>
                       <div className="flex flex-wrap gap-1">
-                        <div className="h-6 bg-blue-500/30 rounded w-16"></div>
-                        <div className="h-6 bg-blue-500/30 rounded w-20"></div>
+                        <div className="h-6 bg-blue-500/30 rounded w-18"></div>
+                        <div className="h-6 bg-blue-500/30 rounded w-18"></div>
                       </div>
                     </div>
 
@@ -457,9 +457,7 @@ export default function SearchResultsPage() {
 
                     {/* Action Button */}
                     <div className="flex">
-                      <div className={`w-full h-8 rounded-lg ${
-                        index % 3 === 0 ? 'bg-red-600/50' : index % 3 === 1 ? 'bg-black/50' : 'bg-gray-600/30'
-                      }`}></div>
+                      <div className="w-full h-8 rounded-lg bg-gray-600/50"></div>
                     </div>
                   </div>
                 </div>
