@@ -662,7 +662,7 @@ export default function Home() {
                         </div>
                         <div className="text-right">
                           <div className="text-sm font-bold">{formatNumber(creator.youtube_followers)}</div>
-                          <div className="text-xs text-gray-400">{creator.youtube_engagement_rate}% eng</div>
+                          <div className="text-xs text-gray-400">{creator.youtube_engagement_rate}% engagement</div>
                         </div>
                       </div>
 
@@ -675,7 +675,7 @@ export default function Home() {
                           </div>
                           <div className="text-right">
                             <div className="text-sm font-bold">{formatNumber(creator.tiktok_followers)}</div>
-                            <div className="text-xs text-gray-400">{creator.tiktok_engagement_rate}% eng</div>
+                            <div className="text-xs text-gray-400">{creator.tiktok_engagement_rate}% engagement</div>
                           </div>
                         </div>
                       )}
@@ -687,7 +687,7 @@ export default function Home() {
                         href={creator.youtube_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex-1 bg-red-600 hover:bg-red-700 text-white text-sm py-2 px-3 rounded text-center transition-colors"
+                        className="flex-1 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-400 hover:to-red-500 text-white text-sm py-2 px-3 rounded text-center shadow-lg shadow-red-500/25 hover:shadow-xl hover:shadow-red-500/40 hover:scale-105 transform transition-all duration-300"
                       >
                         YouTube
                       </a>
@@ -696,7 +696,7 @@ export default function Home() {
                           href={creator.tiktok_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex-1 bg-gray-700 hover:bg-gray-600 text-white text-sm py-2 px-3 rounded text-center transition-colors"
+                          className="flex-1 bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-400 hover:to-gray-500 text-white text-sm py-2 px-3 rounded text-center shadow-lg shadow-gray-500/25 hover:shadow-xl hover:shadow-gray-500/40 hover:scale-105 transform transition-all duration-300"
                         >
                           TikTok
                         </a>
@@ -771,7 +771,7 @@ export default function Home() {
                   {/* Action Buttons */}
                   <div className="flex gap-2">
                     <div className="flex-1 h-8 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-400 hover:to-red-500 rounded shadow-lg shadow-red-500/25 hover:shadow-xl hover:shadow-red-500/40 hover:scale-105 transform transition-all duration-300 cursor-pointer"></div>
-                    <div className="flex-1 h-8 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-400 hover:to-purple-500 rounded shadow-lg shadow-pink-500/25 hover:shadow-xl hover:shadow-pink-500/40 hover:scale-105 transform transition-all duration-300 cursor-pointer"></div>
+                    <div className="flex-1 h-8 bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-400 hover:to-gray-500 rounded shadow-lg shadow-gray-500/25 hover:shadow-xl hover:shadow-gray-500/40 hover:scale-105 transform transition-all duration-300 cursor-pointer"></div>
                   </div>
                 </div>
               </div>
