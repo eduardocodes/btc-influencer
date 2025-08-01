@@ -14,8 +14,12 @@ interface Creator {
   total_followers: number;
   youtube_engagement_rate: number;
   youtube_average_views: number;
+  tiktok_followers?: number;
+  tiktok_engagement_rate?: number;
+  tiktok_average_views?: number;
   location: string;
   youtube_url: string;
+  tiktok_url?: string;
   bio: string;
 }
 
@@ -54,6 +58,32 @@ export default function SearchResultsPage() {
         niche.toLowerCase().includes(category.toLowerCase())
       )
     );
+  };
+
+  const getPlatformData = (creator: Creator) => {
+    // Prioriza YouTube, usa TikTok como fallback
+    if (creator.youtube_url && creator.youtube_followers) {
+      return {
+        platform: 'youtube',
+        url: creator.youtube_url,
+        followers: creator.youtube_followers,
+        engagement_rate: creator.youtube_engagement_rate,
+        average_views: creator.youtube_average_views,
+        color: 'red',
+        name: 'YouTube'
+      };
+    } else if (creator.tiktok_url && creator.tiktok_followers) {
+      return {
+        platform: 'tiktok',
+        url: creator.tiktok_url,
+        followers: creator.tiktok_followers,
+        engagement_rate: creator.tiktok_engagement_rate,
+        average_views: creator.tiktok_average_views,
+        color: 'pink',
+        name: 'TikTok'
+      };
+    }
+    return null;
   };
 
   const loadOnboardingData = async () => {
@@ -235,6 +265,7 @@ export default function SearchResultsPage() {
                 const selectedNiches = onboardingData?.product_category ? onboardingData.product_category.split(', ').map((niche: string) => niche.trim()) : [];
                 const matchingNiches = getMatchingNiches(creatorCategories, selectedNiches);
                 const matchScore = Math.round((matchingNiches.length / (selectedNiches.length || 1)) * 100);
+                const platformData = getPlatformData(creator);
                 
                 return (
                   <div key={creator.id} className="bg-white/10 backdrop-blur-sm rounded-xl p-6 hover:bg-white/15 transition-colors">
@@ -252,6 +283,11 @@ export default function SearchResultsPage() {
                             📍 {creator.location}
                           </p>
                         )}
+                        {platformData && (
+                          <p className="text-white/50 text-xs mt-1">
+                            📱 {platformData.name}
+                          </p>
+                        )}
                       </div>
                       <div className="text-right">
                         <div className="bg-green-500/20 text-green-300 px-2 py-1 rounded-full text-xs font-medium">
@@ -261,31 +297,48 @@ export default function SearchResultsPage() {
                     </div>
 
                     {/* Stats */}
-                    <div className="grid grid-cols-2 gap-4 mb-4">
-                      <div className="text-center">
-                        <div className="text-white font-semibold">
-                          {formatNumber(creator.youtube_followers)}
+                    {platformData ? (
+                      <div className="grid grid-cols-2 gap-4 mb-4">
+                        <div className="text-center">
+                          <div className="text-white font-semibold">
+                            {formatNumber(platformData.followers)}
+                          </div>
+                          <div className="text-white/60 text-xs">{platformData.name} Followers</div>
                         </div>
-                        <div className="text-white/60 text-xs">YouTube Followers</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-white font-semibold">
-                          {formatNumber(creator.youtube_average_views)}
+                        <div className="text-center">
+                          <div className="text-white font-semibold">
+                            {formatNumber(platformData.average_views || 0)}
+                          </div>
+                          <div className="text-white/60 text-xs">Avg Views</div>
                         </div>
-                        <div className="text-white/60 text-xs">Avg Views</div>
                       </div>
-                    </div>
+                    ) : (
+                      <div className="grid grid-cols-2 gap-4 mb-4">
+                        <div className="text-center">
+                          <div className="text-white/40 font-semibold">N/A</div>
+                          <div className="text-white/60 text-xs">Followers</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-white/40 font-semibold">N/A</div>
+                          <div className="text-white/60 text-xs">Avg Views</div>
+                        </div>
+                      </div>
+                    )}
 
                     {/* Engagement */}
                     <div className="mb-4">
                       <div className="flex justify-between text-sm mb-1">
                         <span className="text-white/60">Engagement Rate</span>
-                        <span className="text-white">{((creator.youtube_engagement_rate || 0) * 100).toFixed(1)}%</span>
+                        <span className="text-white">
+                          {platformData ? (platformData.engagement_rate || 0).toFixed(1) : '0.0'}%
+                        </span>
                       </div>
                       <div className="w-full bg-white/20 rounded-full h-2">
                         <div 
-                          className="bg-blue-400 h-2 rounded-full"
-                          style={{ width: `${Math.min((creator.youtube_engagement_rate || 0) * 100, 100)}%` }}
+                          className={`h-2 rounded-full ${
+                            platformData?.platform === 'tiktok' ? 'bg-pink-400' : 'bg-blue-400'
+                          }`}
+                          style={{ width: `${Math.min(platformData?.engagement_rate || 0, 100)}%` }}
                         ></div>
                       </div>
                     </div>
@@ -315,20 +368,25 @@ export default function SearchResultsPage() {
                     )}
 
                     {/* Action Button */}
-                    <div className="flex gap-2">
-                      {creator.youtube_url && (
+                    <div className="flex">
+                      {platformData ? (
                         <a
-                          href={creator.youtube_url}
+                          href={platformData.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex-1 bg-red-600 hover:bg-red-700 text-white text-center py-2 px-4 rounded-lg text-sm transition-colors"
+                          className={`w-full text-center py-2 px-4 rounded-lg text-sm transition-colors ${
+                            platformData.platform === 'youtube' 
+                              ? 'bg-red-600 hover:bg-red-700 text-white'
+                              : 'bg-black hover:bg-gray-800 text-white'
+                          }`}
                         >
-                          View YouTube
+                          View {platformData.name}
                         </a>
+                      ) : (
+                        <div className="w-full bg-gray-600/50 text-gray-300 text-center py-2 px-4 rounded-lg text-sm cursor-not-allowed">
+                          No Social Media
+                        </div>
                       )}
-                      <button className="flex-1 bg-white/20 hover:bg-white/30 text-white py-2 px-4 rounded-lg text-sm transition-colors">
-                        Contact
-                      </button>
                     </div>
                   </div>
                 );
@@ -398,9 +456,10 @@ export default function SearchResultsPage() {
                     </div>
 
                     {/* Action Button */}
-                    <div className="flex gap-2">
-                      <div className="flex-1 h-8 bg-red-600/50 rounded-lg"></div>
-                      <div className="flex-1 h-8 bg-white/20 rounded-lg"></div>
+                    <div className="flex">
+                      <div className={`w-full h-8 rounded-lg ${
+                        index % 3 === 0 ? 'bg-red-600/50' : index % 3 === 1 ? 'bg-black/50' : 'bg-gray-600/30'
+                      }`}></div>
                     </div>
                   </div>
                 </div>
