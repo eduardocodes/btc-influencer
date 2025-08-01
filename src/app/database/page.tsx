@@ -134,8 +134,12 @@ export default function DatabasePage() {
                    disabled={loading}
                    className="bg-orange-600 hover:bg-orange-700 disabled:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200"
                  >
-                   {loading ? 'Processing...' : 'Export the complete list of crypto creators now'}
-                 </button>
+                     {loading ? (
+                       <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                     ) : (
+                       'Export the complete list of crypto creators now'
+                     )}
+                   </button>
                 
                 {message && (
                   <div className={`mt-4 p-3 rounded-lg ${
