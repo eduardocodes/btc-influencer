@@ -42,6 +42,7 @@ export default function SearchResultsPage() {
   const [creators, setCreators] = useState<Creator[]>([]);
   const [onboardingData, setOnboardingData] = useState<OnboardingData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [searchingCreators, setSearchingCreators] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const searchExecutedRef = useRef<string | null>(null); // Track if search was executed for current onboarding data
 
@@ -265,6 +266,7 @@ export default function SearchResultsPage() {
 
   const searchCreators = async (categories: string[]) => {
     try {
+      setSearchingCreators(true);
       console.log('🔍 [DEBUG] Iniciando busca de creators com categorias:', categories);
       console.log('🔍 [DEBUG] Estado do onboardingData:', onboardingData);
       
@@ -311,6 +313,8 @@ export default function SearchResultsPage() {
     } catch (err) {
       console.error('❌ [DEBUG] Erro na busca de creators:', err);
       setError('Failed to search creators');
+    } finally {
+      setSearchingCreators(false);
     }
   };
 
@@ -367,12 +371,16 @@ export default function SearchResultsPage() {
     );
   }
 
-  if (loading) {
+  if (loading || searchingCreators) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
-          <p className="text-white">Loading your personalized results...</p>
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 relative">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,165,0,0.1),transparent_50%)] pointer-events-none"></div>
+        <div className="relative z-10 flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
+            <p className="text-white">{loading ? 'Loading your personalized results...' : 'Searching for creators...'}</p>
+          </div>
         </div>
       </div>
     );
@@ -424,7 +432,7 @@ export default function SearchResultsPage() {
         </div>
 
         {/* Results Grid */}
-        {creators.length === 0 ? (
+        {creators.length === 0 && !loading && !searchingCreators ? (
           <div className="text-center py-12">
             <div className="text-6xl mb-4">🔍</div>
             <h3 className="text-2xl font-bold text-white mb-4">
