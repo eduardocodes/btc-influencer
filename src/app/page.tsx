@@ -541,8 +541,7 @@ export default function Home() {
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-8">
               <div className="flex items-center">
-                <span className="text-xl font-bold">⊕</span>
-                <span className="ml-2 text-sm text-gray-300">Bitcoin Influencer</span>
+                <img src="/btc-influencer-icon.svg" alt="Bitcoin Influencer" className="h-10 w-auto" />
               </div>
               
               <nav className="flex space-x-6">
