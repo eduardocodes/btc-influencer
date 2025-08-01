@@ -396,7 +396,10 @@ export default function SearchResultsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 relative">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,165,0,0.1),transparent_50%)] pointer-events-none"></div>
+      <div className="relative z-10">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-12">
@@ -411,7 +414,7 @@ export default function SearchResultsPage() {
               {onboardingData.product_category.split(', ').map((category, index) => (
                 <span
                   key={index}
-                  className="px-3 py-1 bg-blue-500/30 text-blue-200 rounded-full text-sm"
+                  className="px-3 py-1 bg-orange-500/30 text-orange-200 rounded-full text-sm"
                 >
                   {category.trim()}
                 </span>
@@ -432,7 +435,7 @@ export default function SearchResultsPage() {
             </p>
             <button 
               onClick={() => window.location.href = '/onboarding'}
-              className="px-6 py-3 bg-white/20 rounded-lg hover:bg-white/30 transition-colors"
+              className="px-6 py-3 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 text-white rounded-lg transition-all transform hover:scale-105 shadow-lg shadow-orange-500/25"
             >
               Adjust Search Criteria
             </button>
@@ -449,7 +452,7 @@ export default function SearchResultsPage() {
                 const platformData = getPlatformData(creator);
                 
                 return (
-                  <div key={creator.id} className="bg-white/10 backdrop-blur-sm rounded-xl p-6 hover:bg-white/15 transition-colors">
+                  <div key={creator.id} className="bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800 backdrop-blur-sm rounded-xl p-6 border border-gray-600/50 shadow-2xl shadow-black/50 hover:border-orange-500 hover:scale-105 hover:-translate-y-1 transition-all duration-300">
                     {/* Creator Header */}
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex-1">
@@ -517,7 +520,7 @@ export default function SearchResultsPage() {
                       <div className="w-full bg-white/20 rounded-full h-2">
                         <div 
                           className={`h-2 rounded-full ${
-                            platformData?.platform === 'tiktok' ? 'bg-pink-400' : 'bg-blue-400'
+                            platformData?.platform === 'tiktok' ? 'bg-pink-400' : 'bg-orange-400'
                           }`}
                           style={{ width: `${Math.min(platformData?.engagement_rate || 0, 100)}%` }}
                         ></div>
@@ -531,7 +534,7 @@ export default function SearchResultsPage() {
                         {matchingNiches.map((niche) => (
                           <span
                             key={niche}
-                            className="px-2 py-1 bg-blue-500/30 text-blue-200 rounded text-xs"
+                            className="px-2 py-1 bg-orange-500/30 text-orange-200 rounded text-xs"
                           >
                             {niche}
                           </span>
@@ -555,10 +558,10 @@ export default function SearchResultsPage() {
                           href={platformData.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className={`w-full text-center py-2 px-4 rounded-lg text-sm transition-colors ${
+                          className={`w-full text-center py-2 px-4 rounded-lg text-sm transition-all duration-300 transform hover:scale-105 ${
                             platformData.platform === 'youtube' 
-                              ? 'bg-red-600 hover:bg-red-700 text-white'
-                              : 'bg-black hover:bg-gray-800 text-white'
+                              ? 'bg-gradient-to-r from-red-500 to-red-600 hover:from-red-400 hover:to-red-500 text-white shadow-lg shadow-red-500/25 hover:shadow-xl hover:shadow-red-500/40'
+                              : 'bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-400 hover:to-gray-500 text-white shadow-lg shadow-gray-500/25 hover:shadow-xl hover:shadow-gray-500/40'
                           }`}
                         >
                           View {platformData.name}
@@ -575,7 +578,7 @@ export default function SearchResultsPage() {
               
               {/* Mock Blurred Results */}
                {[...Array(6)].map((_, index) => (
-                <div key={`mock-${index}`} className="bg-white/10 backdrop-blur-sm rounded-xl p-6 relative overflow-hidden">
+                <div key={`mock-${index}`} className="bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800 backdrop-blur-sm rounded-xl p-6 border border-gray-600/50 shadow-2xl shadow-black/50 relative overflow-hidden">
                   {/* Blur overlay */}
                   <div className="absolute inset-0 backdrop-blur-sm bg-white/5 z-10"></div>
                   
@@ -615,7 +618,7 @@ export default function SearchResultsPage() {
                       </div>
                       <div className="w-full bg-white/20 rounded-full h-2">
                         <div 
-                          className="bg-blue-400 h-2 rounded-full"
+                          className="bg-orange-400 h-2 rounded-full"
                           style={{ width: '45%' }}
                         ></div>
                       </div>
@@ -625,8 +628,8 @@ export default function SearchResultsPage() {
                     <div className="mb-4">
                       <p className="text-white/60 text-xs mb-2">Matching niches:</p>
                       <div className="flex flex-wrap gap-1">
-                        <div className="h-6 bg-blue-500/30 rounded w-18"></div>
-                        <div className="h-6 bg-blue-500/30 rounded w-18"></div>
+                        <div className="h-6 bg-orange-500/30 rounded w-18"></div>
+                        <div className="h-6 bg-orange-500/30 rounded w-18"></div>
                       </div>
                     </div>
 
@@ -647,7 +650,7 @@ export default function SearchResultsPage() {
             
             {/* CTA Section */}
             <div className="mt-12 text-center">
-              <div className="bg-gradient-to-r from-purple-600/20 to-blue-600/20 backdrop-blur-sm rounded-2xl p-8 border border-white/10">
+              <div className="bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800 backdrop-blur-sm rounded-2xl p-8 border border-gray-600/50 shadow-2xl shadow-black/50">
                 <div className="mb-4">
                   <span className="text-4xl mb-4 block">🔒</span>
                   <h3 className="text-2xl font-bold text-white mb-2">
@@ -659,7 +662,7 @@ export default function SearchResultsPage() {
                 </div>
                 
                 <div className="flex justify-center items-center">
-                  <button className="px-8 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all transform hover:scale-105">
+                  <button className="cursor-pointer px-8 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold rounded-lg hover:from-orange-400 hover:to-orange-500 transition-all transform hover:scale-105 shadow-lg shadow-orange-500/25">
                     Upgrade to Pro
                   </button>
                 </div>
@@ -687,11 +690,12 @@ export default function SearchResultsPage() {
         <div className="text-center mt-12">
           <button 
             onClick={() => router.push('/')}
-            className="px-6 py-3 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-colors"
+            className="cursor-pointer px-6 py-3 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 text-white rounded-lg transition-all transform hover:scale-105 shadow-lg shadow-orange-500/25"
           >
             New Search
           </button>
         </div>
+      </div>
       </div>
     </div>
   );
