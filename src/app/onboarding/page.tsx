@@ -267,7 +267,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
             <button
               onClick={handleBack}
               disabled={currentStep === 1}
-              className={`px-6 py-3 rounded-lg font-medium transition-all ${
+              className={`cursor-pointer px-6 py-3 rounded-lg font-medium transition-all ${
                 currentStep === 1
                   ? 'bg-white/10 text-white/30 cursor-not-allowed'
                   : 'bg-white/20 text-white hover:bg-white/30'
@@ -278,9 +278,9 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
             <button
               onClick={handleNext}
               disabled={!isStepValid()}
-              className={`px-6 py-3 rounded-lg font-medium transition-all ${
+              className={`cursor-pointer px-6 py-3 rounded-lg font-medium transition-all ${
                 isStepValid()
-                  ? 'bg-purple-600 text-white hover:bg-purple-700'
+                  ? 'bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 text-white shadow-lg shadow-orange-500/25 hover:shadow-xl hover:shadow-orange-500/40 hover:scale-105 transform'
                   : 'bg-white/10 text-white/30 cursor-not-allowed'
               }`}
             >
