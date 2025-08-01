@@ -74,7 +74,7 @@ export default function MainPage() {
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-8">
               <div className="flex items-center">
-                <img src="/btc-influencer-icon.svg" alt="Bitcoin Influencer" className="h-10 w-auto" />
+                <img src="/btc-influencer-icon.svg" alt="Bitcoin Influencer" className="h-12 w-auto" />
               </div>
               
               <nav className="flex space-x-6">
@@ -141,12 +141,7 @@ export default function MainPage() {
 
       {/* HERO */}
       <section className="relative flex flex-col items-center justify-center text-center py-32 px-6">
-        <img
-          src="/btc-influencer-icon.svg"
-          alt="Bitcoin Influencer logo"
-          className="w-16 h-16 mb-6"
-        />
-        <h1 className="text-5xl md:text-7xl font-extrabold leading-tight">
+        <h1 className="text-5xl md:text-7xl font-extrabold leading-tight mt-6">
           Find <span className="bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent">Bitcoin Influencers</span> in
           Seconds
         </h1>
