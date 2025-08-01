@@ -846,7 +846,7 @@ export default function Home() {
                 </div>
                 
                 <h1 className="text-4xl font-bold mb-6">
-                  <span>🔥</span> <span className="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">Find Your Perfect Crypto Influencers</span>
+                  <span>🔥</span> <span className="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">Find Your Perfect Bitcoin Influencers</span>
                 </h1>
                 <p className="text-gray-400 text-lg mb-8">
                   Get matched with the most relevant crypto content creators for your brand in seconds.
@@ -854,87 +854,17 @@ export default function Home() {
                 
                 <button
                   onClick={handleGetMatches}
-                  className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 text-white font-bold py-4 px-8 rounded-xl text-lg shadow-lg shadow-orange-500/25 hover:shadow-xl hover:shadow-orange-500/40 hover:scale-105 transform transition-all duration-300 mb-8"
+                  className="cursor-pointer bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 text-white font-bold py-4 px-8 rounded-xl text-lg shadow-lg shadow-orange-500/25 hover:shadow-xl hover:shadow-orange-500/40 hover:scale-105 transform transition-all duration-300 mb-8"
                 >
                   Get My Matches
                 </button>
                 
-                <div className="text-sm text-gray-500">
-                  <p>✓ 100+ verified crypto influencers</p>
-                  <p>✓ Real-time engagement metrics</p>
-                  <p>✓ Instant matching algorithm</p>
-                </div>
-                
-                <div className="mt-6">
-                  <button
-                    onClick={testLoadMatches}
-                    className="bg-gradient-to-r from-gray-600 to-gray-700 text-white px-4 py-2 rounded-lg text-sm hover:from-gray-500 hover:to-gray-600 transition-all duration-300"
-                  >
-                    🧪 Test Load Matches
-                  </button>
-                </div>
+
               </div>
             </div>
           </div>
 
-          {/* Mock Creators Section */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {mockCreators.slice(0, 6).map((creator) => (
-              <div key={creator.id} className="bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800 rounded-xl p-6 border border-gray-600/50 shadow-2xl shadow-black/50 backdrop-blur-sm relative overflow-hidden hover:scale-110 hover:-translate-y-2 hover:shadow-3xl hover:z-10 transition-all duration-300 cursor-pointer">
-                {/* Blur overlay */}
-                <div className="absolute inset-0 backdrop-blur-sm bg-white/5 z-10"></div>
-                
-                {/* Mock content */}
-                <div className="relative">
-                  {/* Creator Header */}
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex-1">
-                      <div className="h-6 bg-white/20 rounded mb-2 w-3/4"></div>
-                      <div className="h-4 bg-white/15 rounded mb-2 w-1/2"></div>
-                      <div className="flex items-center gap-2 mb-3">
-                        <div className="h-5 bg-gray-700 rounded w-20"></div>
-                      </div>
-                    </div>
-                  </div>
 
-                  {/* Bio */}
-                  <div className="mb-4">
-                    <div className="h-3 bg-white/15 rounded mb-1 w-full"></div>
-                    <div className="h-3 bg-white/15 rounded w-3/4"></div>
-                  </div>
-
-                  {/* Categories */}
-                  <div className="mb-4">
-                    <div className="flex flex-wrap gap-1">
-                      <div className="h-6 bg-orange-500/50 rounded w-16"></div>
-                      <div className="h-6 bg-gray-700 rounded w-20"></div>
-                      <div className="h-6 bg-gray-700 rounded w-12"></div>
-                    </div>
-                  </div>
-
-                  {/* Platform Stats */}
-                  <div className="space-y-3 mb-4">
-                    <div className="flex items-center justify-between p-3 bg-gray-900/50 rounded">
-                      <div className="flex items-center gap-2">
-                        <div className="h-4 w-4 bg-red-500/50 rounded"></div>
-                        <div className="h-4 bg-white/20 rounded w-16"></div>
-                      </div>
-                      <div className="text-right">
-                        <div className="h-4 bg-white/20 rounded w-12 mb-1"></div>
-                        <div className="h-3 bg-white/15 rounded w-10"></div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="flex gap-2">
-                    <div className="flex-1 h-8 bg-red-600/50 rounded"></div>
-                    <div className="flex-1 h-8 bg-gray-700/50 rounded"></div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
       )}
     </div>
