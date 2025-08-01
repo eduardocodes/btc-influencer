@@ -498,7 +498,7 @@ export default function Home() {
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-8 bg-black text-white">
-        <p>Carregando...</p>
+        <p>Loading...</p>
       </div>
     );
   }
@@ -553,7 +553,7 @@ export default function Home() {
                 onClick={handleLogout}
                 className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-sm transition-colors"
               >
-                Sair
+                Logout
               </button>
             </div>
           </div>
@@ -565,14 +565,14 @@ export default function Home() {
         <div className="flex flex-col items-center justify-center flex-1 px-4 py-20">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
-            <p className="text-gray-400">Carregando seus matches...</p>
+            <p className="text-gray-400">Loading your matches...</p>
           </div>
         </div>
       ) : matchedCreators.length > 0 ? (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-2">Seus Creator Matches</h1>
-            <p className="text-gray-400">Criadores que deram match com seu produto</p>
+            <h1 className="text-3xl font-bold mb-2">Your Creator Matches</h1>
+            <p className="text-gray-400">Creators that match your product</p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -851,8 +851,8 @@ export default function Home() {
           {/* Mock Creators Section */}
           <div>
             <div className="mb-8">
-              <h2 className="text-2xl font-bold mb-2">Creators Populares</h2>
-              <p className="text-gray-400">Descubra alguns dos criadores mais populares em nossa plataforma</p>
+              <h2 className="text-2xl font-bold mb-2">Popular Creators</h2>
+              <p className="text-gray-400">Discover some of the most popular creators on our platform</p>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

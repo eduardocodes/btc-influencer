@@ -19,7 +19,7 @@ export default function Login() {
     // Verificar se o usuário acabou de se registrar
     const registered = searchParams.get('registered');
     if (registered === 'true') {
-      setSuccessMessage('Registro realizado com sucesso! Verifique seu email para confirmar sua conta.');
+      setSuccessMessage('Registration successful! Check your email to confirm your account.');
     }
   }, [searchParams]);
 
@@ -39,7 +39,7 @@ export default function Login() {
       // Login bem-sucedido, redirecionar para a página inicial
       router.push('/');
     } catch (err) {
-      setError('Ocorreu um erro durante o login. Tente novamente.');
+      setError('An error occurred during login. Please try again.');
       console.error('Erro de login:', err);
     } finally {
       setLoading(false);
@@ -67,7 +67,7 @@ export default function Login() {
         
         <div className="mb-6">
           <label htmlFor="password" className="block text-sm font-medium mb-2">
-            Senha
+            Password
           </label>
           <input
             type="password"
@@ -96,14 +96,14 @@ export default function Login() {
           disabled={loading}
           className={`w-full px-6 py-3 bg-blue-600 text-white rounded-md transition-colors ${loading ? 'opacity-70 cursor-not-allowed' : 'hover:bg-blue-700'}`}
         >
-          {loading ? 'Entrando...' : 'Entrar'}
+          {loading ? 'Signing in...' : 'Sign In'}
         </button>
         
         <div className="mt-4 text-center">
           <p>
-            Não tem uma conta?{' '}
+            Don't have an account?{' '}
             <Link href="/register" className="text-blue-600 hover:underline">
-              Registre-se
+                Register
             </Link>
           </p>
         </div>

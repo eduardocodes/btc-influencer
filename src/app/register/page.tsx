@@ -19,7 +19,7 @@ export default function Register() {
 
     // Validar senhas
     if (password !== confirmPassword) {
-      setError('As senhas não coincidem');
+      setError('Passwords do not match');
       return;
     }
 
@@ -39,7 +39,7 @@ export default function Register() {
       // Registro bem-sucedido
       router.push('/login?registered=true');
     } catch (err) {
-      setError('Ocorreu um erro durante o registro. Tente novamente.');
+      setError('An error occurred during registration. Please try again.');
       console.error('Erro de registro:', err);
     } finally {
       setLoading(false);
@@ -48,7 +48,7 @@ export default function Register() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-8">
-      <h1 className="text-4xl font-bold mb-8">Criar Conta</h1>
+      <h1 className="text-4xl font-bold mb-8">Create Account</h1>
       
       <form onSubmit={handleSubmit} className="w-full max-w-md">
         <div className="mb-4">
@@ -67,7 +67,7 @@ export default function Register() {
         
         <div className="mb-4">
           <label htmlFor="password" className="block text-sm font-medium mb-2">
-            Senha
+            Password
           </label>
           <input
             type="password"
@@ -82,7 +82,7 @@ export default function Register() {
 
         <div className="mb-6">
           <label htmlFor="confirmPassword" className="block text-sm font-medium mb-2">
-            Confirmar Senha
+            Confirm Password
           </label>
           <input
             type="password"
@@ -111,9 +111,9 @@ export default function Register() {
 
         <div className="mt-4 text-center">
           <p>
-            Já tem uma conta?{' '}
+            Already have an account?{' '}
             <Link href="/login" className="text-blue-600 hover:underline">
-              Faça login
+                Sign in
             </Link>
           </p>
         </div>
