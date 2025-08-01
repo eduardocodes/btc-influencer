@@ -479,12 +479,9 @@ export default function SearchResultsPage() {
                    </p>
                 </div>
                 
-                <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <div className="flex justify-center items-center">
                   <button className="px-8 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all transform hover:scale-105">
                     Upgrade to Pro
-                  </button>
-                  <button className="px-6 py-3 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-colors">
-                    Learn More
                   </button>
                 </div>
                 
