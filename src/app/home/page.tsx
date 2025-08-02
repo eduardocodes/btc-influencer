@@ -329,14 +329,12 @@ export default function Home() {
     const userId = forceUserId || user?.id;
     
     if (!userId) {
-      console.log('❌ [DEBUG] Usuário não está logado e nenhum ID foi fornecido');
       return;
     }
     
     try {
       setLoadingMatches(true);
-      console.log('🔍 [DEBUG] Carregando matches do usuário:', userId);
-      
+
       const { data, error } = await supabase
         .from('user_matches')
         .select('*')
@@ -345,26 +343,19 @@ export default function Home() {
         .limit(1);
 
       if (error) {
-        console.error('❌ [DEBUG] Erro ao carregar matches:', error);
+        console.error('Erro ao carregar matches:', error);
         return;
       }
 
-      console.log('✅ [DEBUG] Matches carregados - Raw data:', data);
-      console.log('✅ [DEBUG] Matches carregados - Length:', data?.length);
-      console.log('✅ [DEBUG] Matches carregados - First item:', data?.[0]);
-      
       setUserMatches(data || []);
       
       // Load creators if we have matches
       if (data && data.length > 0 && data[0].creator_ids) {
-        console.log('👥 [DEBUG] Creator IDs encontrados:', data[0].creator_ids);
         await loadMatchedCreators(data[0].creator_ids);
-      } else {
-        console.log('❌ [DEBUG] Nenhum creator_ids encontrado ou data vazio');
       }
       
     } catch (err) {
-      console.error('❌ [DEBUG] Erro inesperado ao carregar matches:', err);
+      console.error('Erro inesperado ao carregar matches:', err);
     } finally {
       setLoadingMatches(false);
     }
@@ -372,44 +363,37 @@ export default function Home() {
 
   // Test function to load matches for specific user
   const testLoadMatches = () => {
-    console.log('🧪 [TEST] Forçando carregamento de matches para usuário de teste');
     loadUserMatches('4bb65f1f-b724-47b2-b5b2-136a56acdb16');
   };
 
   // Load creators data based on IDs
   const loadMatchedCreators = async (creatorIds: string[]) => {
     try {
-      console.log('👥 [DEBUG] Carregando dados dos criadores:', creatorIds);
-      
       const { data, error } = await supabase
         .from('creators')
         .select('*')
         .in('id', creatorIds);
 
       if (error) {
-        console.error('❌ [DEBUG] Erro ao carregar criadores:', error);
+        console.error('Erro ao carregar criadores:', error);
         return;
       }
 
-      console.log('✅ [DEBUG] Criadores carregados:', data);
       setMatchedCreators(data || []);
       
     } catch (err) {
-      console.error('❌ [DEBUG] Erro inesperado ao carregar criadores:', err);
+      console.error('Erro inesperado ao carregar criadores:', err);
     }
   };
 
   useEffect(() => {
     const loadOnboardingData = async () => {
-      console.log('🔄 [DEBUG] useEffect executado - user:', user);
-      console.log('🔄 [DEBUG] user?.id:', user?.id);
       
       const hasVisited = localStorage.getItem('hasVisitedBefore')
       const savedOnboardingData = localStorage.getItem('onboardingData')
       
       // Try to load from Supabase if user is authenticated
       if (user) {
-        console.log('✅ [DEBUG] Usuário está logado, carregando dados...');
         try {
           const { data, error } = await supabase
             .from('onboarding')
@@ -540,32 +524,6 @@ export default function Home() {
         <p>Loading...</p>
       </div>
     );
-  }
-
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="max-w-md w-full space-y-8 p-8">
-          <div className="text-center">
-            <h1 className="text-3xl font-bold text-white mb-8">Bitcoin Influencer</h1>
-            <div className="space-y-4">
-              <Link 
-                href="/login" 
-                className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-lg transition duration-200 block text-center"
-              >
-                Login
-              </Link>
-              <Link 
-                href="/register" 
-                className="w-full bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-4 rounded-lg transition duration-200 block text-center"
-              >
-                Register
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
   }
 
   return (
@@ -920,10 +878,3 @@ export default function Home() {
     </div>
   );
 }
-
-// Remover completamente o trecho abaixo do final do arquivo:
-// const selectedNiches = onboardingData?.productCategory && Array.isArray(onboardingData.productCategory)
-//   ? onboardingData.productCategory
-//   : typeof onboardingData?.productCategory === 'string'
-//     ? onboardingData.productCategory.split(',').map((niche: string) => niche.trim()).filter(Boolean)
-//     : [];
