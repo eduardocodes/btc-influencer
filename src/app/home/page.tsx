@@ -229,7 +229,7 @@ export default function Home() {
   const [userMatches, setUserMatches] = useState<UserMatch[]>([])
   const [matchedCreators, setMatchedCreators] = useState<Creator[]>([])
   const [loadingMatches, setLoadingMatches] = useState(false)
-  const [hasActiveSubscription, setHasActiveSubscription] = useState(false)
+  const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
 
   // Utility functions from search results page
@@ -298,26 +298,41 @@ export default function Home() {
 
   // Check subscription status
   const checkSubscriptionStatus = async () => {
-    if (!user) return false;
+    if (!user) {
+      console.log('No user found for subscription check');
+      setHasActiveSubscription(false);
+      return false;
+    }
+    console.log('DEBUG: user.id recebido para verificação:', user.id);
     
     try {
-      const { data, error } = await supabase
-        .from('subscriptions')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('status', 'active')
-        .single();
+      console.log('Checking subscription for user:', user.id);
       
-      if (data && !error) {
-        setHasActiveSubscription(true);
-        return true;
+      // Simple count query to check if user has any active subscription
+      const { count, error } = await supabase
+        .from('subscriptions')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .eq('status', 'active');
+      
+      console.log('Subscription count result:', { count, error });
+      
+      if (error) {
+        console.error('Error checking subscription count:', error);
+        setHasActiveSubscription(false);
+        return false;
       }
+      
+      const hasSubscription = Boolean(count && count > 0);
+       console.log('Has active subscription:', hasSubscription);
+       
+       setHasActiveSubscription(hasSubscription);
+      return hasSubscription;
     } catch (error) {
-      console.log('No active subscription found');
+      console.error('Exception checking subscription:', error);
+      setHasActiveSubscription(false);
+      return false;
     }
-    
-    setHasActiveSubscription(false);
-    return false;
   };
 
   // Load user matches from database
@@ -439,6 +454,23 @@ export default function Home() {
       router.push("/onboarding");
     }
   }, [showOnboarding, router]);
+
+  // Additional effect to ensure subscription check runs when user changes
+  useEffect(() => {
+    console.log('User effect triggered. User:', user ? { id: user.id, email: user.email } : 'null');
+    if (user) {
+      console.log('User changed, checking subscription status...');
+      checkSubscriptionStatus();
+    } else {
+      console.log('No user found, setting hasActiveSubscription to false');
+      setHasActiveSubscription(false);
+    }
+  }, [user]);
+
+  // Debug effect to log subscription status changes
+  useEffect(() => {
+    console.log('hasActiveSubscription changed to:', hasActiveSubscription);
+  }, [hasActiveSubscription]);
   
   const handleLogout = async () => {
     await signOut();
