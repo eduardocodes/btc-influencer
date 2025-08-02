@@ -72,21 +72,35 @@ export async function POST(req: NextRequest) {
         }
       } else if (data.mode === 'payment') {
         console.log('💎 Processing LIFETIME payment...');
-        const lifetimeData = {
-          user_id: data.client_reference_id,
-          stripe_customer_id: data.customer,
-          stripe_subscription_id: null,
-          plan: 'lifetime',
-          status: 'active',
-          current_period_end: new Date('2099-12-31T23:59:59Z'),
-        };
-        console.log('💾 Saving lifetime data:', lifetimeData);
-        
-        const { data: result, error } = await supabaseAdmin.from('subscriptions').upsert(lifetimeData);
-        if (error) {
-          console.error('❌ Database error (lifetime):', error);
+        // Checar se já existe registro lifetime ativo para este user_id
+        const { data: existingLifetime, error: checkError } = await supabaseAdmin
+          .from('subscriptions')
+          .select('*')
+          .eq('user_id', data.client_reference_id)
+          .eq('plan', 'lifetime')
+          .eq('status', 'active');
+        if (checkError) {
+          console.error('❌ Database error (check lifetime):', checkError);
+          break;
+        }
+        if (!existingLifetime || existingLifetime.length === 0) {
+          const lifetimeData = {
+            user_id: data.client_reference_id,
+            stripe_customer_id: data.customer,
+            stripe_subscription_id: null,
+            plan: 'lifetime',
+            status: 'active',
+            current_period_end: new Date('2099-12-31T23:59:59Z'),
+          };
+          console.log('💾 Saving lifetime data:', lifetimeData);
+          const { data: result, error } = await supabaseAdmin.from('subscriptions').upsert(lifetimeData);
+          if (error) {
+            console.error('❌ Database error (lifetime):', error);
+          } else {
+            console.log('✅ Lifetime access saved successfully:', result);
+          }
         } else {
-          console.log('✅ Lifetime access saved successfully:', result);
+          console.log('⏩ Lifetime already exists for this user, skipping insert.');
         }
       }
       break;
@@ -127,21 +141,35 @@ export async function POST(req: NextRequest) {
         }
         if (session.mode === 'payment' && userId) {
           console.log('💎 Processing lifetime payment from payment_intent...');
-          const lifetimeData = {
-            user_id: userId,
-            stripe_customer_id: session.customer,
-            stripe_subscription_id: null,
-            plan: 'lifetime',
-            status: 'active',
-            current_period_end: new Date('2099-12-31T23:59:59Z'),
-          };
-          console.log('💾 Saving lifetime data from payment_intent:', lifetimeData);
-          
-          const { data: result, error } = await supabaseAdmin.from('subscriptions').upsert(lifetimeData);
-          if (error) {
-            console.error('❌ Database error (payment_intent):', error);
+          // Checar se já existe registro lifetime ativo para este user_id
+          const { data: existingLifetime, error: checkError } = await supabaseAdmin
+            .from('subscriptions')
+            .select('*')
+            .eq('user_id', userId)
+            .eq('plan', 'lifetime')
+            .eq('status', 'active');
+          if (checkError) {
+            console.error('❌ Database error (check lifetime):', checkError);
+            break;
+          }
+          if (!existingLifetime || existingLifetime.length === 0) {
+            const lifetimeData = {
+              user_id: userId,
+              stripe_customer_id: session.customer,
+              stripe_subscription_id: null,
+              plan: 'lifetime',
+              status: 'active',
+              current_period_end: new Date('2099-12-31T23:59:59Z'),
+            };
+            console.log('💾 Saving lifetime data from payment_intent:', lifetimeData);
+            const { data: result, error } = await supabaseAdmin.from('subscriptions').upsert(lifetimeData);
+            if (error) {
+              console.error('❌ Database error (payment_intent):', error);
+            } else {
+              console.log('✅ Lifetime access saved successfully from payment_intent:', result);
+            }
           } else {
-            console.log('✅ Lifetime access saved successfully from payment_intent:', result);
+            console.log('⏩ Lifetime already exists for this user, skipping insert.');
           }
         } else {
           console.log('⚠️ Missing user identifier or wrong mode');
@@ -195,20 +223,35 @@ export async function POST(req: NextRequest) {
         }
         if (session.mode === 'payment' && userId) {
           console.log('💎 Processing lifetime payment from charge event...');
-          const lifetimeData = {
-            user_id: userId,
-            stripe_customer_id: session.customer,
-            stripe_subscription_id: null,
-            plan: 'lifetime',
-            status: 'active',
-            current_period_end: new Date('2099-12-31T23:59:59Z'),
-          };
-          console.log('💾 Saving lifetime data from charge event:', lifetimeData);
-          const { data: result, error } = await supabaseAdmin.from('subscriptions').upsert(lifetimeData);
-          if (error) {
-            console.error('❌ Database error (charge):', error);
+          // Checar se já existe registro lifetime ativo para este user_id
+          const { data: existingLifetime, error: checkError } = await supabaseAdmin
+            .from('subscriptions')
+            .select('*')
+            .eq('user_id', userId)
+            .eq('plan', 'lifetime')
+            .eq('status', 'active');
+          if (checkError) {
+            console.error('❌ Database error (check lifetime):', checkError);
+            break;
+          }
+          if (!existingLifetime || existingLifetime.length === 0) {
+            const lifetimeData = {
+              user_id: userId,
+              stripe_customer_id: session.customer,
+              stripe_subscription_id: null,
+              plan: 'lifetime',
+              status: 'active',
+              current_period_end: new Date('2099-12-31T23:59:59Z'),
+            };
+            console.log('💾 Saving lifetime data from charge event:', lifetimeData);
+            const { data: result, error } = await supabaseAdmin.from('subscriptions').upsert(lifetimeData);
+            if (error) {
+              console.error('❌ Database error (charge):', error);
+            } else {
+              console.log('✅ Lifetime access saved successfully from charge event:', result);
+            }
           } else {
-            console.log('✅ Lifetime access saved successfully from charge event:', result);
+            console.log('⏩ Lifetime already exists for this user, skipping insert.');
           }
         } else {
           console.log('⚠️ Missing user identifier or wrong mode in charge event');
