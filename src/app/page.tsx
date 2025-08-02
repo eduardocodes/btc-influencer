@@ -106,7 +106,6 @@ export default function MainPage() {
                 ) : (
                   <>
                     <a href="#features" className="text-white hover:text-gray-300 px-3 py-2 text-sm font-medium">Features</a>
-                    <button onClick={() => setIsPlansModalOpen(true)} className="text-white hover:text-gray-300 px-3 py-2 text-sm font-medium cursor-pointer">Pricing</button>
                   </>
                 )}
               </nav>
