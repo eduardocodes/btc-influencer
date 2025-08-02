@@ -330,7 +330,7 @@ export default function Account() {
               </div>
               
               <div className="space-y-4">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between mb-10">
                   <span className="text-gray-400">Status:</span>
                   <span className={`px-3 py-1 rounded-full text-sm font-medium ${
                     hasActiveSubscription 
@@ -370,9 +370,7 @@ export default function Account() {
                         </div>
                       ) : 'Cancel Subscription'}
                     </button>
-                    <p className="text-xs text-gray-400 mt-1 text-center">
-                      You will keep access until the end of your current period
-                    </p>
+
                   </div>
                 )}
                 
