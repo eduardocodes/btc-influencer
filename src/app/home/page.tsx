@@ -567,7 +567,7 @@ export default function Home() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {(() => {
-              const combinedCreators = [...matchedCreators, ...mockCreators];
+              const combinedCreators = hasActiveSubscription ? matchedCreators : [...matchedCreators, ...mockCreators];
               const selectedNiches = onboardingData?.productCategory && Array.isArray(onboardingData.productCategory)
                 ? onboardingData.productCategory
                 : typeof onboardingData?.productCategory === 'string'
@@ -691,8 +691,8 @@ export default function Home() {
               });
             })()}
             
-            {/* Mock Blurred Results */}
-            {[...Array(6)].map((_, index) => (
+            {/* Mock Blurred Results - Only show if user doesn't have active subscription */}
+            {!hasActiveSubscription && [...Array(6)].map((_, index) => (
               <div key={`mock-blurred-${index}`} className="bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800 rounded-xl p-6 border border-gray-600/50 shadow-2xl shadow-black/50 backdrop-blur-sm relative overflow-hidden">
                 {/* Blur overlay */}
                 <div className="absolute inset-0 backdrop-blur-sm bg-white/5 z-10"></div>
@@ -762,44 +762,46 @@ export default function Home() {
             ))}
           </div>
           
-          {/* CTA Section */}
-          <div className="mt-12 text-center">
-            <div className="bg-gradient-to-r from-orange-500/20 to-yellow-500/20 backdrop-blur-sm rounded-2xl p-8 border border-orange-500/30">
-              <div className="mb-4">
-                <span className="text-4xl mb-4 block">🔒</span>
-                <h3 className="text-2xl font-bold text-white mb-2">
-                  Preview Only - Subscribe to Unlock More
-                </h3>
-                <p className="text-white/70 mb-6">
-                   Get access to hundreds of high-quality content creators that match your product.
-                 </p>
-              </div>
-              
-              <div className="flex justify-center items-center">
-                <button 
-                  onClick={() => setShowUpgradeModal(true)}
-                  className="cursor-pointer px-8 py-3 bg-gradient-to-r from-orange-500 to-yellow-500 text-white font-semibold rounded-lg hover:from-orange-600 hover:to-yellow-600 transition-all transform hover:scale-105"
-                >
-                  Upgrade to Pro
-                </button>
-              </div>
-              
-              <div className="mt-6 flex justify-center items-center gap-6 text-sm text-white/60">
-                <div className="flex items-center gap-2">
-                  <span className="text-green-400">✓</span>
-                  <span>Unlimited searches</span>
+          {/* CTA Section - Only show if user doesn't have active subscription */}
+          {!hasActiveSubscription && (
+            <div className="mt-12 text-center">
+              <div className="bg-gradient-to-r from-orange-500/20 to-yellow-500/20 backdrop-blur-sm rounded-2xl p-8 border border-orange-500/30">
+                <div className="mb-4">
+                  <span className="text-4xl mb-4 block">🔒</span>
+                  <h3 className="text-2xl font-bold text-white mb-2">
+                    Preview Only - Subscribe to Unlock More
+                  </h3>
+                  <p className="text-white/70 mb-6">
+                     Get access to hundreds of high-quality content creators that match your product.
+                   </p>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-green-400">✓</span>
-                  <span>Contact information</span>
+                
+                <div className="flex justify-center items-center">
+                  <button 
+                    onClick={() => setShowUpgradeModal(true)}
+                    className="cursor-pointer px-8 py-3 bg-gradient-to-r from-orange-500 to-yellow-500 text-white font-semibold rounded-lg hover:from-orange-600 hover:to-yellow-600 transition-all transform hover:scale-105"
+                  >
+                    Upgrade to Pro
+                  </button>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-green-400">✓</span>
-                  <span>Download full list</span>
+                
+                <div className="mt-6 flex justify-center items-center gap-6 text-sm text-white/60">
+                  <div className="flex items-center gap-2">
+                    <span className="text-green-400">✓</span>
+                    <span>Unlimited searches</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-green-400">✓</span>
+                    <span>Contact information</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-green-400">✓</span>
+                    <span>Download full list</span>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
 
 
         </div>
