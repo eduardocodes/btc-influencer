@@ -203,7 +203,12 @@ export default function MainPage() {
           <h2 className="text-4xl font-bold text-center">
             <span className="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">Why Bitcoin&nbsp;Influencer?</span>
           </h2>
-          <div className="mt-16 grid gap-12 md:grid-cols-3">
+          <div className="mt-16 grid gap-12 grid-cols-1 md:grid-cols-2">
+            <Feature
+                icon="🤖"
+                title="AI That Picks Winning Creators"
+                desc="Our intelligent algorithm scan your product and instantly match you with influencers who sell."
+              />
             <Feature
               icon="⏱️"
               title="Save Hours of Research"
