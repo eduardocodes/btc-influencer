@@ -23,6 +23,7 @@ interface Creator {
   youtube_url: string;
   tiktok_url?: string;
   bio: string;
+  isFallback?: boolean;
 }
 
 interface OnboardingData {
@@ -140,7 +141,7 @@ export default function SearchResultsPage() {
       'united states': '🇺🇸',
       'usa': '🇺🇸',
       'us': '🇺🇸',
-      'america': '🇺���8',
+      'america': '🇺🇸',
       // Uruguai
       'uruguai': '🇺🇾',
       'uruguay': '🇺🇾',
@@ -294,7 +295,7 @@ export default function SearchResultsPage() {
           });
           if (fallbackRes.ok) {
             const fallbackData = await fallbackRes.json();
-            const fallbackCreators = (fallbackData.creators || []).filter(fallback => !foundCreators.some(c => c.id === fallback.id));
+            const fallbackCreators = (fallbackData.creators || []).filter((fallback: Creator) => !foundCreators.some((c: Creator) => c.id === fallback.id)).map((creator: Creator) => ({ ...creator, isFallback: true }));
             console.log('[DEBUG] Fallback creators returned:', fallbackCreators);
             foundCreators = [...foundCreators, ...fallbackCreators.slice(0, 6 - foundCreators.length)];
             console.log('[DEBUG] Final creators after fallback:', foundCreators);
@@ -442,8 +443,14 @@ export default function SearchResultsPage() {
                 const creatorCategories = creator.categories || [];
                 const selectedNiches = onboardingData?.product_category ? onboardingData.product_category.split(', ').map((niche: string) => niche.trim()) : [];
                 const matchingNiches = getMatchingNiches(creatorCategories, selectedNiches);
-                // Se não houver categorias selecionadas (fallback), mostrar 90% de match
-                const matchScore = selectedNiches.length === 0 ? 90 : Math.round((matchingNiches.length / (selectedNiches.length || 1)) * 100);
+                // Calculate match score
+                let matchScore = 0;
+                if (creator.isFallback) {
+                  matchScore = 33;
+                } else if (selectedNiches.length > 0) {
+                  matchScore = Math.round((matchingNiches.length / selectedNiches.length) * 100);
+                }
+                console.log('[DEBUG][CARD]', { creator: creator.full_name, selectedNiches, matchingNiches, matchScore });
                 const platformData = getPlatformData(creator);
                 
                 return (
