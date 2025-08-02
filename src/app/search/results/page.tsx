@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/src/lib/supabase';
 import { useAuth } from '../../../contexts/AuthContext';
+import PlansModal from '@/src/components/PlansModal';
 
 interface Creator {
   id: string;
@@ -45,6 +46,7 @@ export default function SearchResultsPage() {
   const [searchingCreators, setSearchingCreators] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const searchExecutedRef = useRef<string | null>(null); // Track if search was executed for current onboarding data
+  const [isPlansModalOpen, setIsPlansModalOpen] = useState(false);
 
   const formatNumber = (num: number) => {
     if (num >= 1000000) {
@@ -138,7 +140,7 @@ export default function SearchResultsPage() {
       'united states': '🇺🇸',
       'usa': '🇺🇸',
       'us': '🇺🇸',
-      'america': '🇺🇸',
+      'america': '🇺���8',
       // Uruguai
       'uruguai': '🇺🇾',
       'uruguay': '🇺🇾',
@@ -333,19 +335,6 @@ export default function SearchResultsPage() {
 
     performSearch();
   }, [onboardingData]); // This will run when onboardingData changes
-
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-white mb-4">Please log in to view search results</h1>
-          <Link href="/auth" className="text-blue-400 hover:text-blue-300">
-            Go to Login
-          </Link>
-        </div>
-      </div>
-    );
-  }
 
   if (loading || searchingCreators) {
     return (
@@ -644,7 +633,7 @@ export default function SearchResultsPage() {
                 </div>
                 
                 <div className="flex justify-center items-center">
-                  <button className="cursor-pointer px-8 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold rounded-lg hover:from-orange-400 hover:to-orange-500 transition-all transform hover:scale-105 shadow-lg shadow-orange-500/25">
+                  <button className="cursor-pointer px-8 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold rounded-lg hover:from-orange-400 hover:to-orange-500 transition-all transform hover:scale-105 shadow-lg shadow-orange-500/25" onClick={() => setIsPlansModalOpen(true)}>
                     Upgrade to Pro
                   </button>
                 </div>
@@ -665,6 +654,7 @@ export default function SearchResultsPage() {
                 </div>
               </div>
             </div>
+            <PlansModal isOpen={isPlansModalOpen} onClose={() => setIsPlansModalOpen(false)} />
           </>
         )}
 
