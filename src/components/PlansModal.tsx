@@ -68,14 +68,14 @@ export default function PlansModal({ isOpen, onClose }: PlansModalProps) {
             Unlimited access to the full database, updates and priority support.
           </p>
 
-          <div className="flex flex-col md:flex-row justify-center gap-8">
+          <div className="flex flex-col md:flex-row justify-center items-stretch gap-8">
             <Plan
               highlighted={false}
               name="Monthly Pass"
               price="$97"
               period="/month"
               perks={[
-                'AI-powered recommendations based on your product',
+                'AI-picked influencers that fit your product',
                 'Unlimited CSV export',
                 'Priority access',
                 'Frequent updates',
@@ -119,7 +119,7 @@ function Plan({
 }) {
   return (
     <div
-      className={`w-full md:w-96 rounded-2xl p-8 bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800 border shadow-2xl shadow-black/50 hover:scale-105 transition-all duration-300 ${
+      className={`w-full md:w-96 rounded-2xl p-8 bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800 border shadow-2xl shadow-black/50 hover:scale-105 transition-all duration-300 flex flex-col ${
         highlighted
           ? 'border-orange-500 shadow-orange-500/25'
           : 'border-gray-600/50 hover:border-orange-500/50'
@@ -130,7 +130,7 @@ function Plan({
         {price}{' '}
         <span className="text-lg font-normal text-gray-300">{period}</span>
       </p>
-      <ul className="space-y-3 mb-8">
+      <ul className="space-y-3 mb-8 flex-grow">
         {perks.map((p) => (
           <li key={p} className="text-gray-300">{p === 'Does not include future updates or new creators' ? '✖️' : '✔️'} {p}</li>
         ))}
