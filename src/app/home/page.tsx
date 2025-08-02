@@ -674,28 +674,56 @@ export default function Home() {
                     <div className="space-y-3 mb-4">
                       {/* YouTube Stats - Only show if YouTube URL exists */}
                       {creator.youtube_url && (
-                        <div className="flex items-center justify-between p-3 bg-gray-900 rounded">
-                          <div className="flex items-center gap-2">
-                            {getPlatformData('youtube').icon}
-                            <span className="text-sm font-medium">YouTube</span>
+                        <div className="p-3 bg-gray-900 rounded">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              {getPlatformData('youtube').icon}
+                              <span className="text-sm font-medium">YouTube</span>
+                            </div>
+                            <div className="text-right">
+                              <div className="text-sm font-bold">{formatNumber(creator.youtube_followers)}</div>
+                            </div>
                           </div>
-                          <div className="text-right">
-                            <div className="text-sm font-bold">{formatNumber(creator.youtube_followers)}</div>
-                            <div className="text-xs text-gray-400">{creator.youtube_engagement_rate}% engagement</div>
+                          {/* Engagement Rate */}
+                          <div>
+                            <div className="flex justify-between text-sm mb-1">
+                              <span className="text-white/60">Engagement Rate</span>
+                              <span className="text-white">{creator.youtube_engagement_rate?.toFixed(1) || '0.0'}%</span>
+                            </div>
+                            <div className="w-full bg-white/20 rounded-full h-2">
+                              <div 
+                                className="h-2 rounded-full bg-orange-400"
+                                style={{ width: `${Math.min(creator.youtube_engagement_rate || 0, 100)}%` }}
+                              ></div>
+                            </div>
                           </div>
                         </div>
                       )}
 
                       {/* TikTok Stats - Only show if TikTok URL exists */}
                       {creator.tiktok_url && creator.tiktok_followers && (
-                        <div className="flex items-center justify-between p-3 bg-gray-900 rounded">
-                          <div className="flex items-center gap-2">
-                            {getPlatformData('tiktok').icon}
-                            <span className="text-sm font-medium">TikTok</span>
+                        <div className="p-3 bg-gray-900 rounded">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              {getPlatformData('tiktok').icon}
+                              <span className="text-sm font-medium">TikTok</span>
+                            </div>
+                            <div className="text-right">
+                              <div className="text-sm font-bold">{formatNumber(creator.tiktok_followers)}</div>
+                            </div>
                           </div>
-                          <div className="text-right">
-                            <div className="text-sm font-bold">{formatNumber(creator.tiktok_followers)}</div>
-                            <div className="text-xs text-gray-400">{creator.tiktok_engagement_rate}% engagement</div>
+                          {/* Engagement Rate */}
+                          <div>
+                            <div className="flex justify-between text-sm mb-1">
+                              <span className="text-white/60">Engagement Rate</span>
+                              <span className="text-white">{creator.tiktok_engagement_rate?.toFixed(1) || '0.0'}%</span>
+                            </div>
+                            <div className="w-full bg-white/20 rounded-full h-2">
+                              <div 
+                                className="h-2 rounded-full bg-orange-400"
+                                style={{ width: `${Math.min(creator.tiktok_engagement_rate || 0, 100)}%` }}
+                              ></div>
+                            </div>
                           </div>
                         </div>
                       )}
