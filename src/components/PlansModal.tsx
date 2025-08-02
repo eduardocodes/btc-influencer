@@ -32,7 +32,8 @@ export default function PlansModal({ isOpen, onClose }: PlansModalProps) {
 
   return (
     <div 
-      className="fixed inset-0 bg-gradient-to-br from-black via-gray-900 to-black bg-opacity-95 flex items-center justify-center p-4 z-50"
+      className="fixed inset-0 flex items-center justify-center p-4 z-50"
+      style={{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }}
       onClick={handleOverlayClick}
     >
       <div className="bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800 rounded-2xl border border-gray-600/50 shadow-2xl shadow-black/50 max-w-4xl w-full max-h-[90vh] overflow-y-auto relative">
