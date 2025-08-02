@@ -223,9 +223,6 @@ const mockCreators: Creator[] = [
 export default function Home() {
   const router = useRouter();
   const { user, signOut, isLoading } = useAuth();
-  const [activeFilter, setActiveFilter] = useState('All');
-  const [currentPage, setCurrentPage] = useState(1)
-  const [savedInfluencers, setSavedInfluencers] = useState<Set<string>>(new Set())
   const [isFirstVisit, setIsFirstVisit] = useState(true)
   const [showOnboarding, setShowOnboarding] = useState(false)
   const [onboardingData, setOnboardingData] = useState<any>(null)
@@ -234,7 +231,6 @@ export default function Home() {
   const [loadingMatches, setLoadingMatches] = useState(false)
   const [hasActiveSubscription, setHasActiveSubscription] = useState(false)
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
-  const influencersPerPage = 6
 
   // Utility functions from search results page
   const formatNumber = (num: number) => {
@@ -361,11 +357,6 @@ export default function Home() {
     }
   };
 
-  // Test function to load matches for specific user
-  const testLoadMatches = () => {
-    loadUserMatches('4bb65f1f-b724-47b2-b5b2-136a56acdb16');
-  };
-
   // Load creators data based on IDs
   const loadMatchedCreators = async (creatorIds: string[]) => {
     try {
@@ -448,49 +439,13 @@ export default function Home() {
       router.push("/onboarding");
     }
   }, [showOnboarding, router]);
-
-  const menuItems = ['Matches', 'Database']
-
-  const handleLogin = () => {
-    router.push('/login');
-  };
   
   const handleLogout = async () => {
     await signOut();
     router.push('/login');
   };
 
-  const logout = handleLogout;
-
-  const handleSaveInfluencer = (id: string) => {
-    setSavedInfluencers(prev => {
-      const newSet = new Set(prev)
-      if (newSet.has(id)) {
-        newSet.delete(id)
-      } else {
-        newSet.add(id)
-      }
-      return newSet
-    })
-  }
-
   const handleGetMatches = () => {
-    setShowOnboarding(true)
-  }
-
-  const handleOnboardingComplete = () => {
-    localStorage.setItem('hasVisitedBefore', 'true')
-    setIsFirstVisit(false)
-    setShowOnboarding(false)
-    
-    // Load the saved onboarding data
-    const savedOnboardingData = localStorage.getItem('onboardingData')
-    if (savedOnboardingData) {
-      setOnboardingData(JSON.parse(savedOnboardingData))
-    }
-  }
-
-  const handleEditOnboarding = () => {
     setShowOnboarding(true)
   }
 
@@ -501,22 +456,6 @@ export default function Home() {
       setShowUpgradeModal(true)
     }
   }
-
-  const toggleSave = (influencerId: string) => {
-    setSavedInfluencers(prev => {
-      const newSet = new Set(prev)
-      if (newSet.has(influencerId)) {
-        newSet.delete(influencerId)
-      } else {
-        newSet.add(influencerId)
-      }
-      return newSet
-    })
-  };
-
-  const saveAll = () => {
-    setSavedInfluencers(new Set(mockInfluencers.map(inf => inf.id)));
-  };
 
   if (isLoading) {
     return (
