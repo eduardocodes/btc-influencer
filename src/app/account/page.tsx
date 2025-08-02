@@ -15,8 +15,8 @@ interface UserProfile {
 interface Subscription {
   id: string;
   status: string;
-  created_at: string;
-  plan_name?: string;
+  plan: string;
+  current_period_end?: string;
 }
 
 export default function Account() {
@@ -26,6 +26,13 @@ export default function Account() {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [loading, setLoading] = useState(true);
   const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
+  
+  // Password change states
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [passwordMessage, setPasswordMessage] = useState<{type: 'success' | 'error', text: string} | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -51,7 +58,7 @@ export default function Account() {
         .from('subscriptions')
         .select('*')
         .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
+        .order('current_period_end', { ascending: false });
 
       if (subscriptionsError) {
         console.error('Error loading subscriptions:', subscriptionsError);
@@ -73,11 +80,62 @@ export default function Account() {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('pt-BR', {
+    return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
     });
+  };
+
+  const handlePasswordChange = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Reset message
+    setPasswordMessage(null);
+    
+    // Validation
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      setPasswordMessage({type: 'error', text: 'All fields are required'});
+      return;
+    }
+    
+    if (newPassword.length < 6) {
+      setPasswordMessage({type: 'error', text: 'New password must be at least 6 characters'});
+      return;
+    }
+    
+    if (newPassword !== confirmPassword) {
+      setPasswordMessage({type: 'error', text: 'Passwords do not match'});
+      return;
+    }
+    
+    if (currentPassword === newPassword) {
+      setPasswordMessage({type: 'error', text: 'New password must be different from current password'});
+      return;
+    }
+    
+    try {
+      setPasswordLoading(true);
+      
+      // Update password using Supabase Auth
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword
+      });
+      
+      if (error) {
+        setPasswordMessage({type: 'error', text: error.message});
+      } else {
+        setPasswordMessage({type: 'success', text: 'Password changed successfully!'});
+        // Clear form
+        setCurrentPassword('');
+        setNewPassword('');
+        setConfirmPassword('');
+      }
+    } catch (error) {
+      setPasswordMessage({type: 'error', text: 'Error changing password. Please try again.'});
+    } finally {
+      setPasswordLoading(false);
+    }
   };
 
   if (loading) {
@@ -86,7 +144,7 @@ export default function Account() {
         <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black text-white flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
-            <p className="text-gray-400">Carregando dados da conta...</p>
+            <p className="text-gray-400">Loading account data...</p>
           </div>
         </div>
       </ProtectedRoute>
@@ -102,15 +160,14 @@ export default function Account() {
             <div className="flex items-center justify-between h-16">
               <div className="flex items-center">
                 <img src="/btc-influencer-icon.svg" alt="Bitcoin Influencer" className="h-10 w-auto" />
-                <h1 className="ml-4 text-xl font-bold">Minha Conta</h1>
               </div>
               
               <div className="flex items-center space-x-4">
                 <button
                   onClick={() => router.push('/home')}
                   className="bg-gray-600 hover:bg-gray-700 px-3 py-1 rounded text-sm transition-colors flex items-center justify-center cursor-pointer"
-                  title="Voltar para Home"
-                  aria-label="Voltar para Home"
+                  title="Back to Home"
+                  aria-label="Back to Home"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -175,7 +232,7 @@ export default function Account() {
                     />
                   </svg>
                 </div>
-                <h2 className="text-2xl font-bold">Informações da Conta</h2>
+                <h2 className="text-2xl font-bold">Account Information</h2>
               </div>
               
               <div className="space-y-4">
@@ -185,7 +242,7 @@ export default function Account() {
                 </div>
                 
                 <div>
-                  <p className="text-gray-400 text-sm mb-1">Membro desde</p>
+                  <p className="text-gray-400 text-sm mb-1">Member since</p>
                   <p className="text-white font-medium">
                     {userProfile?.created_at ? formatDate(userProfile.created_at) : 'N/A'}
                   </p>
@@ -214,7 +271,7 @@ export default function Account() {
                     />
                   </svg>
                 </div>
-                <h2 className="text-2xl font-bold">Status da Assinatura</h2>
+                <h2 className="text-2xl font-bold">Subscription Status</h2>
               </div>
               
               <div className="space-y-4">
@@ -225,19 +282,19 @@ export default function Account() {
                       ? 'bg-green-500/20 text-green-400 border border-green-500/30'
                       : 'bg-gray-500/20 text-gray-400 border border-gray-500/30'
                   }`}>
-                    {hasActiveSubscription ? 'Ativo' : 'Inativo'}
+                    {hasActiveSubscription ? 'Active' : 'Inactive'}
                   </span>
                 </div>
                 
                 {subscriptions.length > 0 ? (
                   <div>
-                    <p className="text-gray-400 text-sm mb-2">Histórico de Assinaturas:</p>
+                    <p className="text-gray-400 text-sm mb-2">Subscription History:</p>
                     <div className="space-y-2 max-h-32 overflow-y-auto">
                       {subscriptions.map((subscription) => (
                         <div key={subscription.id} className="bg-gray-700/50 rounded p-3">
                           <div className="flex justify-between items-center">
                             <span className="text-sm text-white">
-                              {subscription.plan_name || 'Plano Pro'}
+                              {subscription.plan || 'Pro Plan'}
                             </span>
                             <span className={`text-xs px-2 py-1 rounded ${
                               subscription.status === 'active' 
@@ -248,7 +305,7 @@ export default function Account() {
                             </span>
                           </div>
                           <p className="text-xs text-gray-400 mt-1">
-                            {formatDate(subscription.created_at)}
+                            {subscription.current_period_end ? formatDate(subscription.current_period_end) : 'N/A'}
                           </p>
                         </div>
                       ))}
@@ -256,12 +313,12 @@ export default function Account() {
                   </div>
                 ) : (
                   <div className="text-center py-4">
-                    <p className="text-gray-400 text-sm">Nenhuma assinatura encontrada</p>
+                    <p className="text-gray-400 text-sm">No subscriptions found</p>
                     <button
                       onClick={() => router.push('/home')}
                       className="mt-2 bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded text-sm transition-colors cursor-pointer"
                     >
-                      Explorar Planos
+                      Explore Plans
                     </button>
                   </div>
                 )}
@@ -269,6 +326,99 @@ export default function Account() {
             </div>
           </div>
 
+          {/* Change Password Section */}
+          <div className="mt-8">
+            <div className="bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800 rounded-xl p-6 border border-gray-600/50 shadow-lg">
+              <div className="flex items-center mb-6">
+                <div className="bg-blue-500 rounded-full p-3 mr-4">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="w-6 h-6 text-white"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"
+                    />
+                  </svg>
+                </div>
+                <h2 className="text-2xl font-bold">Change Password</h2>
+              </div>
+              
+              <form onSubmit={handlePasswordChange} className="space-y-4">
+                <div>
+                  <label htmlFor="currentPassword" className="block text-gray-400 text-sm mb-2">
+                    Current Password
+                  </label>
+                  <input
+                    type="password"
+                    id="currentPassword"
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-colors"
+                    placeholder="Enter your current password"
+                    disabled={passwordLoading}
+                  />
+                </div>
+                
+                <div>
+                  <label htmlFor="newPassword" className="block text-gray-400 text-sm mb-2">
+                    New Password
+                  </label>
+                  <input
+                    type="password"
+                    id="newPassword"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-colors"
+                    placeholder="Enter your new password (min. 6 characters)"
+                    disabled={passwordLoading}
+                  />
+                </div>
+                
+                <div>
+                  <label htmlFor="confirmPassword" className="block text-gray-400 text-sm mb-2">
+                    Confirm New Password
+                  </label>
+                  <input
+                    type="password"
+                    id="confirmPassword"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-colors"
+                    placeholder="Confirm your new password"
+                    disabled={passwordLoading}
+                  />
+                </div>
+                
+                {passwordMessage && (
+                  <div className={`p-3 rounded-lg text-sm ${
+                    passwordMessage.type === 'success' 
+                      ? 'bg-green-500/20 text-green-400 border border-green-500/30'
+                      : 'bg-red-500/20 text-red-400 border border-red-500/30'
+                  }`}>
+                    {passwordMessage.text}
+                  </div>
+                )}
+                
+                <button
+                   type="submit"
+                   disabled={passwordLoading}
+                   className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-gray-600 disabled:cursor-not-allowed px-4 py-3 rounded-lg text-white font-medium transition-colors cursor-pointer flex items-center justify-center"
+                 >
+                   {passwordLoading ? (
+                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                   ) : (
+                     'Change Password'
+                   )}
+                 </button>
+              </form>
+            </div>
+          </div>
 
         </div>
       </div>
