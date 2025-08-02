@@ -216,7 +216,7 @@ export async function POST(req: NextRequest) {
           try {
             const paymentIntent = await stripe.paymentIntents.retrieve(data.payment_intent as string);
             userId = (paymentIntent.metadata as any)?.userId;
-            console.log('🔄 Retrieved userId from PaymentIntent metadata (charge event):', userId);
+            console.log('🔄 Retrieved userId from PaymentIntent (charge event):', userId);
           } catch (e) {
             console.error('❌ Failed to retrieve PaymentIntent (charge event):', e);
           }
@@ -266,9 +266,11 @@ export async function POST(req: NextRequest) {
     case 'invoice.payment_failed':
       console.log('🔄 Processing subscription update:', event.type);
       const updateData = {
-        status: data.status,
-        current_period_end: new Date(data.current_period_end * 1000),
+        status: data.status
       };
+      if (typeof data.current_period_end === 'number' && !isNaN(data.current_period_end)) {
+        updateData.current_period_end = new Date(data.current_period_end * 1000);
+      }
       console.log('📝 Update data:', updateData);
       
       const { error } = await supabaseAdmin

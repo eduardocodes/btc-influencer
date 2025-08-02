@@ -50,8 +50,7 @@ export async function POST(req: NextRequest) {
       const { error: updateError } = await supabaseAdmin
         .from('subscriptions')
         .update({ 
-          status: 'canceled',
-          current_period_end: new Date(stripeSubscription.current_period_end * 1000)
+          status: 'canceled'
         })
         .eq('id', subscription.id);
 
