@@ -185,11 +185,6 @@ export default function Account() {
                 </div>
                 
                 <div>
-                  <p className="text-gray-400 text-sm mb-1">ID da Conta</p>
-                  <p className="text-white font-mono text-sm break-all">{userProfile?.id}</p>
-                </div>
-                
-                <div>
                   <p className="text-gray-400 text-sm mb-1">Membro desde</p>
                   <p className="text-white font-medium">
                     {userProfile?.created_at ? formatDate(userProfile.created_at) : 'N/A'}
