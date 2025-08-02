@@ -231,6 +231,8 @@ export default function Home() {
   const [userMatches, setUserMatches] = useState<UserMatch[]>([])
   const [matchedCreators, setMatchedCreators] = useState<Creator[]>([])
   const [loadingMatches, setLoadingMatches] = useState(false)
+  const [hasActiveSubscription, setHasActiveSubscription] = useState(false)
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
   const influencersPerPage = 6
 
   // Utility functions from search results page
@@ -295,6 +297,30 @@ export default function Home() {
         niche.toLowerCase().includes(category.toLowerCase())
       )
     );
+  };
+
+  // Check subscription status
+  const checkSubscriptionStatus = async () => {
+    if (!user) return false;
+    
+    try {
+      const { data, error } = await supabase
+        .from('subscriptions')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('status', 'active')
+        .single();
+      
+      if (data && !error) {
+        setHasActiveSubscription(true);
+        return true;
+      }
+    } catch (error) {
+      console.log('No active subscription found');
+    }
+    
+    setHasActiveSubscription(false);
+    return false;
   };
 
   // Load user matches from database
@@ -405,15 +431,19 @@ export default function Home() {
             setIsFirstVisit(false)
             
             // Load user matches after onboarding data is loaded
-            await loadUserMatches()
-            return
+        await loadUserMatches()
+        // Check subscription status
+        await checkSubscriptionStatus()
+        return
           }
         } catch (error) {
           console.log('Could not load from Supabase:', error)
         }
         
         // If no onboarding data but user is logged in, still check for matches
-        await loadUserMatches()
+      await loadUserMatches()
+      // Check subscription status
+      await checkSubscriptionStatus()
       }
       
       // Fallback to localStorage
@@ -480,7 +510,11 @@ export default function Home() {
   }
 
   const handleDatabaseClick = () => {
-    router.push('/database')
+    if (hasActiveSubscription) {
+      router.push('/database')
+    } else {
+      setShowUpgradeModal(true)
+    }
   }
 
   const toggleSave = (influencerId: string) => {
@@ -546,7 +580,14 @@ export default function Home() {
               
               <nav className="flex space-x-6">
                 <a href="#" className="text-white hover:text-gray-300 px-3 py-2 text-sm font-medium">Matches</a>
-                <a href="/database" onClick={handleDatabaseClick} className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium cursor-pointer">Database</a>
+                <button onClick={handleDatabaseClick} className={`px-3 py-2 text-sm font-medium cursor-pointer flex items-center gap-2 ${
+                  hasActiveSubscription 
+                    ? 'text-gray-300 hover:text-white' 
+                    : 'text-gray-500 hover:text-gray-400'
+                }`}>
+                  Database
+                  {!hasActiveSubscription && <span className="text-xs">🔒</span>}
+                </button>
               </nav>
             </div>
             
@@ -866,6 +907,42 @@ export default function Home() {
 
         </div>
       )}
+      
+      {/* Upgrade Modal */}
+       {showUpgradeModal && (
+         <div className="fixed inset-0 bg-gradient-to-br from-black via-gray-900 to-black bg-opacity-90 flex items-center justify-center z-50">
+           <div className="bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800 rounded-xl p-8 max-w-md w-full mx-4 border border-gray-600/50 shadow-2xl shadow-black/50 backdrop-blur-sm">
+             <div className="text-center">
+               <span className="text-4xl mb-4 block">🔒</span>
+               <h3 className="text-xl font-bold text-white mb-4">
+                 Database Access Requires Subscription
+               </h3>
+               <p className="text-gray-400 mb-6">
+                 Upgrade to Pro to access our full database of bitcoin-only and crypto influencers with contact information and advanced metrics.
+               </p>
+               
+               <div className="flex gap-3">
+                 <button
+                   onClick={() => setShowUpgradeModal(false)}
+                   className="flex-1 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition duration-200 cursor-pointer"
+                 >
+                   Cancel
+                 </button>
+                 <button
+                   onClick={() => {
+                     setShowUpgradeModal(false)
+                     // Here you would redirect to payment/subscription page
+                     console.log('Redirect to subscription page')
+                   }}
+                   className="flex-1 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition duration-200 cursor-pointer"
+                 >
+                   Upgrade Now
+                 </button>
+               </div>
+             </div>
+           </div>
+         </div>
+       )}
     </div>
   );
 }
