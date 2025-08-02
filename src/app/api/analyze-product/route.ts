@@ -50,14 +50,11 @@ const AVAILABLE_CATEGORIES = [
 
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
-  console.log('[analyze-product] Iniciando análise de produto', { timestamp: new Date().toISOString() });
   
   try {
     const { userId } = await request.json();
-    console.log('[analyze-product] Request recebido', { userId, timestamp: new Date().toISOString() });
 
     if (!userId) {
-      console.warn('[analyze-product] User ID não fornecido');
       return NextResponse.json(
         { error: 'User ID is required' },
         { status: 400 }
@@ -65,7 +62,6 @@ export async function POST(request: NextRequest) {
     }
 
     // Buscar as respostas do onboarding do usuário
-    console.log('[analyze-product] Buscando dados de onboarding', { userId });
     const { data: onboardingData, error: onboardingError } = await supabase
       .from('onboarding_answers')
       .select('*')
@@ -86,15 +82,6 @@ export async function POST(request: NextRequest) {
         { status: 404 }
       );
     }
-
-    console.log('[analyze-product] Dados de onboarding encontrados', {
-      userId,
-      hasCompanyName: !!onboardingData.company_name,
-      hasProductName: !!onboardingData.product_name,
-      hasProductDescription: !!onboardingData.product_description,
-      currentCategory: onboardingData.product_category,
-      isBitcoinSuitable: onboardingData.is_bitcoin_suitable
-    });
 
     // Preparar o prompt para a OpenAI
     const prompt = `
@@ -139,11 +126,6 @@ Respond in the following JSON format:
 
 
     // Fazer a requisição para a OpenAI
-    console.log('[analyze-product] Enviando prompt para OpenAI', {
-      userId,
-      model: 'gpt-4o-mini',
-      promptLength: prompt.length
-    });
     const completion = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [
@@ -161,12 +143,6 @@ Respond in the following JSON format:
     });
 
     const responseContent = completion.choices[0]?.message?.content;
-    console.log('[analyze-product] Resposta recebida da OpenAI', {
-      userId,
-      hasResponse: !!responseContent,
-      responseLength: responseContent?.length || 0,
-      tokensUsed: completion.usage?.total_tokens || 0
-    });
     
     if (!responseContent) {
       console.error('[analyze-product] Nenhuma resposta da OpenAI');
@@ -181,11 +157,6 @@ Respond in the following JSON format:
       if (cleanResponse.startsWith('```')) {
         cleanResponse = cleanResponse.replace(/^```[a-zA-Z]*\n?/, '').replace(/```$/, '').trim();
       }
-      console.log('[analyze-product] Fazendo parse da resposta da IA', {
-        userId,
-        originalLength: responseContent.length,
-        cleanedLength: cleanResponse.length
-      });
       analysisResult = JSON.parse(cleanResponse);
     } catch (parseError) {
       console.error('[analyze-product] Erro ao fazer parse da resposta da IA:', {
@@ -203,20 +174,8 @@ Respond in the following JSON format:
     const validCategories = analysisResult.categories.filter((cat: string) => 
       AVAILABLE_CATEGORIES.includes(cat)
     );
-    console.log('[analyze-product] Categorias analisadas', {
-      userId,
-      originalCategories: analysisResult.categories,
-      validCategories,
-      isBitcoinSuitable: analysisResult.is_bitcoin_suitable,
-      invalidCategories: analysisResult.categories.filter((cat: string) => !AVAILABLE_CATEGORIES.includes(cat))
-    });
 
     // Atualizar o registro de onboarding com a análise da IA
-    console.log('[analyze-product] Atualizando dados no banco', {
-      userId,
-      categoriesString: validCategories.join(', '),
-      isBitcoinSuitable: analysisResult.is_bitcoin_suitable
-    });
     const { error: updateError } = await supabase
       .from('onboarding_answers')
       .update({
@@ -232,18 +191,6 @@ Respond in the following JSON format:
       );
     }
 
-    console.log('[analyze-product] Dados atualizados com sucesso no banco', { userId });
-
-    const endTime = Date.now();
-    const duration = endTime - startTime;
-
-    console.log('[analyze-product] Análise concluída com sucesso', {
-      userId,
-      duration: `${duration}ms`,
-      categoriesCount: validCategories.length,
-      isBitcoinSuitable: analysisResult.is_bitcoin_suitable
-    });
-
     return NextResponse.json({
       success: true,
       analysis: {
@@ -254,13 +201,9 @@ Respond in the following JSON format:
     });
 
   } catch (error: any) {
-    const endTime = Date.now();
-    const duration = endTime - startTime;
     console.error('[analyze-product] Erro interno na análise:', {
       error: error.message,
-      stack: error.stack,
-      duration: `${duration}ms`,
-      timestamp: new Date().toISOString()
+      stack: error.stack
     });
     return NextResponse.json(
       { error: 'Internal server error' },
