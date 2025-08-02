@@ -91,7 +91,6 @@ export default function SearchLoadingPage() {
     const interval = setInterval(() => {
       setProgress(prev => {
         const newProgress = prev + 2;
-        
         // Update message based on progress
         if (newProgress >= 20 && newProgress < 40) {
           setCurrentMessage(messages[1]);
@@ -102,7 +101,6 @@ export default function SearchLoadingPage() {
         } else if (newProgress >= 80) {
           setCurrentMessage(messages[4]);
         }
-        
         // Só redirecionar quando a análise estiver completa ou houver erro
         if (newProgress >= 100 && !hasNavigated && (analysisComplete || error)) {
           hasNavigated = true;
@@ -112,13 +110,11 @@ export default function SearchLoadingPage() {
           }, 500);
           return 100;
         }
-        
         // Se chegou a 100% mas a análise ainda não terminou, manter em 99%
         if (newProgress >= 100 && !analysisComplete && !error) {
           return 99;
         }
-        
-        return newProgress;
+        return Math.min(newProgress, 100);
       });
     }, 100);
 
