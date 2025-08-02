@@ -225,15 +225,15 @@ export default function MainPage() {
           </h2>
           <div className="mt-16 grid gap-12 grid-cols-1 md:grid-cols-2">
             <Feature
-                icon="🤖"
-                title="AI That Picks Winning Creators"
-                desc="Our intelligent algorithm scan your product and instantly match you with influencers who sell."
-              />
-            <Feature
               icon="⏱️"
               title="Save Hours of Research"
               desc="Instantly access a vetted database of Bitcoin-only and crypto creators ready for collaboration."
             />
+            <Feature
+                icon="🤖"
+                title="AI That Picks Winning Creators"
+                desc="Our intelligent algorithm scan your product and instantly match you with influencers who sell."
+              />
             <Feature
               icon="📈"
               title="Updated Metrics"
