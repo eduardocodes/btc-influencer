@@ -522,7 +522,6 @@ export default function Home() {
             </div>
             
             <div className="flex items-center space-x-4">
-              <span className="text-orange-500 text-sm">⚡ Full Access</span>
               <button
                 onClick={handleLogout}
                 className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-sm transition-colors flex items-center justify-center cursor-pointer"
