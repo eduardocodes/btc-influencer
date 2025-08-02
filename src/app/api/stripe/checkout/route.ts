@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
       console.error('❌ Auth user lookup failed:', authError);
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
-    userEmail = authUser.email;
+    userEmail = authUser.user.email;
   }
 
   // Buscar cliente Stripe existente pelo e-mail, se houver
