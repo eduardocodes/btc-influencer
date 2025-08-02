@@ -94,7 +94,7 @@ export default function MainPage() {
                 ) : (
                   <>
                     <a href="#features" className="text-white hover:text-gray-300 px-3 py-2 text-sm font-medium">Features</a>
-                    <a href="#pricing" className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium">Pricing</a>
+    
                   </>
                 )}
               </nav>
@@ -148,7 +148,7 @@ export default function MainPage() {
       </header>
 
       {/* HERO */}
-      <section className="relative flex flex-col items-center justify-center text-center py-32 px-6">
+      <section className="relative flex flex-col items-center justify-center text-center py-70 px-6">
         <h1 className="text-5xl md:text-7xl font-extrabold leading-tight mt-6">
           Find <span className="bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent">Bitcoin Influencers</span> in
           Seconds
@@ -166,7 +166,7 @@ export default function MainPage() {
       </section>
 
       {/* FEATURES */}
-      <section id="features" className="py-24">
+      <section id="features" className="py-24 bg-gradient-to-br from-orange-500/10 to-orange-600/5">
         <div className="max-w-6xl mx-auto px-6">
           <h2 className="text-4xl font-bold text-center">
             <span className="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">Why Bitcoin&nbsp;Influencer?</span>
@@ -191,48 +191,7 @@ export default function MainPage() {
         </div>
       </section>
 
-      {/* PRICING */}
-      <section
-        id="pricing"
-        className="py-24 bg-gradient-to-br from-orange-500/10 to-orange-600/5"
-      >
-        <div className="max-w-6xl mx-auto px-6">
-          <h2 className="text-4xl font-bold text-center">
-            <span className="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">One Subscription. Endless Data.</span>
-          </h2>
-          <p className="mt-4 text-center max-w-xl mx-auto text-gray-300">
-            Unlimited access to the full database, updates and priority
-            support.
-          </p>
 
-          <div className="mt-16 flex flex-col md:flex-row justify-center gap-12">
-            <Plan
-              highlighted={false}
-              name="Monthly Pass"
-              price="$97"
-              period="/month"
-              perks={[
-                'Unlimited CSV export',
-                'Priority access',
-                'Frequent updates',
-              ]}
-              link="https://pay.stripe.com"
-            />
-            <Plan
-              highlighted
-              name="Lifetime Access"
-              price="$147"
-              period="one-time"
-              perks={[
-                'One-time payment',
-                'Instant access to the current version of our full dataset',
-                'Does not include future updates or new creators',
-              ]}
-              link="https://pay.stripe.com"
-            />
-          </div>
-        </div>
-      </section>
 
       {/* FAQ */}
       <section className="py-24">
