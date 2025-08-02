@@ -12,6 +12,7 @@ const supabase = createClient(
 );
 
 const AVAILABLE_CATEGORIES = [
+  "BTC-only",
   "accounting",
   "altcoins",
   "beginner",
@@ -49,11 +50,14 @@ const AVAILABLE_CATEGORIES = [
 
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
+  console.log('[analyze-product] Iniciando análise de produto', { timestamp: new Date().toISOString() });
   
   try {
     const { userId } = await request.json();
+    console.log('[analyze-product] Request recebido', { userId, timestamp: new Date().toISOString() });
 
     if (!userId) {
+      console.warn('[analyze-product] User ID não fornecido');
       return NextResponse.json(
         { error: 'User ID is required' },
         { status: 400 }
@@ -61,6 +65,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Buscar as respostas do onboarding do usuário
+    console.log('[analyze-product] Buscando dados de onboarding', { userId });
     const { data: onboardingData, error: onboardingError } = await supabase
       .from('onboarding_answers')
       .select('*')
@@ -82,6 +87,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    console.log('[analyze-product] Dados de onboarding encontrados', {
+      userId,
+      hasCompanyName: !!onboardingData.company_name,
+      hasProductName: !!onboardingData.product_name,
+      hasProductDescription: !!onboardingData.product_description,
+      currentCategory: onboardingData.product_category,
+      isBitcoinSuitable: onboardingData.is_bitcoin_suitable
+    });
+
     // Preparar o prompt para a OpenAI
     const prompt = `
 Analyze the following product information and categorize it based on the available categories for Bitcoin/crypto influencers.
@@ -97,21 +111,39 @@ Product Information:
 Available Categories:
 ${AVAILABLE_CATEGORIES.join(', ')}
 
-Based on the product information above, please:
+**CRITICAL INSTRUCTIONS FOR BITCOIN-ONLY DETECTION:**
+
+You MUST set is_bitcoin_suitable to true if ANY of these conditions are met:
+1. Product name/description contains: "bitcoin-only", "bitcoinheiro", "bitcoiner", "BTC-only", "bitcoin maximalist", "bitcoin maximalism", "only bitcoin", "exclusively bitcoin"
+2. Product explicitly states it excludes altcoins or focuses only on Bitcoin
+3. Product targets Bitcoin maximalists or Bitcoin-only community
+4. Product is Bitcoin-specific (wallets, nodes, education that mentions Bitcoin-only)
+
+**DECISION RULE:**
+- If product mentions Bitcoin and excludes other cryptocurrencies → is_bitcoin_suitable = true
+- If product is Bitcoin-specific and not multi-crypto → is_bitcoin_suitable = true
+- If product description mentions "bitcoin-only" or similar → is_bitcoin_suitable = true
+
+Please:
 1. Select the most appropriate categories from the available list (you can select multiple categories)
-2. Carefully evaluate if this product is interesting and relevant for a Bitcoin-only audience. If it is, set is_bitcoin_suitable to true. Otherwise, set it to false. Only mark true if the product is genuinely suitable for Bitcoin-only influencers.
-3. Provide a brief explanation for your categorization and your reasoning for the Bitcoin-only suitability.
+2. Evaluate Bitcoin-only suitability using the CRITICAL INSTRUCTIONS above - be generous with Bitcoin-only products
+3. Provide a brief explanation for your categorization and Bitcoin-only suitability decision
 
 Respond in the following JSON format:
 {
   "categories": ["category1", "category2"],
-  "is_bitcoin_suitable": true/false,
-  "explanation": "Brief explanation of the categorization and Bitcoin-only suitability"
+  "is_bitcoin_suitable": true,
+  "explanation": "Brief explanation of why this is suitable for Bitcoin-only audience"
 }
 `;
 
 
     // Fazer a requisição para a OpenAI
+    console.log('[analyze-product] Enviando prompt para OpenAI', {
+      userId,
+      model: 'gpt-4o-mini',
+      promptLength: prompt.length
+    });
     const completion = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [
@@ -129,6 +161,12 @@ Respond in the following JSON format:
     });
 
     const responseContent = completion.choices[0]?.message?.content;
+    console.log('[analyze-product] Resposta recebida da OpenAI', {
+      userId,
+      hasResponse: !!responseContent,
+      responseLength: responseContent?.length || 0,
+      tokensUsed: completion.usage?.total_tokens || 0
+    });
     
     if (!responseContent) {
       console.error('[analyze-product] Nenhuma resposta da OpenAI');
@@ -143,9 +181,18 @@ Respond in the following JSON format:
       if (cleanResponse.startsWith('```')) {
         cleanResponse = cleanResponse.replace(/^```[a-zA-Z]*\n?/, '').replace(/```$/, '').trim();
       }
+      console.log('[analyze-product] Fazendo parse da resposta da IA', {
+        userId,
+        originalLength: responseContent.length,
+        cleanedLength: cleanResponse.length
+      });
       analysisResult = JSON.parse(cleanResponse);
     } catch (parseError) {
-      console.error('[analyze-product] Erro ao fazer parse da resposta da IA:', parseError, responseContent);
+      console.error('[analyze-product] Erro ao fazer parse da resposta da IA:', {
+        userId,
+        error: parseError,
+        responseContent: responseContent?.substring(0, 500) + '...'
+      });
       return NextResponse.json(
         { error: 'Invalid response format from AI' },
         { status: 500 }
@@ -156,8 +203,20 @@ Respond in the following JSON format:
     const validCategories = analysisResult.categories.filter((cat: string) => 
       AVAILABLE_CATEGORIES.includes(cat)
     );
+    console.log('[analyze-product] Categorias analisadas', {
+      userId,
+      originalCategories: analysisResult.categories,
+      validCategories,
+      isBitcoinSuitable: analysisResult.is_bitcoin_suitable,
+      invalidCategories: analysisResult.categories.filter((cat: string) => !AVAILABLE_CATEGORIES.includes(cat))
+    });
 
     // Atualizar o registro de onboarding com a análise da IA
+    console.log('[analyze-product] Atualizando dados no banco', {
+      userId,
+      categoriesString: validCategories.join(', '),
+      isBitcoinSuitable: analysisResult.is_bitcoin_suitable
+    });
     const { error: updateError } = await supabase
       .from('onboarding_answers')
       .update({
@@ -166,15 +225,24 @@ Respond in the following JSON format:
       })
       .eq('user_id', userId);
     if (updateError) {
-      console.error('[analyze-product] Falha ao atualizar onboarding:', updateError);
+      console.error('[analyze-product] Falha ao atualizar onboarding:', { userId, error: updateError });
       return NextResponse.json(
         { error: 'Failed to update analysis results' },
         { status: 500 }
       );
     }
 
+    console.log('[analyze-product] Dados atualizados com sucesso no banco', { userId });
+
     const endTime = Date.now();
     const duration = endTime - startTime;
+
+    console.log('[analyze-product] Análise concluída com sucesso', {
+      userId,
+      duration: `${duration}ms`,
+      categoriesCount: validCategories.length,
+      isBitcoinSuitable: analysisResult.is_bitcoin_suitable
+    });
 
     return NextResponse.json({
       success: true,
@@ -186,9 +254,14 @@ Respond in the following JSON format:
     });
 
   } catch (error: any) {
-    console.error('Error in product analysis:', error);
     const endTime = Date.now();
     const duration = endTime - startTime;
+    console.error('[analyze-product] Erro interno na análise:', {
+      error: error.message,
+      stack: error.stack,
+      duration: `${duration}ms`,
+      timestamp: new Date().toISOString()
+    });
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
