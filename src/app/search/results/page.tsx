@@ -160,7 +160,7 @@ export default function SearchResultsPage() {
   };
 
   const getPlatformData = (creator: Creator) => {
-    // Prioriza YouTube, usa TikTok como fallback
+    // Prioriza YouTube se tiver URL, usa TikTok como fallback se tiver URL
     if (creator.youtube_url && creator.youtube_followers) {
       return {
         platform: 'youtube',
@@ -203,7 +203,7 @@ export default function SearchResultsPage() {
         .single();
 
       if (error) {
-          console.error('❌ [DEBUG] Erro ao carregar dados de onboarding:', error);
+          console.error('Erro ao carregar dados de onboarding:', error);
           setError('Failed to load search criteria');
         return;
       }
@@ -212,7 +212,7 @@ export default function SearchResultsPage() {
       setOnboardingData(data);
       
     } catch (err) {
-        console.error('❌ [DEBUG] Erro inesperado em loadOnboardingData:', err);
+        console.error('Erro inesperado em loadOnboardingData:', err);
         setError('An unexpected error occurred');
     }
   };
@@ -292,7 +292,7 @@ export default function SearchResultsPage() {
       }
       
     } catch (err) {
-        console.error('❌ [DEBUG] Erro na busca de creators:', err);
+        console.error('Error fetching creators:', err);
         setError('Failed to search creators');
     } finally {
       setSearchingCreators(false);

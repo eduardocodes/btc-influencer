@@ -670,20 +670,22 @@ export default function Home() {
 
                     {/* Platform Stats */}
                     <div className="space-y-3 mb-4">
-                      {/* YouTube Stats */}
-                      <div className="flex items-center justify-between p-3 bg-gray-900 rounded">
-                        <div className="flex items-center gap-2">
-                          {getPlatformData('youtube').icon}
-                          <span className="text-sm font-medium">YouTube</span>
+                      {/* YouTube Stats - Only show if YouTube URL exists */}
+                      {creator.youtube_url && (
+                        <div className="flex items-center justify-between p-3 bg-gray-900 rounded">
+                          <div className="flex items-center gap-2">
+                            {getPlatformData('youtube').icon}
+                            <span className="text-sm font-medium">YouTube</span>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-sm font-bold">{formatNumber(creator.youtube_followers)}</div>
+                            <div className="text-xs text-gray-400">{creator.youtube_engagement_rate}% engagement</div>
+                          </div>
                         </div>
-                        <div className="text-right">
-                          <div className="text-sm font-bold">{formatNumber(creator.youtube_followers)}</div>
-                          <div className="text-xs text-gray-400">{creator.youtube_engagement_rate}% engagement</div>
-                        </div>
-                      </div>
+                      )}
 
-                      {/* TikTok Stats (if available) */}
-                      {creator.tiktok_followers && (
+                      {/* TikTok Stats - Only show if TikTok URL exists */}
+                      {creator.tiktok_url && creator.tiktok_followers && (
                         <div className="flex items-center justify-between p-3 bg-gray-900 rounded">
                           <div className="flex items-center gap-2">
                             {getPlatformData('tiktok').icon}
@@ -699,14 +701,16 @@ export default function Home() {
 
                     {/* Action Buttons */}
                     <div className="flex gap-2">
-                      <a
-                        href={creator.youtube_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex-1 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-400 hover:to-red-500 text-white text-sm py-2 px-3 rounded text-center shadow-lg shadow-red-500/25 hover:shadow-xl hover:shadow-red-500/40 hover:scale-105 transform transition-all duration-300"
-                      >
-                        YouTube
-                      </a>
+                      {creator.youtube_url && (
+                        <a
+                          href={creator.youtube_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex-1 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-400 hover:to-red-500 text-white text-sm py-2 px-3 rounded text-center shadow-lg shadow-red-500/25 hover:shadow-xl hover:shadow-red-500/40 hover:scale-105 transform transition-all duration-300"
+                        >
+                          YouTube
+                        </a>
+                      )}
                       {creator.tiktok_url && (
                         <a
                           href={creator.tiktok_url}
