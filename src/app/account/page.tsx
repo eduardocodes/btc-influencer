@@ -108,9 +108,24 @@ export default function Account() {
               <div className="flex items-center space-x-4">
                 <button
                   onClick={() => router.push('/home')}
-                  className="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded text-sm transition-colors"
+                  className="bg-gray-600 hover:bg-gray-700 px-3 py-1 rounded text-sm transition-colors flex items-center justify-center cursor-pointer"
+                  title="Voltar para Home"
+                  aria-label="Voltar para Home"
                 >
-                  Voltar para Home
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="w-5 h-5"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
+                    />
+                  </svg>
                 </button>
                 <button
                   onClick={handleLogout}
@@ -249,7 +264,7 @@ export default function Account() {
                     <p className="text-gray-400 text-sm">Nenhuma assinatura encontrada</p>
                     <button
                       onClick={() => router.push('/home')}
-                      className="mt-2 bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded text-sm transition-colors"
+                      className="mt-2 bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded text-sm transition-colors cursor-pointer"
                     >
                       Explorar Planos
                     </button>
@@ -265,7 +280,7 @@ export default function Account() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <button
                 onClick={() => router.push('/home')}
-                className="bg-blue-600 hover:bg-blue-700 px-6 py-4 rounded-lg transition-colors flex items-center justify-center space-x-2"
+                className="bg-blue-600 hover:bg-blue-700 px-6 py-4 rounded-lg transition-colors flex items-center justify-center space-x-2 cursor-pointer"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -288,7 +303,7 @@ export default function Account() {
                 onClick={() => router.push('/database')}
                 className={`px-6 py-4 rounded-lg transition-colors flex items-center justify-center space-x-2 ${
                   hasActiveSubscription
-                    ? 'bg-green-600 hover:bg-green-700'
+                    ? 'bg-green-600 hover:bg-green-700 cursor-pointer'
                     : 'bg-gray-600 hover:bg-gray-700 cursor-not-allowed'
                 }`}
                 disabled={!hasActiveSubscription}
@@ -312,7 +327,7 @@ export default function Account() {
               
               <button
                 onClick={() => router.push('/profile')}
-                className="bg-purple-600 hover:bg-purple-700 px-6 py-4 rounded-lg transition-colors flex items-center justify-center space-x-2"
+                className="bg-purple-600 hover:bg-purple-700 px-6 py-4 rounded-lg transition-colors flex items-center justify-center space-x-2 cursor-pointer"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
