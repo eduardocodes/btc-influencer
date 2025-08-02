@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { useAuth } from '@/src/contexts/AuthContext';
 
 interface PlansModalProps {
   isOpen: boolean;
@@ -8,6 +9,34 @@ interface PlansModalProps {
 }
 
 export default function PlansModal({ isOpen, onClose }: PlansModalProps) {
+  const { user } = useAuth();
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+
+  const startCheckout = async (plan: 'monthly' | 'lifetime') => {
+    if (!user?.id) {
+      alert('You must be logged in.');
+      return;
+    }
+    try {
+      setLoadingPlan(plan);
+      const res = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: user.id, plan })
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        console.error('Checkout URL missing', data);
+      }
+    } catch (e) {
+      console.error('Checkout error', e);
+    } finally {
+      setLoadingPlan(null);
+    }
+  };
+
   const handleOverlayClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
       onClose();
@@ -80,7 +109,8 @@ export default function PlansModal({ isOpen, onClose }: PlansModalProps) {
                 'Priority access',
                 'Frequent updates',
               ]}
-              link="https://pay.stripe.com"
+              onClick={() => startCheckout('monthly')}
+              loading={loadingPlan === 'monthly'}
             />
             <Plan
               highlighted
@@ -92,7 +122,8 @@ export default function PlansModal({ isOpen, onClose }: PlansModalProps) {
                 'Instant access to the current version of our full dataset',
                 'Does not include future updates or new creators',
               ]}
-              link="https://pay.stripe.com"
+              onClick={() => startCheckout('lifetime')}
+              loading={loadingPlan === 'lifetime'}
             />
           </div>
         </div>
@@ -108,14 +139,16 @@ function Plan({
   price,
   period,
   perks,
-  link,
+  onClick,
+  loading,
 }: {
   highlighted: boolean;
   name: string;
   price: string;
   period: string;
   perks: string[];
-  link: string;
+  onClick: () => void;
+  loading: boolean;
 }) {
   return (
     <div
@@ -135,16 +168,40 @@ function Plan({
           <li key={p} className="text-gray-300">{p === 'Does not include future updates or new creators' ? '✖️' : '✔️'} {p}</li>
         ))}
       </ul>
-      <a
-        href={link}
-        className={`block text-center rounded-xl py-3 font-semibold transition-all duration-300 cursor-pointer ${
+      <button
+        onClick={onClick}
+        disabled={loading}
+        className={`block w-full text-center rounded-xl py-3 font-semibold transition-all duration-300 cursor-pointer ${
           highlighted
             ? 'bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 text-white shadow-lg shadow-orange-500/25'
             : 'bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-500 hover:to-gray-600 text-white shadow-lg shadow-gray-500/25'
-        }`}
+        } ${loading ? 'opacity-50' : ''}`}
       >
-        {highlighted ? 'Get Lifetime' : 'Subscribe now'}
-      </a>
+        {loading ? (
+          <div className="flex items-center justify-center">
+            <svg
+              className="animate-spin h-5 w-5 text-white"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
+            </svg>
+          </div>
+        ) : highlighted ? 'Get Lifetime' : 'Subscribe now'}
+      </button>
     </div>
   );
 }

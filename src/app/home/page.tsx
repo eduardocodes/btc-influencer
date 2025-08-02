@@ -5,6 +5,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { supabase } from '@/src/lib/supabase';
+import PlansModal from '@/src/components/PlansModal';
 
 interface Influencer {
   id: string;
@@ -847,7 +848,10 @@ export default function Home() {
               </div>
               
               <div className="flex justify-center items-center">
-                <button className="cursor-pointer px-8 py-3 bg-gradient-to-r from-orange-500 to-yellow-500 text-white font-semibold rounded-lg hover:from-orange-600 hover:to-yellow-600 transition-all transform hover:scale-105">
+                <button 
+                  onClick={() => setShowUpgradeModal(true)}
+                  className="cursor-pointer px-8 py-3 bg-gradient-to-r from-orange-500 to-yellow-500 text-white font-semibold rounded-lg hover:from-orange-600 hover:to-yellow-600 transition-all transform hover:scale-105"
+                >
                   Upgrade to Pro
                 </button>
               </div>
@@ -908,41 +912,11 @@ export default function Home() {
         </div>
       )}
       
-      {/* Upgrade Modal */}
-       {showUpgradeModal && (
-         <div className="fixed inset-0 bg-gradient-to-br from-black via-gray-900 to-black bg-opacity-90 flex items-center justify-center z-50">
-           <div className="bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800 rounded-xl p-8 max-w-md w-full mx-4 border border-gray-600/50 shadow-2xl shadow-black/50 backdrop-blur-sm">
-             <div className="text-center">
-               <span className="text-4xl mb-4 block">🔒</span>
-               <h3 className="text-xl font-bold text-white mb-4">
-                 Database Access Requires Subscription
-               </h3>
-               <p className="text-gray-400 mb-6">
-                 Upgrade to Pro to access our full database of bitcoin-only and crypto influencers with contact information and advanced metrics.
-               </p>
-               
-               <div className="flex gap-3">
-                 <button
-                   onClick={() => setShowUpgradeModal(false)}
-                   className="flex-1 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition duration-200 cursor-pointer"
-                 >
-                   Cancel
-                 </button>
-                 <button
-                   onClick={() => {
-                     setShowUpgradeModal(false)
-                     // Here you would redirect to payment/subscription page
-                     console.log('Redirect to subscription page')
-                   }}
-                   className="flex-1 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition duration-200 cursor-pointer"
-                 >
-                   Upgrade Now
-                 </button>
-               </div>
-             </div>
-           </div>
-         </div>
-       )}
+      {/* Plans Modal */}
+      <PlansModal 
+        isOpen={showUpgradeModal} 
+        onClose={() => setShowUpgradeModal(false)} 
+      />
     </div>
   );
 }
