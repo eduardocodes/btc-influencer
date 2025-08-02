@@ -54,17 +54,50 @@ export async function POST(req: NextRequest) {
         console.log('📅 Processing MONTHLY subscription...');
         // Get subscription details to get current_period_end
         const subscription = await stripe.subscriptions.retrieve(data.subscription);
+        const subscriptionObj = subscription as any;
+        console.log('📊 Stripe subscription details:', {
+          id: subscriptionObj.id,
+          current_period_end: subscriptionObj.current_period_end,
+          current_period_end_date: new Date(subscriptionObj.current_period_end * 1000)
+        });
+        
         const subscriptionData = {
           user_id: data.client_reference_id,
           stripe_customer_id: data.customer,
           stripe_subscription_id: data.subscription,
           plan: 'monthly',
           status: 'active',
-          current_period_end: new Date((subscription as any).current_period_end * 1000),
+          current_period_end: subscriptionObj.current_period_end ? new Date(subscriptionObj.current_period_end * 1000) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now if undefined
         };
         console.log('💾 Saving subscription data:', subscriptionData);
+        console.log('📅 Current period end timestamp:', subscriptionObj.current_period_end);
+        console.log('📅 Current period end date:', new Date(subscriptionObj.current_period_end * 1000));
         
-        const { data: result, error } = await supabaseAdmin.from('subscriptions').upsert(subscriptionData);
+        // First try to find existing subscription
+        const { data: existingSubscription } = await supabaseAdmin
+          .from('subscriptions')
+          .select('id')
+          .eq('user_id', data.client_reference_id)
+          .eq('plan', 'monthly')
+          .single();
+        
+        let result, error;
+        if (existingSubscription) {
+          // Update existing subscription
+          const updateResult = await supabaseAdmin
+            .from('subscriptions')
+            .update(subscriptionData)
+            .eq('id', existingSubscription.id);
+          result = updateResult.data;
+          error = updateResult.error;
+        } else {
+          // Insert new subscription
+          const insertResult = await supabaseAdmin
+            .from('subscriptions')
+            .insert(subscriptionData);
+          result = insertResult.data;
+          error = insertResult.error;
+        }
         if (error) {
           console.error('❌ Database error (monthly):', error);
         } else {
@@ -93,7 +126,7 @@ export async function POST(req: NextRequest) {
             current_period_end: new Date('2099-12-31T23:59:59Z'),
           };
           console.log('💾 Saving lifetime data:', lifetimeData);
-          const { data: result, error } = await supabaseAdmin.from('subscriptions').upsert(lifetimeData);
+          const { data: result, error } = await supabaseAdmin.from('subscriptions').insert(lifetimeData);
           if (error) {
             console.error('❌ Database error (lifetime):', error);
           } else {
@@ -139,41 +172,8 @@ export async function POST(req: NextRequest) {
             console.error('❌ Failed to retrieve PaymentIntent:', e);
           }
         }
-        if (session.mode === 'payment' && userId) {
-          console.log('💎 Processing lifetime payment from payment_intent...');
-          // Checar se já existe registro lifetime ativo para este user_id
-          const { data: existingLifetime, error: checkError } = await supabaseAdmin
-            .from('subscriptions')
-            .select('*')
-            .eq('user_id', userId)
-            .eq('plan', 'lifetime')
-            .eq('status', 'active');
-          if (checkError) {
-            console.error('❌ Database error (check lifetime):', checkError);
-            break;
-          }
-          if (!existingLifetime || existingLifetime.length === 0) {
-            const lifetimeData = {
-              user_id: userId,
-              stripe_customer_id: session.customer,
-              stripe_subscription_id: null,
-              plan: 'lifetime',
-              status: 'active',
-              current_period_end: new Date('2099-12-31T23:59:59Z'),
-            };
-            console.log('💾 Saving lifetime data from payment_intent:', lifetimeData);
-            const { data: result, error } = await supabaseAdmin.from('subscriptions').upsert(lifetimeData);
-            if (error) {
-              console.error('❌ Database error (payment_intent):', error);
-            } else {
-              console.log('✅ Lifetime access saved successfully from payment_intent:', result);
-            }
-          } else {
-            console.log('⏩ Lifetime already exists for this user, skipping insert.');
-          }
-        } else {
-          console.log('⚠️ Missing user identifier or wrong mode');
-        }
+        // Note: Lifetime payments are handled in charge.succeeded event to avoid duplicates
+        console.log('ℹ️ Payment intent succeeded - lifetime processing handled in charge.succeeded event');
       } else {
         console.log('⚠️ No checkout session found for payment intent');
       }
@@ -244,7 +244,7 @@ export async function POST(req: NextRequest) {
               current_period_end: new Date('2099-12-31T23:59:59Z'),
             };
             console.log('💾 Saving lifetime data from charge event:', lifetimeData);
-            const { data: result, error } = await supabaseAdmin.from('subscriptions').upsert(lifetimeData);
+            const { data: result, error } = await supabaseAdmin.from('subscriptions').insert(lifetimeData);
             if (error) {
               console.error('❌ Database error (charge):', error);
             } else {
@@ -275,13 +275,55 @@ export async function POST(req: NextRequest) {
         .from('subscriptions')
         .update(updateData)
         .eq('stripe_subscription_id', data.id);
-      
+        
       if (error) {
         console.error('❌ Database error (update):', error);
       } else {
         console.log('✅ Subscription updated successfully');
       }
       break;
+      
+    case 'invoice.payment_succeeded':
+      console.log('💰 Processing invoice payment succeeded');
+      
+      // For invoice events, we need to get the subscription from the invoice
+       const invoice = event.data.object as any;
+       console.log('📄 Invoice details:', {
+         id: invoice.id,
+         customer: invoice.customer,
+         subscription: invoice.subscription,
+         status: invoice.status
+       });
+       
+       if (invoice.subscription) {
+         // Get subscription details from Stripe
+         const subscription = await stripe.subscriptions.retrieve(invoice.subscription as string);
+         console.log('📊 Retrieved subscription:', {
+           id: subscription.id,
+           status: subscription.status,
+           current_period_end: (subscription as any).current_period_end
+         });
+         
+         const invoiceUpdateData = {
+           status: subscription.status,
+           current_period_end: new Date((subscription as any).current_period_end * 1000),
+         };
+         console.log('📝 Invoice update data:', invoiceUpdateData);
+         
+         const { error: invoiceError } = await supabaseAdmin
+           .from('subscriptions')
+           .update(invoiceUpdateData)
+           .eq('stripe_subscription_id', subscription.id);
+           
+         if (invoiceError) {
+           console.error('❌ Database error (invoice update):', invoiceError);
+         } else {
+           console.log('✅ Subscription updated from invoice successfully');
+         }
+       } else {
+          console.log('⚠️ No subscription found in invoice');
+        }
+       break;
 
     default:
       console.log('⚠️ Unhandled event type:', event.type);
