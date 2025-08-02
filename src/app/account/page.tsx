@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import ProtectedRoute from '../../components/ProtectedRoute';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '@/src/lib/supabase';
+import CancelSubscriptionModal from '../../components/CancelSubscriptionModal';
 
 interface UserProfile {
   id: string;
@@ -33,6 +34,11 @@ export default function Account() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [passwordMessage, setPasswordMessage] = useState<{type: 'success' | 'error', text: string} | null>(null);
+  
+  // Cancel subscription states
+  const [cancelLoading, setCancelLoading] = useState(false);
+  const [cancelMessage, setCancelMessage] = useState<{type: 'success' | 'error', text: string} | null>(null);
+  const [showCancelModal, setShowCancelModal] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -80,11 +86,56 @@ export default function Account() {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    return new Date(dateString).toLocaleDateString('pt-BR', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
     });
+  };
+
+  const handleCancelSubscription = () => {
+    setShowCancelModal(true);
+  };
+
+  const confirmCancelSubscription = async () => {
+    if (!user) return;
+    
+    setCancelLoading(true);
+    setCancelMessage(null);
+    
+    try {
+      const response = await fetch('/api/stripe/cancel-subscription', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId: user.id }),
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        setCancelMessage({ type: 'success', text: 'Subscription canceled successfully!' });
+        setShowCancelModal(false);
+        // Reload user data
+        await loadUserData();
+      } else {
+        setCancelMessage({ type: 'error', text: data.error || 'Error canceling subscription' });
+        setShowCancelModal(false);
+      }
+    } catch (error) {
+      console.error('Error canceling subscription:', error);
+      setCancelMessage({ type: 'error', text: 'Error canceling subscription' });
+      setShowCancelModal(false);
+    } finally {
+      setCancelLoading(false);
+    }
+  };
+
+  const closeCancelModal = () => {
+    if (!cancelLoading) {
+      setShowCancelModal(false);
+    }
   };
 
   const handlePasswordChange = async (e: React.FormEvent) => {
@@ -286,34 +337,44 @@ export default function Account() {
                   </span>
                 </div>
                 
-                {subscriptions.length > 0 ? (
-                  <div>
-                    <p className="text-gray-400 text-sm mb-2">Subscription History:</p>
-                    <div className="space-y-2 max-h-32 overflow-y-auto">
-                      {subscriptions.map((subscription) => (
-                        <div key={subscription.id} className="bg-gray-700/50 rounded p-3">
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm text-white">
-                              {subscription.plan || 'Pro Plan'}
-                            </span>
-                            <span className={`text-xs px-2 py-1 rounded ${
-                              subscription.status === 'active' 
-                                ? 'bg-green-500/20 text-green-400'
-                                : 'bg-gray-500/20 text-gray-400'
-                            }`}>
-                              {subscription.status}
-                            </span>
-                          </div>
-                          <p className="text-xs text-gray-400 mt-1">
-                            {subscription.current_period_end ? formatDate(subscription.current_period_end) : 'N/A'}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
+                {/* Cancel subscription message */}
+                {cancelMessage && (
+                  <div className={`p-3 rounded-lg text-sm ${
+                    cancelMessage.type === 'success' 
+                      ? 'bg-green-500/20 text-green-400 border border-green-500/30'
+                      : 'bg-red-500/20 text-red-400 border border-red-500/30'
+                  }`}>
+                    {cancelMessage.text}
                   </div>
-                ) : (
+                )}
+                
+                {/* Cancel subscription button - only show for active monthly subscriptions */}
+                {hasActiveSubscription && subscriptions.some(sub => sub.status === 'active' && sub.plan === 'monthly') && (
+                  <div className="pt-2">
+                    <button
+                      onClick={handleCancelSubscription}
+                      disabled={cancelLoading}
+                      className="w-full bg-red-600 hover:bg-red-700 disabled:bg-red-800 disabled:cursor-not-allowed cursor-pointer px-4 py-2 rounded text-sm font-medium transition-colors mb-2"
+                    >
+                      {cancelLoading ? (
+                        <div className="flex items-center justify-center">
+                          <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          Canceling...
+                        </div>
+                      ) : 'Cancel Subscription'}
+                    </button>
+                    <p className="text-xs text-gray-400 mt-1 text-center">
+                      You will keep access until the end of your current period
+                    </p>
+                  </div>
+                )}
+                
+                {!hasActiveSubscription && (
                   <div className="text-center py-4">
-                    <p className="text-gray-400 text-sm">No subscriptions found</p>
+                    <p className="text-gray-400 text-sm">No active subscription</p>
                     <button
                       onClick={() => router.push('/home')}
                       className="mt-2 bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded text-sm transition-colors cursor-pointer"
@@ -422,6 +483,13 @@ export default function Account() {
 
         </div>
       </div>
+      
+      <CancelSubscriptionModal
+        isOpen={showCancelModal}
+        onClose={closeCancelModal}
+        onConfirm={confirmCancelSubscription}
+        loading={cancelLoading}
+      />
     </ProtectedRoute>
   );
 }
