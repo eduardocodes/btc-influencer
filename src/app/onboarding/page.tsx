@@ -22,7 +22,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
           .from("onboarding_answers")
           .select("*")
           .eq("user_id", user.id)
-          .single();
+          .maybeSingle();
         
         if (data && !error) {
           setFormData({
@@ -62,7 +62,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
           .from("onboarding_answers")
           .select("id")
           .eq("user_id", user.id)
-          .single();
+          .maybeSingle();
         
         let error;
         if (existingData) {
@@ -148,15 +148,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
         }
       }}
     >
-      {/* Logo at the top */}
-      <div className="absolute top-8 left-8">
-        <img 
-          src="/btc-influencer-icon.svg" 
-          alt="Bitcoin Influencer" 
-          className="h-12 w-auto cursor-pointer hover:opacity-80 transition-opacity" 
-          onClick={() => router.push('/home')}
-        />
-      </div>
+
       
       <div className="w-full max-w-2xl">
         {/* Progress Indicators */}

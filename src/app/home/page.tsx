@@ -402,34 +402,36 @@ export default function Home() {
       if (user) {
         try {
           const { data, error } = await supabase
-            .from('onboarding')
+            .from('onboarding_answers')
             .select('*')
             .eq('user_id', user.id)
-            .single()
+            .maybeSingle()
           
-          if (data && !error) {
+          if (error) {
+            console.log('Supabase query error:', error)
+            // Continue without onboarding data
+          } else if (data) {
             const supabaseData = {
               companyName: data.company_name,
               productName: data.product_name,
               productUrl: data.product_url,
               productDescription: data.product_description,
-              productCategory: data.product_category, // garantir que product_category seja salvo
+              productCategory: data.product_category,
               completedAt: data.created_at
             }
             setOnboardingData(supabaseData)
             localStorage.setItem('onboardingData', JSON.stringify(supabaseData))
             localStorage.setItem('hasVisitedBefore', 'true')
             setIsFirstVisit(false)
-            
-            // Load user matches after onboarding data is loaded
-        await loadUserMatches()
-        // Check subscription status
-        await checkSubscriptionStatus()
-        return
           }
+          
+          // Always load user matches and check subscription status
+          await loadUserMatches()
+          await checkSubscriptionStatus()
+          return
         } catch (error) {
-            console.log('Could not load from Supabase:', error)
-          }
+          console.log('Could not load from Supabase:', error)
+        }
         
         // If no onboarding data but user is logged in, still check for matches
       await loadUserMatches()
