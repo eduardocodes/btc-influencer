@@ -102,8 +102,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Database error' }, { status: 500 });
     }
 
-  
-    
+    // Fallback: se nenhum criador encontrado, buscar até 6 criadores Bitcoin-only
+    if (!creators || creators.length === 0) {
+      const { data: btcOnlyCreators, error: btcOnlyError } = await supabaseAdmin
+        .from('creators')
+        .select('*')
+        .eq('is_btc_only', true)
+        .order('total_followers', { ascending: false })
+        .limit(6);
+      if (btcOnlyError) {
+        console.error('Database error (btc_only fallback):', btcOnlyError);
+        return NextResponse.json({ error: 'Database error' }, { status: 500 });
+      }
+      return NextResponse.json({ creators: btcOnlyCreators || [] });
+    }
+
     return NextResponse.json({ creators: creators || [] });
     
   } catch (error) {
