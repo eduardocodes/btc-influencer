@@ -52,10 +52,8 @@ export async function POST(request: NextRequest) {
   
   try {
     const { userId } = await request.json();
-    console.log('[analyze-product] userId recebido:', userId);
 
     if (!userId) {
-      console.warn('[analyze-product] Nenhum userId fornecido');
       return NextResponse.json(
         { error: 'User ID is required' },
         { status: 400 }
@@ -68,7 +66,6 @@ export async function POST(request: NextRequest) {
       .select('*')
       .eq('user_id', userId)
       .single();
-    console.log('[analyze-product] Dados onboarding:', onboardingData);
     if (onboardingError) {
       console.error('[analyze-product] Erro ao buscar onboarding:', onboardingError);
       return NextResponse.json(
@@ -112,7 +109,7 @@ Respond in the following JSON format:
   "explanation": "Brief explanation of the categorization and Bitcoin-only suitability"
 }
 `;
-    console.log('[analyze-product] Prompt enviado para OpenAI:', prompt);
+
 
     // Fazer a requisição para a OpenAI
     const completion = await openai.chat.completions.create({
@@ -132,7 +129,6 @@ Respond in the following JSON format:
     });
 
     const responseContent = completion.choices[0]?.message?.content;
-    console.log('[analyze-product] Resposta da OpenAI:', responseContent);
     
     if (!responseContent) {
       console.error('[analyze-product] Nenhuma resposta da OpenAI');
@@ -148,7 +144,6 @@ Respond in the following JSON format:
         cleanResponse = cleanResponse.replace(/^```[a-zA-Z]*\n?/, '').replace(/```$/, '').trim();
       }
       analysisResult = JSON.parse(cleanResponse);
-      console.log('[analyze-product] Resultado do parse da IA:', analysisResult);
     } catch (parseError) {
       console.error('[analyze-product] Erro ao fazer parse da resposta da IA:', parseError, responseContent);
       return NextResponse.json(
@@ -158,10 +153,9 @@ Respond in the following JSON format:
     }
 
     // Validar as categorias retornadas
-    const validCategories = analysisResult.categories.filter((cat) => 
+    const validCategories = analysisResult.categories.filter((cat: string) => 
       AVAILABLE_CATEGORIES.includes(cat)
     );
-    console.log('[analyze-product] Categorias válidas:', validCategories);
 
     // Atualizar o registro de onboarding com a análise da IA
     const { error: updateError } = await supabase
@@ -181,7 +175,6 @@ Respond in the following JSON format:
 
     const endTime = Date.now();
     const duration = endTime - startTime;
-    console.log(`[analyze-product] Sucesso. Tempo total: ${duration}ms`);
 
     return NextResponse.json({
       success: true,

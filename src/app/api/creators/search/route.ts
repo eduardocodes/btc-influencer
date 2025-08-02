@@ -4,15 +4,10 @@ import { supabaseAdmin } from '@/src/lib/supabase/admin';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    console.log("[DEBUG] Request body recebido:", body);
     const { categories, is_bitcoin_suitable } = body;
     
-  
-    
-    console.log("[DEBUG] Categories recebidas:", categories);
-    console.log("[DEBUG] is_bitcoin_suitable recebido:", is_bitcoin_suitable);
     if (!categories || !Array.isArray(categories)) {
-      console.error("[DEBUG] Categories inválidas:", categories);
+      console.error("Categories inválidas:", categories);
       return NextResponse.json({ error: 'Categories array is required' }, { status: 400 });
     }
 
@@ -24,7 +19,6 @@ export async function POST(request: NextRequest) {
       if (is_bitcoin_suitable === true) {
         const bitcoinCategories = ['Bitcoin', 'Cryptocurrency', 'Crypto', 'Blockchain', 'DeFi', 'Web3'];
         query = query.overlaps('categories', bitcoinCategories);
-        console.log("[DEBUG] Filtro Bitcoin ativado (fallback)");
       }
       const { data: creators, error } = await query
         .order('total_followers', { ascending: false })
@@ -46,7 +40,6 @@ export async function POST(request: NextRequest) {
     if (is_bitcoin_suitable === true) {
       const bitcoinCategories = ['Bitcoin', 'Cryptocurrency', 'Crypto', 'Blockchain', 'DeFi', 'Web3'];
       query = query.overlaps('categories', bitcoinCategories);
-      console.log("[DEBUG] Filtro Bitcoin ativado");
     }
     
     let { data: creators, error } = await query

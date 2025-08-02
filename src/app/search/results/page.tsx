@@ -188,13 +188,10 @@ export default function SearchResultsPage() {
 
   const loadOnboardingData = async () => {
     if (!user) {
-
       return;
     }
 
     try {
-
-      
       const { data, error } = await supabase
         .from('onboarding_answers')
         .select('*')
@@ -204,11 +201,10 @@ export default function SearchResultsPage() {
         .single();
 
       if (error) {
-          console.error('Erro ao carregar dados de onboarding:', error);
-          setError('Failed to load search criteria');
+        console.error('Erro ao carregar dados de onboarding:', error);
+        setError('Failed to load search criteria');
         return;
       }
-
 
       setOnboardingData(data);
       
@@ -219,11 +215,9 @@ export default function SearchResultsPage() {
   };
 
   const saveUserMatches = async (creators: Creator[], categories: string[], onboardingAnswerId: string) => {
-
-
     if (!user?.id) {
-        console.error('❌ [DEBUG] User ID não encontrado');
-        return;
+      console.error('User ID não encontrado');
+      return;
     }
 
     try {
@@ -235,8 +229,6 @@ export default function SearchResultsPage() {
         onboarding_answer_id: onboardingAnswerId
       };
 
-
-
       // Fazer requisição para a API route
       const response = await fetch('/api/user-matches', {
         method: 'POST',
@@ -247,19 +239,18 @@ export default function SearchResultsPage() {
       });
 
       if (!response.ok) {
-          const errorData = await response.json();
-          console.error('❌ [DEBUG] Erro da API ao salvar:', {
-            status: response.status,
-            error: errorData
-          });
-          return;
+        const errorData = await response.json();
+        console.error('Erro da API ao salvar:', {
+          status: response.status,
+          error: errorData
+        });
+        return;
       }
 
       const result = await response.json();
-
     } catch (err) {
-        console.error('❌ [DEBUG] Erro inesperado ao salvar:', err);
-      }
+      console.error('Erro inesperado ao salvar:', err);
+    }
   };
 
   const searchCreators = async (categories: string[], isBitcoinSuitable: boolean) => {
@@ -280,12 +271,10 @@ export default function SearchResultsPage() {
 
       const data = await response.json();
       let foundCreators = data.creators || [];
-      console.log('[DEBUG] Found creators:', foundCreators);
 
       // Fallback logic: if less than 6 creators, fetch fallback creators
       if (foundCreators.length < 6) {
         try {
-          console.log('[DEBUG] Attempting fallback fetch with is_bitcoin_suitable:', isBitcoinSuitable);
           const fallbackRes = await fetch('/api/creators/search', {
             method: 'POST',
             headers: {
@@ -296,11 +285,9 @@ export default function SearchResultsPage() {
           if (fallbackRes.ok) {
             const fallbackData = await fallbackRes.json();
             const fallbackCreators = (fallbackData.creators || []).filter((fallback: Creator) => !foundCreators.some((c: Creator) => c.id === fallback.id)).map((creator: Creator) => ({ ...creator, isFallback: true }));
-            console.log('[DEBUG] Fallback creators returned:', fallbackCreators);
             foundCreators = [...foundCreators, ...fallbackCreators.slice(0, 6 - foundCreators.length)];
-            console.log('[DEBUG] Final creators after fallback:', foundCreators);
           } else {
-            console.error('[DEBUG] Fallback fetch failed with status:', fallbackRes.status);
+            console.error('Fallback fetch failed with status:', fallbackRes.status);
           }
         } catch (fallbackErr) {
           console.error('Error fetching fallback creators:', fallbackErr);
@@ -450,7 +437,7 @@ export default function SearchResultsPage() {
                 } else if (selectedNiches.length > 0) {
                   matchScore = Math.round((matchingNiches.length / selectedNiches.length) * 100);
                 }
-                console.log('[DEBUG][CARD]', { creator: creator.full_name, selectedNiches, matchingNiches, matchScore });
+
                 const platformData = getPlatformData(creator);
                 
                 return (
