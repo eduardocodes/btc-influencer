@@ -6,9 +6,11 @@ import { useRouter } from 'next/navigation';
 import Head from 'next/head';
 import Script from 'next/script';
 import { useAuth } from '../contexts/AuthContext';
+import PlansModal from '@/src/components/PlansModal';
 
 export default function MainPage() {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const [isPlansModalOpen, setIsPlansModalOpen] = useState(false);
   const router = useRouter();
   const { user, signOut, isLoading } = useAuth();
 
@@ -94,7 +96,7 @@ export default function MainPage() {
                 ) : (
                   <>
                     <a href="#features" className="text-white hover:text-gray-300 px-3 py-2 text-sm font-medium">Features</a>
-    
+                    <button onClick={() => setIsPlansModalOpen(true)} className="text-white hover:text-gray-300 px-3 py-2 text-sm font-medium cursor-pointer">Pricing</button>
                   </>
                 )}
               </nav>
@@ -191,8 +193,6 @@ export default function MainPage() {
         </div>
       </section>
 
-
-
       {/* FAQ */}
       <section className="py-24">
         <div className="max-w-3xl mx-auto px-6">
@@ -235,6 +235,12 @@ export default function MainPage() {
           </a>
         </div>
       </footer>
+      
+      {/* Plans Modal */}
+      <PlansModal 
+        isOpen={isPlansModalOpen} 
+        onClose={() => setIsPlansModalOpen(false)} 
+      />
     </div>
   );
 }

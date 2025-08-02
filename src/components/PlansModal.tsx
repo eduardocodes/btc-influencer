@@ -1,18 +1,16 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
-export default function PlansPage() {
-  const router = useRouter();
+interface PlansModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
 
-  const handleClose = () => {
-    router.back();
-  };
-
+export default function PlansModal({ isOpen, onClose }: PlansModalProps) {
   const handleOverlayClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
-      handleClose();
+      onClose();
     }
   };
 
@@ -20,12 +18,17 @@ export default function PlansPage() {
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        handleClose();
+        onClose();
       }
     };
-    document.addEventListener('keydown', handleEsc);
-    return () => document.removeEventListener('keydown', handleEsc);
-  }, []);
+    
+    if (isOpen) {
+      document.addEventListener('keydown', handleEsc);
+      return () => document.removeEventListener('keydown', handleEsc);
+    }
+  }, [isOpen, onClose]);
+
+  if (!isOpen) return null;
 
   return (
     <div 
@@ -35,7 +38,7 @@ export default function PlansPage() {
       <div className="bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800 rounded-2xl border border-gray-600/50 shadow-2xl shadow-black/50 max-w-4xl w-full max-h-[90vh] overflow-y-auto relative">
         {/* Botão fechar */}
         <button
-          onClick={handleClose}
+          onClick={onClose}
           className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors cursor-pointer z-10"
           aria-label="Fechar"
         >
@@ -71,6 +74,7 @@ export default function PlansPage() {
               price="$97"
               period="/month"
               perks={[
+                'AI-powered recommendations based on your product',
                 'Unlimited CSV export',
                 'Priority access',
                 'Frequent updates',
