@@ -633,6 +633,8 @@ export default function Home() {
                             +{creator.categories.length - 3}
                           </span>
                         )}
+
+
                       </div>
                     </div>
 
@@ -761,6 +763,18 @@ export default function Home() {
               </div>
             ))}
           </div>
+          
+          {/* Database Button - Only show if user has active subscription */}
+           {hasActiveSubscription && (
+             <div className="mt-8 text-center">
+               <button 
+                 onClick={() => router.push('/database')}
+                 className="cursor-pointer px-8 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold rounded-lg hover:from-orange-600 hover:to-orange-700 transition-all transform hover:scale-105 shadow-lg"
+               >
+                 View Complete Database
+               </button>
+             </div>
+           )}
           
           {/* CTA Section - Only show if user doesn't have active subscription */}
           {!hasActiveSubscription && (
