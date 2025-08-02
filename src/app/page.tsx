@@ -1,7 +1,7 @@
 'use client';
 
 // pages/index.tsx
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/src/contexts/AuthContext';
 import Head from 'next/head';
@@ -12,7 +12,7 @@ import PlansModal from '@/src/components/PlansModal';
 export default function MainPage() {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const [isPlansModalOpen, setIsPlansModalOpen] = useState(false);
-  const [showCookieBanner, setShowCookieBanner] = useState(true);
+  const [showCookieBanner, setShowCookieBanner] = useState(false);
   const router = useRouter();
   const { user, signOut, isLoading } = useAuth();
 
@@ -58,6 +58,26 @@ export default function MainPage() {
     } else {
       router.push('/login');
     }
+  };
+
+  // Check cookie consent on component mount
+  useEffect(() => {
+    const cookieConsent = localStorage.getItem('cookieConsent');
+    if (!cookieConsent) {
+      setShowCookieBanner(true);
+    }
+  }, []);
+
+  const handleAcceptCookies = () => {
+    localStorage.setItem('cookieConsent', 'accepted');
+    localStorage.setItem('cookieConsentDate', new Date().toISOString());
+    setShowCookieBanner(false);
+  };
+
+  const handleDeclineCookies = () => {
+    localStorage.setItem('cookieConsent', 'declined');
+    localStorage.setItem('cookieConsentDate', new Date().toISOString());
+    setShowCookieBanner(false);
   };
 
   if (isLoading) {
@@ -289,17 +309,17 @@ export default function MainPage() {
             </div>
             <div className="flex gap-3">
               <button
-                onClick={() => setShowCookieBanner(false)}
-                className="cursor-pointer px-4 py-2 text-sm text-gray-400 hover:text-white border border-gray-600 hover:border-gray-500 rounded transition-colors"
-              >
-                Decline
-              </button>
-              <button
-                onClick={() => setShowCookieBanner(false)}
-                className="cursor-pointer px-4 py-2 text-sm bg-orange-500 hover:bg-orange-600 text-white rounded transition-colors"
-              >
-                Accept All
-              </button>
+                 onClick={handleDeclineCookies}
+                 className="px-4 py-2 text-sm text-gray-400 hover:text-white border border-gray-600 hover:border-gray-500 rounded transition-colors"
+               >
+                 Decline
+               </button>
+               <button
+                 onClick={handleAcceptCookies}
+                 className="px-4 py-2 text-sm bg-orange-500 hover:bg-orange-600 text-white rounded transition-colors"
+               >
+                 Accept All
+               </button>
             </div>
           </div>
         </div>
