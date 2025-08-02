@@ -57,7 +57,12 @@ export default function Login() {
         {/* Header */}
         <div className="text-center mb-12">
           <div className="flex justify-center mb-6">
-            <img src="/btc-influencer-icon.svg" alt="Bitcoin Influencer" className="h-16 w-auto" />
+            <img 
+              src="/btc-influencer-icon.svg" 
+              alt="Bitcoin Influencer" 
+              className="h-16 w-auto cursor-pointer hover:opacity-80 transition-opacity" 
+              onClick={() => router.push('/home')}
+            />
           </div>
 
           <p className="text-xl text-gray-300 max-w-2xl mx-auto">

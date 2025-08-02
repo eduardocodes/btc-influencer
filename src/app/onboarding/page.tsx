@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "../../lib/supabase";
 
 const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
+  const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
     companyName: "",
@@ -138,9 +139,25 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
 
   return (
     <div 
-      className="min-h-screen bg-cover bg-center bg-no-repeat flex items-center justify-center p-4"
+      className="min-h-screen bg-cover bg-center bg-no-repeat flex flex-col items-center justify-center p-4"
       style={{ backgroundImage: 'linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url(/onboard-bg.webp)' }}
+      onClick={(e) => {
+        // Only redirect if clicking on the background, not on the modal content
+        if (e.target === e.currentTarget) {
+          router.push('/home');
+        }
+      }}
     >
+      {/* Logo at the top */}
+      <div className="absolute top-8 left-8">
+        <img 
+          src="/btc-influencer-icon.svg" 
+          alt="Bitcoin Influencer" 
+          className="h-12 w-auto cursor-pointer hover:opacity-80 transition-opacity" 
+          onClick={() => router.push('/home')}
+        />
+      </div>
+      
       <div className="w-full max-w-2xl">
         {/* Progress Indicators */}
         <div className="flex justify-center mb-8">

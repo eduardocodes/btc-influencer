@@ -89,7 +89,12 @@ export default function MainPage() {
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-8">
               <div className="flex items-center">
-                <img src="/btc-influencer-icon.svg" alt="Bitcoin Influencer" className="h-12 w-auto" />
+                <img 
+                  src="/btc-influencer-icon.svg" 
+                  alt="Bitcoin Influencer" 
+                  className="h-12 w-auto cursor-pointer hover:opacity-80 transition-opacity" 
+                  onClick={handleHomeClick}
+                />
               </div>
               
               <nav className="flex space-x-6">

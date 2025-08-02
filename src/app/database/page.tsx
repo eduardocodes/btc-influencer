@@ -106,7 +106,12 @@ export default function DatabasePage() {
             <div className="flex items-center justify-between h-16">
               <div className="flex items-center space-x-8">
                 <div className="flex items-center">
-                  <img src="/btc-influencer-icon.svg" alt="Bitcoin Influencer" className="h-10 w-auto" />
+                  <img 
+                    src="/btc-influencer-icon.svg" 
+                    alt="Bitcoin Influencer" 
+                    className="h-10 w-auto cursor-pointer hover:opacity-80 transition-opacity" 
+                    onClick={() => router.push('/home')}
+                  />
                 </div>
                 
                 <nav className="flex space-x-6">
