@@ -873,7 +873,7 @@ export default function Home() {
                   <span>🔥</span> <span className="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">Find Your Perfect Bitcoin Influencers</span>
                 </h1>
                 <p className="text-gray-400 text-lg mb-8">
-                  Get matched with the most relevant crypto content creators for your brand in seconds.
+                  Get matched with the most relevant bitcoin-only and crypto content creators for your brand in seconds.
                 </p>
                 
                 <button
