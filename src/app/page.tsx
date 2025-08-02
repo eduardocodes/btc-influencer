@@ -201,7 +201,7 @@ export default function MainPage() {
             <span className="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">One Subscription. Endless Data.</span>
           </h2>
           <p className="mt-4 text-center max-w-xl mx-auto text-gray-300">
-            Unlimited access to the full database, weekly updates and priority
+            Unlimited access to the full database, updates and priority
             support.
           </p>
 
@@ -209,24 +209,24 @@ export default function MainPage() {
             <Plan
               highlighted={false}
               name="Monthly Pass"
-              price="$49"
+              price="$97"
               period="/month"
               perks={[
                 'Unlimited CSV export',
-                '24 h support',
-                'Weekly updates',
+                'Priority access',
+                'Frequent updates',
               ]}
               link="https://pay.stripe.com"
             />
             <Plan
               highlighted
               name="Lifetime Access"
-              price="$299"
+              price="$147"
               period="one-time"
               perks={[
-                'Everything in Monthly',
-                'Lifetime access',
-                'Priority roadmap votes',
+                'One-time payment',
+                'Instant access to the current version of our full dataset',
+                'Does not include future updates or new creators',
               ]}
               link="https://pay.stripe.com"
             />
@@ -330,7 +330,7 @@ function Plan({
       </p>
       <ul className="space-y-3 mb-8">
         {perks.map((p) => (
-          <li key={p} className="text-gray-300">✔️ {p}</li>
+          <li key={p} className="text-gray-300">{p === 'Does not include future updates or new creators' ? '✖️' : '✔️'} {p}</li>
         ))}
       </ul>
       <a

@@ -1,0 +1,145 @@
+'use client';
+
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+
+export default function PlansPage() {
+  const router = useRouter();
+
+  const handleClose = () => {
+    router.back();
+  };
+
+  const handleOverlayClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      handleClose();
+    }
+  };
+
+  // Fechar com ESC
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        handleClose();
+      }
+    };
+    document.addEventListener('keydown', handleEsc);
+    return () => document.removeEventListener('keydown', handleEsc);
+  }, []);
+
+  return (
+    <div 
+      className="fixed inset-0 bg-gradient-to-br from-black via-gray-900 to-black bg-opacity-95 flex items-center justify-center p-4 z-50"
+      onClick={handleOverlayClick}
+    >
+      <div className="bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800 rounded-2xl border border-gray-600/50 shadow-2xl shadow-black/50 max-w-4xl w-full max-h-[90vh] overflow-y-auto relative">
+        {/* Botão fechar */}
+        <button
+          onClick={handleClose}
+          className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors cursor-pointer z-10"
+          aria-label="Fechar"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={2}
+            stroke="currentColor"
+            className="w-6 h-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+
+        {/* Conteúdo do modal */}
+        <div className="p-8">
+          <h2 className="text-4xl font-bold text-center mb-4">
+            <span className="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">Choose Your Plan</span>
+          </h2>
+          <p className="text-center max-w-xl mx-auto text-gray-300 mb-12">
+            Unlimited access to the full database, updates and priority support.
+          </p>
+
+          <div className="flex flex-col md:flex-row justify-center gap-8">
+            <Plan
+              highlighted={false}
+              name="Monthly Pass"
+              price="$97"
+              period="/month"
+              perks={[
+                'Unlimited CSV export',
+                'Priority access',
+                'Frequent updates',
+              ]}
+              link="https://pay.stripe.com"
+            />
+            <Plan
+              highlighted
+              name="Lifetime Access"
+              price="$147"
+              period="one-time"
+              perks={[
+                'One-time payment',
+                'Instant access to the current version of our full dataset',
+                'Does not include future updates or new creators',
+              ]}
+              link="https://pay.stripe.com"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Componente Plan reutilizado da página principal
+function Plan({
+  highlighted,
+  name,
+  price,
+  period,
+  perks,
+  link,
+}: {
+  highlighted: boolean;
+  name: string;
+  price: string;
+  period: string;
+  perks: string[];
+  link: string;
+}) {
+  return (
+    <div
+      className={`w-full md:w-96 rounded-2xl p-8 bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800 border shadow-2xl shadow-black/50 hover:scale-105 transition-all duration-300 ${
+        highlighted
+          ? 'border-orange-500 shadow-orange-500/25'
+          : 'border-gray-600/50 hover:border-orange-500/50'
+      }`}
+    >
+      <h3 className="text-2xl font-semibold text-center mb-4 text-white">{name}</h3>
+      <p className="text-center text-4xl font-bold mb-6 text-white">
+        {price}{' '}
+        <span className="text-lg font-normal text-gray-300">{period}</span>
+      </p>
+      <ul className="space-y-3 mb-8">
+        {perks.map((p) => (
+          <li key={p} className="text-gray-300">{p === 'Does not include future updates or new creators' ? '✖️' : '✔️'} {p}</li>
+        ))}
+      </ul>
+      <a
+        href={link}
+        className={`block text-center rounded-xl py-3 font-semibold transition-all duration-300 cursor-pointer ${
+          highlighted
+            ? 'bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 text-white shadow-lg shadow-orange-500/25'
+            : 'bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-500 hover:to-gray-600 text-white shadow-lg shadow-gray-500/25'
+        }`}
+      >
+        {highlighted ? 'Get Lifetime' : 'Subscribe now'}
+      </a>
+    </div>
+  );
+}
