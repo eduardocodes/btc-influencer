@@ -73,9 +73,9 @@ export default function DatabasePage() {
       
       setMessage('Successfully exported!');
     } catch (error) {
-      setMessage('Error exporting creators data.');
-      console.error('Export error:', error);
-    } finally {
+        setMessage('Error exporting creators data.');
+        console.error('Export error:', error);
+      } finally {
       setLoading(false);
     }
   };

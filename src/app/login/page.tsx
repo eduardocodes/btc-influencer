@@ -39,9 +39,9 @@ export default function Login() {
       // Login bem-sucedido, redirecionar para a página inicial
       router.push('/home');
     } catch (err) {
-      setError('An error occurred during login. Please try again.');
-      console.error('Erro de login:', err);
-    } finally {
+        setError('An error occurred during login. Please try again.');
+        console.error('Erro de login:', err);
+      } finally {
       setLoading(false);
     }
   };

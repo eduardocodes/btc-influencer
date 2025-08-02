@@ -5,16 +5,16 @@ import { supabaseAdmin } from '@/src/lib/supabase/admin';
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2025-07-30.basil' });
 
 export async function POST(req: NextRequest) {
-  console.log('🚫 Cancel subscription API called:', new Date().toISOString());
+
   
   try {
     const body = await req.json();
-    console.log('📋 Request body:', body);
+
     
     const { userId } = body;
     
     if (!userId) {
-      console.error('❌ Missing userId');
+      console.error('User ID missing in cancel subscription request');
       return NextResponse.json({ error: 'Missing userId' }, { status: 400 });
     }
 
@@ -28,21 +28,21 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (dbError || !subscription) {
-      console.error('❌ No active monthly subscription found:', dbError);
+      console.error('No subscription found for user:', userId);
       return NextResponse.json({ error: 'No active monthly subscription found' }, { status: 404 });
     }
 
-    console.log('📊 Found subscription:', subscription);
+
 
     // Cancelar assinatura no Stripe
     if (subscription.stripe_subscription_id) {
-      console.log('🚫 Canceling Stripe subscription:', subscription.stripe_subscription_id);
+
       
       const canceledSubscription = await stripe.subscriptions.cancel(
         subscription.stripe_subscription_id
       );
       
-      console.log('✅ Stripe subscription canceled:', canceledSubscription.id);
+
       
       const stripeSubscription = canceledSubscription as any;
       
@@ -55,23 +55,23 @@ export async function POST(req: NextRequest) {
         .eq('id', subscription.id);
 
       if (updateError) {
-        console.error('❌ Database update error:', updateError);
+        console.error('Failed to update subscription in database:', updateError);
         return NextResponse.json({ error: 'Failed to update subscription status' }, { status: 500 });
       }
 
-      console.log('✅ Subscription canceled successfully');
+      
       return NextResponse.json({ 
         success: true, 
         message: 'Subscription canceled successfully',
         current_period_end: new Date(stripeSubscription.current_period_end * 1000)
       });
     } else {
-      console.error('❌ No Stripe subscription ID found');
+
       return NextResponse.json({ error: 'No Stripe subscription ID found' }, { status: 400 });
     }
     
   } catch (error) {
-    console.error('❌ Cancel subscription error:', error);
+    console.error('Error in cancel subscription:', error);
     return NextResponse.json({ error: 'Failed to cancel subscription' }, { status: 500 });
   }
 }

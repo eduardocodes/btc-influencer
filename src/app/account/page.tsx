@@ -71,15 +71,15 @@ export default function Account() {
         .order('current_period_end', { ascending: false });
 
       if (subscriptionsError) {
-        console.error('Error loading subscriptions:', subscriptionsError);
-      } else {
+          console.error('Error loading subscriptions:', subscriptionsError);
+        } else {
         setSubscriptions(subscriptionsData || []);
         const activeSubscription = subscriptionsData?.find(sub => sub.status === 'active');
         setHasActiveSubscription(!!activeSubscription);
       }
     } catch (error) {
-      console.error('Error loading user data:', error);
-    } finally {
+        console.error('Error loading user data:', error);
+      } finally {
       setLoading(false);
     }
   };
@@ -128,8 +128,8 @@ export default function Account() {
         setShowCancelModal(false);
       }
     } catch (error) {
-      console.error('Error canceling subscription:', error);
-      setCancelMessage({ type: 'error', text: 'Error canceling subscription' });
+        console.error('Error canceling subscription:', error);
+        setCancelMessage({ type: 'error', text: 'Error canceling subscription' });
       setShowCancelModal(false);
     } finally {
       setCancelLoading(false);

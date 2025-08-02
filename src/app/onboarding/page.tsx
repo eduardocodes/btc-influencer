@@ -34,7 +34,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
         }
       }
     } catch (error) {
-      console.error("Error loading onboarding data:", error);
+      console.error('Error loading onboarding data:', error);
     }
   };
 
@@ -91,11 +91,9 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
         }
         
         if (error) {
-          console.error("Error saving onboarding data to Supabase:", error.message);
+          console.error('Error saving onboarding data to Supabase:', error.message);
           throw error;
         } else {
-          console.log("Onboarding data saved to Supabase successfully");
-          
           // Also save to localStorage for the results page
           const onboardingDataForLocalStorage = {
             companyName: formData.companyName,
@@ -107,15 +105,14 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
           };
           
           localStorage.setItem('onboardingData', JSON.stringify(onboardingDataForLocalStorage));
-          console.log("Onboarding data saved to localStorage successfully");
         }
       } else {
         throw new Error("User not authenticated");
       }
     } catch (error) {
-      console.error("Error saving onboarding data:", error);
-      throw error;
-    }
+        console.error('Error saving onboarding data:', error);
+        throw error;
+      }
   };
 
   const handleBack = () => {

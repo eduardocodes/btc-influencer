@@ -39,9 +39,9 @@ export default function Register() {
       // Registro bem-sucedido
       router.push('/login?registered=true');
     } catch (err) {
-      setError('An error occurred during registration. Please try again.');
-      console.error('Erro de registro:', err);
-    } finally {
+        setError('An error occurred during registration. Please try again.');
+        console.error('Erro de registro:', err);
+      } finally {
       setLoading(false);
     }
   };

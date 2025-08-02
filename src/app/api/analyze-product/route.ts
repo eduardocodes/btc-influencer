@@ -49,14 +49,11 @@ const AVAILABLE_CATEGORIES = [
 
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
-  console.log('🔍 API: Starting product analysis request');
   
   try {
     const { userId } = await request.json();
-    console.log('👤 API: Received request for user:', userId);
 
     if (!userId) {
-      console.log('❌ API: No user ID provided');
       return NextResponse.json(
         { error: 'User ID is required' },
         { status: 400 }
@@ -64,26 +61,29 @@ export async function POST(request: NextRequest) {
     }
 
     // Buscar as respostas do onboarding do usuário
-    console.log('🔎 API: Searching onboarding answers for user:', userId);
     const { data: onboardingData, error: onboardingError } = await supabase
       .from('onboarding_answers')
       .select('*')
       .eq('user_id', userId)
       .single();
 
-    if (onboardingError || !onboardingData) {
-      console.log('❌ API: Onboarding answers not found:', onboardingError);
+    if (onboardingError) {
+      console.error('Database error fetching onboarding data:', onboardingError);
       return NextResponse.json(
         { error: 'Onboarding answers not found' },
         { status: 404 }
       );
     }
 
-    console.log('📋 API: Found onboarding data:', {
-      company: onboardingData.company_name,
-      product: onboardingData.product_name,
-      hasDescription: !!onboardingData.product_description
-    });
+    if (!onboardingData) {
+      console.error('No onboarding data found for user:', userId);
+      return NextResponse.json(
+        { error: 'Onboarding answers not found' },
+        { status: 404 }
+      );
+    }
+
+
 
     // Preparar o prompt para a OpenAI
     const prompt = `
@@ -114,7 +114,6 @@ Respond in the following JSON format:
 `;
 
     // Fazer a requisição para a OpenAI
-    console.log('🤖 API: Sending request to OpenAI...');
     const completion = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [
@@ -130,11 +129,11 @@ Respond in the following JSON format:
       temperature: 0.3,
       max_tokens: 500
     });
-    console.log('✅ API: Received response from OpenAI');
 
     const responseContent = completion.choices[0]?.message?.content;
     
     if (!responseContent) {
+      console.error('No response from OpenAI');
       throw new Error('No response from OpenAI');
     }
 
@@ -143,7 +142,6 @@ Respond in the following JSON format:
     try {
       analysisResult = JSON.parse(responseContent);
     } catch (parseError) {
-      console.error('Error parsing OpenAI response:', parseError);
       return NextResponse.json(
         { error: 'Invalid response format from AI' },
         { status: 500 }
@@ -165,7 +163,7 @@ Respond in the following JSON format:
       .eq('user_id', userId);
 
     if (updateError) {
-      console.error('Error updating onboarding answers:', updateError);
+      console.error('Failed to update onboarding data:', updateError);
       return NextResponse.json(
         { error: 'Failed to update analysis results' },
         { status: 500 }
@@ -174,11 +172,6 @@ Respond in the following JSON format:
 
     const endTime = Date.now();
     const duration = endTime - startTime;
-    console.log(`🎉 API: Analysis completed successfully in ${duration}ms for user:`, userId);
-    console.log('📊 API: Final result:', {
-      categories: validCategories,
-      is_bitcoin_suitable: analysisResult.is_bitcoin_suitable
-    });
 
     return NextResponse.json({
       success: true,
@@ -189,10 +182,10 @@ Respond in the following JSON format:
       }
     });
 
-  } catch (error) {
+  } catch (error: any) {
+    console.error('Error in product analysis:', error);
     const endTime = Date.now();
     const duration = endTime - startTime;
-    console.error(`❌ API: Error in product analysis after ${duration}ms:`, error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

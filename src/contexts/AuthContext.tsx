@@ -22,11 +22,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // Verificar sessão atual
     const getSession = async () => {
-      console.log('🔐 [AUTH DEBUG] Verificando sessão atual...');
       const { data: { session }, error } = await supabase.auth.getSession();
-      console.log('🔐 [AUTH DEBUG] Sessão obtida:', session);
-      console.log('🔐 [AUTH DEBUG] Usuário:', session?.user);
-      console.log('🔐 [AUTH DEBUG] Erro:', error);
       setSession(session);
       setUser(session?.user ?? null);
       setIsLoading(false);
@@ -37,7 +33,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Configurar listener para mudanças de autenticação
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        console.log('🔐 [AUTH DEBUG] Auth state changed:', event, session);
+  
         setSession(session);
         setUser(session?.user ?? null);
         setIsLoading(false);

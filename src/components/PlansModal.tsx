@@ -28,11 +28,11 @@ export default function PlansModal({ isOpen, onClose }: PlansModalProps) {
       if (data.url) {
         window.location.href = data.url;
       } else {
-        console.error('Checkout URL missing', data);
-      }
+          console.error('Checkout URL missing', data);
+        }
     } catch (e) {
-      console.error('Checkout error', e);
-    } finally {
+        console.error('Checkout error', e);
+      } finally {
       setLoadingPlan(null);
     }
   };

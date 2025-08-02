@@ -299,14 +299,14 @@ export default function Home() {
   // Check subscription status
   const checkSubscriptionStatus = async () => {
     if (!user) {
-      console.log('No user found for subscription check');
+
       setHasActiveSubscription(false);
       return false;
     }
-    console.log('DEBUG: user.id recebido para verificação:', user.id);
+
     
     try {
-      console.log('Checking subscription for user:', user.id);
+  
       
       // Simple count query to check if user has any active subscription
       const { count, error } = await supabase
@@ -315,22 +315,22 @@ export default function Home() {
         .eq('user_id', user.id)
         .eq('status', 'active');
       
-      console.log('Subscription count result:', { count, error });
+  
       
       if (error) {
-        console.error('Error checking subscription count:', error);
-        setHasActiveSubscription(false);
+          console.error('Error checking subscription count:', error);
+          setHasActiveSubscription(false);
         return false;
       }
       
       const hasSubscription = Boolean(count && count > 0);
-       console.log('Has active subscription:', hasSubscription);
+   
        
        setHasActiveSubscription(hasSubscription);
       return hasSubscription;
     } catch (error) {
-      console.error('Exception checking subscription:', error);
-      setHasActiveSubscription(false);
+        console.error('Exception checking subscription:', error);
+        setHasActiveSubscription(false);
       return false;
     }
   };
@@ -354,8 +354,8 @@ export default function Home() {
         .limit(1);
 
       if (error) {
-        console.error('Erro ao carregar matches:', error);
-        return;
+          console.error('Erro ao carregar matches:', error);
+          return;
       }
 
       setUserMatches(data || []);
@@ -366,8 +366,8 @@ export default function Home() {
       }
       
     } catch (err) {
-      console.error('Erro inesperado ao carregar matches:', err);
-    } finally {
+        console.error('Erro inesperado ao carregar matches:', err);
+      } finally {
       setLoadingMatches(false);
     }
   };
@@ -381,15 +381,15 @@ export default function Home() {
         .in('id', creatorIds);
 
       if (error) {
-        console.error('Erro ao carregar criadores:', error);
-        return;
+          console.error('Erro ao carregar criadores:', error);
+          return;
       }
 
       setMatchedCreators(data || []);
       
     } catch (err) {
-      console.error('Erro inesperado ao carregar criadores:', err);
-    }
+        console.error('Erro inesperado ao carregar criadores:', err);
+      }
   };
 
   useEffect(() => {
@@ -428,8 +428,8 @@ export default function Home() {
         return
           }
         } catch (error) {
-          console.log('Could not load from Supabase:', error)
-        }
+            console.log('Could not load from Supabase:', error)
+          }
         
         // If no onboarding data but user is logged in, still check for matches
       await loadUserMatches()
@@ -457,19 +457,19 @@ export default function Home() {
 
   // Additional effect to ensure subscription check runs when user changes
   useEffect(() => {
-    console.log('User effect triggered. User:', user ? { id: user.id, email: user.email } : 'null');
+
     if (user) {
-      console.log('User changed, checking subscription status...');
+
       checkSubscriptionStatus();
     } else {
-      console.log('No user found, setting hasActiveSubscription to false');
+
       setHasActiveSubscription(false);
     }
   }, [user]);
 
   // Debug effect to log subscription status changes
   useEffect(() => {
-    console.log('hasActiveSubscription changed to:', hasActiveSubscription);
+
   }, [hasActiveSubscription]);
   
   const handleLogout = async () => {
@@ -607,8 +607,8 @@ export default function Home() {
                     ? JSON.parse(userMatches[0].search_criteria)
                     : userMatches[0].search_criteria;
                 } catch (e) {
-                  console.error('Erro ao fazer parse de search_criteria:', e);
-                  searchCriteria = selectedNiches;
+                    console.error('Erro ao fazer parse de search_criteria:', e);
+                    searchCriteria = selectedNiches;
                 }
               }
               
