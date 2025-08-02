@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Bitcoin Influencer",
-  description: "Plataforma para influenciadores de criptomoedas",
+  description: "Influencer marketing platform tailored for Bitcoin and crypto brands",
   icons: {
     icon: "/favicon.svg",
   },
