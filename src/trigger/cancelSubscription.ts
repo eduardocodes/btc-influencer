@@ -1,8 +1,8 @@
 import { logger, schedules } from "@trigger.dev/sdk/v3";
 import { supabaseAdmin } from '../lib/supabase/admin';
 
-export const cleanupInactiveSubscriptions = schedules.task({
-  id: "cleanup-inactive-subscriptions",
+export const cleanupcanceledSubscriptions = schedules.task({
+  id: "cleanup-canceled-subscriptions",
   // Roda diariamente às 00h (meia-noite)
   cron: "0 0 * * *",
   // Timeout de 5 minutos para a operação
@@ -21,12 +21,12 @@ export const cleanupInactiveSubscriptions = schedules.task({
       logger.log("Data de hoje para comparação", { todayString });
 
       // Buscar registros que atendem aos critérios:
-      // 1. status = 'inactive'
+      // 1. status = 'canceled'
       // 2. current_period_end = data atual (comparando apenas a data, não o horário)
       const { data: subscriptionsToDelete, error: selectError } = await supabaseAdmin
         .from('subscriptions')
         .select('id, user_id, status, current_period_end')
-        .eq('status', 'inactive')
+        .eq('status', 'canceled')
         .filter('current_period_end', 'gte', `${todayString}T00:00:00.000Z`)
         .filter('current_period_end', 'lt', `${todayString}T23:59:59.999Z`);
 
@@ -48,7 +48,7 @@ export const cleanupInactiveSubscriptions = schedules.task({
       const { error: deleteError } = await supabaseAdmin
         .from('subscriptions')
         .delete()
-        .eq('status', 'inactive')
+        .eq('status', 'canceled')
         .filter('current_period_end', 'gte', `${todayString}T00:00:00.000Z`)
         .filter('current_period_end', 'lt', `${todayString}T23:59:59.999Z`);
 
