@@ -183,6 +183,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
                   onChange={(e) => updateFormData('companyName', e.target.value)}
                   placeholder="Enter your company name"
                   className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:border-white/40"
+                  onKeyDown={(e) => e.key === 'Enter' && isStepValid() && handleNext()}
                 />
               </div>
             </div>
@@ -204,8 +205,9 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
                     value={formData.productName}
                     onChange={(e) => updateFormData('productName', e.target.value)}
                     placeholder="Your Product Name"
-                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:border-white/40"
-                  />
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:border-white/40"
+                  onKeyDown={(e) => e.key === 'Enter' && isStepValid() && handleNext()}
+                />
                 </div>
                 <div>
                   <label className="block text-white text-sm font-medium mb-2">Product URL</label>
@@ -216,8 +218,9 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
                       value={formData.productUrl}
                       onChange={(e) => updateFormData('productUrl', e.target.value)}
                       placeholder="https://example.com"
-                      className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:border-white/40"
-                    />
+                    className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:border-white/40"
+                    onKeyDown={(e) => e.key === 'Enter' && isStepValid() && handleNext()}
+                  />
                   </div>
                   <p className="text-white/50 text-xs mt-1">Opcional: Inclua se você tiver uma landing page</p>
                 </div>
@@ -241,8 +244,9 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
                     onChange={(e) => updateFormData('productDescription', e.target.value.slice(0, 300))}
                     placeholder="Ex: An AI essay writing app that helps students write essays fast"
                     rows={4}
-                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:border-white/40 resize-none"
-                  />
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:border-white/40 resize-none"
+                  onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && isStepValid() && handleNext()}
+                />
                   <div className="absolute bottom-3 right-3 text-white/50 text-xs">
                     {formData.productDescription.length}/300
                   </div>
