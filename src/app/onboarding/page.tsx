@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../../lib/supabase";
+import { trackPageView, trackOnboardingStep } from "../../lib/analytics";
 
 const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
   const router = useRouter();
@@ -41,13 +42,19 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
 
   useEffect(() => {
     loadOnboardingData();
+    // Track page view
+    trackPageView('Onboarding');
   }, []);
 
   const handleNext = async () => {
     if (currentStep < 3) {
       setCurrentStep(currentStep + 1);
+      // Track onboarding step completion
+      trackOnboardingStep(`step_${currentStep}`, true);
     } else {
       await saveOnboardingData();
+      // Track onboarding completion
+      trackOnboardingStep('step_3', true);
       // Redirect to search loading page
       window.location.href = '/search/loading';
     }

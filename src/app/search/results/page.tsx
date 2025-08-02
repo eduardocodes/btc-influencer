@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '@/src/lib/supabase';
 import { useAuth } from '../../../contexts/AuthContext';
 import PlansModal from '@/src/components/PlansModal';
+import { trackSearch, trackInfluencerView, trackPageView } from '@/src/lib/analytics';
 
 interface Creator {
   id: string;
@@ -322,6 +323,8 @@ export default function SearchResultsPage() {
 
     if (user) {
       initializeData();
+      // Track page view
+      trackPageView('Search Results');
     }
   }, [user]);
 
@@ -339,6 +342,8 @@ export default function SearchResultsPage() {
         searchExecutedRef.current = onboardingData.id;
         // Search for creators using the new API
         await searchCreators(categories, onboardingData.is_bitcoin_suitable);
+        // Track search event
+        trackSearch(categories.join(', '));
       }
     };
 
@@ -545,6 +550,7 @@ export default function SearchResultsPage() {
                           href={platformData.url}
                           target="_blank"
                           rel="noopener noreferrer"
+                          onClick={() => trackInfluencerView(creator.full_name, platformData.platform)}
                           className={`w-full text-center py-2 px-4 rounded-lg text-sm transition-all duration-300 transform hover:scale-105 ${
                             platformData.platform === 'youtube' 
                               ? 'bg-gradient-to-r from-red-500 to-red-600 hover:from-red-400 hover:to-red-500 text-white shadow-lg shadow-red-500/25 hover:shadow-xl hover:shadow-red-500/40'

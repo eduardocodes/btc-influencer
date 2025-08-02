@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { supabase } from '@/src/lib/supabase';
 import PlansModal from '@/src/components/PlansModal';
+import { trackPageView, trackUserAction } from '@/src/lib/analytics';
 
 interface Influencer {
   id: string;
@@ -463,6 +464,8 @@ export default function Home() {
     if (user) {
 
       checkSubscriptionStatus();
+      // Track page view
+      trackPageView('Home');
     } else {
 
       setHasActiveSubscription(false);

@@ -10,11 +10,12 @@
     "trigger:dev": "NODE_NO_WARNINGS=1 npx trigger.dev@latest dev"
   },
   "dependencies": {
+    "@next/third-parties": "^15.4.5",
     "@supabase/auth-helpers-nextjs": "^0.10.0",
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.52.1",
     "@trigger.dev/sdk": "^3.3.17",
-    "next": "15.4.3",
+    "next": "^15.4.5",
     "openai": "^5.11.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",

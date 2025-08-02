@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '../../contexts/AuthContext';
+import { trackPageView, trackUserAction } from '../../lib/analytics';
 
 function LoginForm() {
   const router = useRouter();
@@ -21,6 +22,8 @@ function LoginForm() {
     if (registered === 'true') {
       setSuccessMessage('Registration successful! Check your email to confirm your account.');
     }
+    // Track page view
+    trackPageView('Login');
   }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -37,6 +40,7 @@ function LoginForm() {
       }
       
       // Login bem-sucedido, redirecionar para a página inicial
+      trackUserAction('login', 'authentication', 'success');
       router.push('/home');
     } catch (err) {
         setError('An error occurred during login. Please try again.');
