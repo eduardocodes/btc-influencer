@@ -261,17 +261,16 @@ export default function SearchResultsPage() {
       }
   };
 
-  const searchCreators = async (categories: string[]) => {
+  const searchCreators = async (categories: string[], isBitcoinSuitable: boolean) => {
     try {
       setSearchingCreators(true);
 
-      
       const response = await fetch('/api/creators/search', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ categories }),
+        body: JSON.stringify({ categories, is_bitcoin_suitable: isBitcoinSuitable }),
       });
 
       if (!response.ok) {
@@ -279,21 +278,43 @@ export default function SearchResultsPage() {
       }
 
       const data = await response.json();
-      
-      const foundCreators = data.creators || [];
-      setCreators(foundCreators);
-      
+      let foundCreators = data.creators || [];
+      console.log('[DEBUG] Found creators:', foundCreators);
 
-      
+      // Fallback logic: if less than 6 creators, fetch fallback creators
+      if (foundCreators.length < 6) {
+        try {
+          console.log('[DEBUG] Attempting fallback fetch with is_bitcoin_suitable:', isBitcoinSuitable);
+          const fallbackRes = await fetch('/api/creators/search', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ categories: [], is_bitcoin_suitable: isBitcoinSuitable }),
+          });
+          if (fallbackRes.ok) {
+            const fallbackData = await fallbackRes.json();
+            const fallbackCreators = (fallbackData.creators || []).filter(fallback => !foundCreators.some(c => c.id === fallback.id));
+            console.log('[DEBUG] Fallback creators returned:', fallbackCreators);
+            foundCreators = [...foundCreators, ...fallbackCreators.slice(0, 6 - foundCreators.length)];
+            console.log('[DEBUG] Final creators after fallback:', foundCreators);
+          } else {
+            console.error('[DEBUG] Fallback fetch failed with status:', fallbackRes.status);
+          }
+        } catch (fallbackErr) {
+          console.error('Error fetching fallback creators:', fallbackErr);
+        }
+      }
+
+      setCreators(foundCreators);
+
       // Salvar os resultados na tabela user_matches
-      // onboardingData should be available now since this runs in a separate useEffect
       if (foundCreators.length > 0 && onboardingData && onboardingData.id) {
         await saveUserMatches(foundCreators, categories, onboardingData.id);
       }
-      
     } catch (err) {
-        console.error('Error fetching creators:', err);
-        setError('Failed to search creators');
+      console.error('Error fetching creators:', err);
+      setError('Failed to search creators');
     } finally {
       setSearchingCreators(false);
     }
@@ -320,16 +341,16 @@ export default function SearchResultsPage() {
   useEffect(() => {
     const performSearch = async () => {
       if (onboardingData && searchExecutedRef.current !== onboardingData.id) {
-
-        
+        // Parse categories from the onboarding data
+        const categories = onboardingData.product_category ? onboardingData.product_category.split(', ').map((cat: string) => cat.trim()).filter(Boolean) : [];
+        if (categories.length === 0) {
+          setError('Selecione ao menos uma categoria para buscar criadores.');
+          return;
+        }
         // Mark this onboarding data as processed
         searchExecutedRef.current = onboardingData.id;
-        
-        // Parse categories from the onboarding data
-        const categories = onboardingData.product_category ? onboardingData.product_category.split(', ').map((cat: string) => cat.trim()) : [];
-        
         // Search for creators using the new API
-        await searchCreators(categories);
+        await searchCreators(categories, onboardingData.is_bitcoin_suitable);
       }
     };
 
@@ -382,7 +403,7 @@ export default function SearchResultsPage() {
           <p className="text-xl text-white/80 mb-6">
             We found hundreds of creators for {onboardingData?.product_name || 'your product'}
           </p>
-          {onboardingData && (
+          {onboardingData && onboardingData.product_category && (
             <div className="flex flex-wrap justify-center gap-2 mb-6">
               {onboardingData.product_category.split(', ').map((category, index) => (
                 <span
@@ -421,7 +442,8 @@ export default function SearchResultsPage() {
                 const creatorCategories = creator.categories || [];
                 const selectedNiches = onboardingData?.product_category ? onboardingData.product_category.split(', ').map((niche: string) => niche.trim()) : [];
                 const matchingNiches = getMatchingNiches(creatorCategories, selectedNiches);
-                const matchScore = Math.round((matchingNiches.length / (selectedNiches.length || 1)) * 100);
+                // Se não houver categorias selecionadas (fallback), mostrar 90% de match
+                const matchScore = selectedNiches.length === 0 ? 90 : Math.round((matchingNiches.length / (selectedNiches.length || 1)) * 100);
                 const platformData = getPlatformData(creator);
                 
                 return (

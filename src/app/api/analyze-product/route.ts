@@ -52,8 +52,10 @@ export async function POST(request: NextRequest) {
   
   try {
     const { userId } = await request.json();
+    console.log('[analyze-product] userId recebido:', userId);
 
     if (!userId) {
+      console.warn('[analyze-product] Nenhum userId fornecido');
       return NextResponse.json(
         { error: 'User ID is required' },
         { status: 400 }
@@ -66,9 +68,9 @@ export async function POST(request: NextRequest) {
       .select('*')
       .eq('user_id', userId)
       .single();
-
+    console.log('[analyze-product] Dados onboarding:', onboardingData);
     if (onboardingError) {
-      console.error('Database error fetching onboarding data:', onboardingError);
+      console.error('[analyze-product] Erro ao buscar onboarding:', onboardingError);
       return NextResponse.json(
         { error: 'Onboarding answers not found' },
         { status: 404 }
@@ -76,14 +78,12 @@ export async function POST(request: NextRequest) {
     }
 
     if (!onboardingData) {
-      console.error('No onboarding data found for user:', userId);
+      console.error('[analyze-product] Nenhum dado de onboarding encontrado para user:', userId);
       return NextResponse.json(
         { error: 'Onboarding answers not found' },
         { status: 404 }
       );
     }
-
-
 
     // Preparar o prompt para a OpenAI
     const prompt = `
@@ -102,16 +102,17 @@ ${AVAILABLE_CATEGORIES.join(', ')}
 
 Based on the product information above, please:
 1. Select the most appropriate categories from the available list (you can select multiple categories)
-2. Determine if this product is suitable for Bitcoin-only influencers
-3. Provide a brief explanation for your categorization
+2. Carefully evaluate if this product is interesting and relevant for a Bitcoin-only audience. If it is, set is_bitcoin_suitable to true. Otherwise, set it to false. Only mark true if the product is genuinely suitable for Bitcoin-only influencers.
+3. Provide a brief explanation for your categorization and your reasoning for the Bitcoin-only suitability.
 
 Respond in the following JSON format:
 {
   "categories": ["category1", "category2"],
   "is_bitcoin_suitable": true/false,
-  "explanation": "Brief explanation of the categorization"
+  "explanation": "Brief explanation of the categorization and Bitcoin-only suitability"
 }
 `;
+    console.log('[analyze-product] Prompt enviado para OpenAI:', prompt);
 
     // Fazer a requisição para a OpenAI
     const completion = await openai.chat.completions.create({
@@ -131,17 +132,25 @@ Respond in the following JSON format:
     });
 
     const responseContent = completion.choices[0]?.message?.content;
+    console.log('[analyze-product] Resposta da OpenAI:', responseContent);
     
     if (!responseContent) {
-      console.error('No response from OpenAI');
+      console.error('[analyze-product] Nenhuma resposta da OpenAI');
       throw new Error('No response from OpenAI');
     }
 
     // Parse da resposta da OpenAI
     let analysisResult;
     try {
-      analysisResult = JSON.parse(responseContent);
+      // Remove blocos de código markdown se presentes
+      let cleanResponse = responseContent.trim();
+      if (cleanResponse.startsWith('```')) {
+        cleanResponse = cleanResponse.replace(/^```[a-zA-Z]*\n?/, '').replace(/```$/, '').trim();
+      }
+      analysisResult = JSON.parse(cleanResponse);
+      console.log('[analyze-product] Resultado do parse da IA:', analysisResult);
     } catch (parseError) {
+      console.error('[analyze-product] Erro ao fazer parse da resposta da IA:', parseError, responseContent);
       return NextResponse.json(
         { error: 'Invalid response format from AI' },
         { status: 500 }
@@ -149,9 +158,10 @@ Respond in the following JSON format:
     }
 
     // Validar as categorias retornadas
-    const validCategories = analysisResult.categories.filter((cat: string) => 
+    const validCategories = analysisResult.categories.filter((cat) => 
       AVAILABLE_CATEGORIES.includes(cat)
     );
+    console.log('[analyze-product] Categorias válidas:', validCategories);
 
     // Atualizar o registro de onboarding com a análise da IA
     const { error: updateError } = await supabase
@@ -161,9 +171,8 @@ Respond in the following JSON format:
         is_bitcoin_suitable: analysisResult.is_bitcoin_suitable
       })
       .eq('user_id', userId);
-
     if (updateError) {
-      console.error('Failed to update onboarding data:', updateError);
+      console.error('[analyze-product] Falha ao atualizar onboarding:', updateError);
       return NextResponse.json(
         { error: 'Failed to update analysis results' },
         { status: 500 }
@@ -172,6 +181,7 @@ Respond in the following JSON format:
 
     const endTime = Date.now();
     const duration = endTime - startTime;
+    console.log(`[analyze-product] Sucesso. Tempo total: ${duration}ms`);
 
     return NextResponse.json({
       success: true,
