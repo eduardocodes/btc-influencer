@@ -503,9 +503,7 @@ export default function SearchResultsPage() {
                       </div>
                       <div className="w-full bg-white/20 rounded-full h-2">
                         <div 
-                          className={`h-2 rounded-full ${
-                            platformData?.platform === 'tiktok' ? 'bg-pink-400' : 'bg-orange-400'
-                          }`}
+                          className="h-2 rounded-full bg-orange-400"
                           style={{ width: `${Math.min(platformData?.engagement_rate || 0, 100)}%` }}
                         ></div>
                       </div>
