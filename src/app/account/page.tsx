@@ -6,6 +6,7 @@ import ProtectedRoute from '../../components/ProtectedRoute';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '@/src/lib/supabase';
 import CancelSubscriptionModal from '../../components/CancelSubscriptionModal';
+import PlansModal from '../../components/PlansModal';
 
 interface UserProfile {
   id: string;
@@ -39,6 +40,9 @@ export default function Account() {
   const [cancelLoading, setCancelLoading] = useState(false);
   const [cancelMessage, setCancelMessage] = useState<{type: 'success' | 'error', text: string} | null>(null);
   const [showCancelModal, setShowCancelModal] = useState(false);
+  
+  // Plans modal state
+  const [showPlansModal, setShowPlansModal] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -374,10 +378,9 @@ export default function Account() {
                 
                 {!hasActiveSubscription && (
                   <div className="text-center py-4">
-                    <p className="text-gray-400 text-sm">No active subscription</p>
                     <button
-                      onClick={() => router.push('/home')}
-                      className="mt-2 bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded text-sm transition-colors cursor-pointer"
+                      onClick={() => setShowPlansModal(true)}
+                      className="bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded text-sm transition-colors cursor-pointer"
                     >
                       Explore Plans
                     </button>
@@ -489,6 +492,11 @@ export default function Account() {
         onClose={closeCancelModal}
         onConfirm={confirmCancelSubscription}
         loading={cancelLoading}
+      />
+      
+      <PlansModal
+        isOpen={showPlansModal}
+        onClose={() => setShowPlansModal(false)}
       />
     </ProtectedRoute>
   );
