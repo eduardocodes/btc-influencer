@@ -265,7 +265,7 @@ export async function POST(req: NextRequest) {
     case 'customer.subscription.deleted':
     case 'invoice.payment_failed':
       console.log('🔄 Processing subscription update:', event.type);
-      const updateData = {
+      const updateData: { status: any; current_period_end?: Date } = {
         status: data.status
       };
       if (typeof data.current_period_end === 'number' && !isNaN(data.current_period_end)) {
