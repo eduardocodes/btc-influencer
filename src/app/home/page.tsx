@@ -36,6 +36,8 @@ interface Creator {
   location: string;
   youtube_url: string;
   tiktok_url?: string;
+  x_url?: string;
+  insta_url?: string;
   bio: string;
 }
 
@@ -274,6 +276,48 @@ export default function Home() {
     return countryFlags[normalizedLocation] || '🌍';
   };
 
+  const getSocialMediaPlatforms = (creator: Creator) => {
+    const platforms = [];
+    
+    if (creator.youtube_url) {
+      platforms.push({
+        url: creator.youtube_url,
+        name: 'YouTube',
+        color: 'from-red-500 to-red-600',
+        shadowColor: 'shadow-red-500/25 hover:shadow-red-500/40'
+      });
+    }
+    
+    if (creator.tiktok_url) {
+      platforms.push({
+        url: creator.tiktok_url,
+        name: 'TikTok',
+        color: 'from-gray-500 to-gray-600',
+        shadowColor: 'shadow-gray-500/25 hover:shadow-gray-500/40'
+      });
+    }
+    
+    if (creator.x_url) {
+      platforms.push({
+        url: creator.x_url,
+        name: 'Twitter',
+        color: 'from-gray-800 to-black',
+        shadowColor: 'shadow-gray-800/25 hover:shadow-gray-800/40'
+      });
+    }
+    
+    if (creator.insta_url) {
+      platforms.push({
+        url: creator.insta_url,
+        name: 'Instagram',
+        color: 'from-purple-500 to-pink-500',
+        shadowColor: 'shadow-purple-500/25 hover:shadow-purple-500/40'
+      });
+    }
+    
+    return platforms;
+  };
+
   const getPlatformData = (platform: string) => {
     const platforms = {
       youtube: {
@@ -282,7 +326,7 @@ export default function Home() {
       },
       tiktok: {
         icon: <img src="/tiktok-icon.svg" alt="TikTok" className="w-5 h-5" />,
-        color: 'pink'
+        color: 'gray'
       }
     };
     return platforms[platform as keyof typeof platforms] || platforms.youtube;
@@ -732,28 +776,51 @@ export default function Home() {
                       )}
                     </div>
 
-                    {/* Action Buttons */}
-                    <div className="flex gap-2">
-                      {creator.youtube_url && (
-                        <a
-                          href={creator.youtube_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex-1 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-400 hover:to-red-500 text-white text-sm py-2 px-3 rounded text-center shadow-lg shadow-red-500/25 hover:shadow-xl hover:shadow-red-500/40 hover:scale-105 transform transition-all duration-300"
-                        >
-                          YouTube
-                        </a>
-                      )}
-                      {creator.tiktok_url && (
-                        <a
-                          href={creator.tiktok_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex-1 bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-400 hover:to-gray-500 text-white text-sm py-2 px-3 rounded text-center shadow-lg shadow-gray-500/25 hover:shadow-xl hover:shadow-gray-500/40 hover:scale-105 transform transition-all duration-300"
-                        >
-                          TikTok
-                        </a>
-                      )}
+                    {/* Social Media Buttons */}
+                    <div>
+                      {(() => {
+                        const socialPlatforms = getSocialMediaPlatforms(creator);
+                        
+                        if (socialPlatforms.length === 0) {
+                          return (
+                            <div className="text-center py-2 text-gray-400 text-sm">
+                              No Social Media
+                            </div>
+                          );
+                        }
+                        
+                        if (socialPlatforms.length === 1) {
+                          const platform = socialPlatforms[0];
+                          return (
+                            <a
+                              href={platform.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className={`block w-full bg-gradient-to-r ${platform.color} hover:scale-105 text-white text-sm py-2 px-3 rounded text-center shadow-lg ${platform.shadowColor} hover:shadow-xl transform transition-all duration-300`}
+                              onClick={() => trackUserAction('Social Media Click', 'Creator Card', `${platform.name} - ${creator.full_name}`)}
+                            >
+                              {platform.name}
+                            </a>
+                          );
+                        }
+                        
+                        return (
+                          <div className="grid grid-cols-2 gap-2">
+                            {socialPlatforms.map((platform, index) => (
+                              <a
+                                key={index}
+                                href={platform.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={`bg-gradient-to-r ${platform.color} hover:scale-105 text-white text-xs py-2 px-2 rounded text-center shadow-lg ${platform.shadowColor} hover:shadow-xl transform transition-all duration-300`}
+                                onClick={() => trackUserAction('Social Media Click', 'Creator Card', `${platform.name} - ${creator.full_name}`)}
+                              >
+                                {platform.name}
+                              </a>
+                            ))}
+                          </div>
+                        );
+                      })()} 
                     </div>
                   </div>
                 );
