@@ -23,6 +23,8 @@ interface Creator {
   location: string;
   youtube_url: string;
   tiktok_url?: string;
+  x_url?: string;
+  insta_url?: string;
   bio: string;
   isFallback?: boolean;
 }
@@ -185,6 +187,52 @@ export default function SearchResultsPage() {
       };
     }
     return null;
+  };
+
+  const getSocialMediaPlatforms = (creator: Creator) => {
+    const platforms = [];
+    
+    if (creator.youtube_url) {
+      platforms.push({
+        platform: 'youtube',
+        url: creator.youtube_url,
+        name: 'YouTube',
+        color: 'from-red-500 to-red-600 hover:from-red-400 hover:to-red-500',
+        shadowColor: 'shadow-red-500/25 hover:shadow-red-500/40'
+      });
+    }
+    
+    if (creator.tiktok_url) {
+      platforms.push({
+        platform: 'tiktok',
+        url: creator.tiktok_url,
+        name: 'TikTok',
+        color: 'from-gray-500 to-gray-600 hover:from-gray-400 hover:to-gray-500',
+        shadowColor: 'shadow-gray-500/25 hover:shadow-gray-500/40'
+      });
+    }
+    
+    if (creator.x_url) {
+      platforms.push({
+        platform: 'twitter',
+        url: creator.x_url,
+        name: 'Twitter',
+        color: 'from-gray-800 to-black hover:from-gray-700 hover:to-gray-900',
+        shadowColor: 'shadow-gray-500/25 hover:shadow-gray-500/40'
+      });
+    }
+    
+    if (creator.insta_url) {
+      platforms.push({
+        platform: 'instagram',
+        url: creator.insta_url,
+        name: 'Instagram',
+        color: 'from-purple-500 to-pink-500 hover:from-purple-400 hover:to-pink-400',
+        shadowColor: 'shadow-purple-500/25 hover:shadow-purple-500/40'
+      });
+    }
+    
+    return platforms;
   };
 
   const loadOnboardingData = async () => {
@@ -543,27 +591,51 @@ export default function SearchResultsPage() {
                       </div>
                     )}
 
-                    {/* Action Button */}
-                    <div className="flex">
-                      {platformData ? (
-                        <a
-                          href={platformData.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={() => trackInfluencerView(creator.full_name, platformData.platform)}
-                          className={`w-full text-center py-2 px-4 rounded-lg text-sm transition-all duration-300 transform hover:scale-105 ${
-                            platformData.platform === 'youtube' 
-                              ? 'bg-gradient-to-r from-red-500 to-red-600 hover:from-red-400 hover:to-red-500 text-white shadow-lg shadow-red-500/25 hover:shadow-xl hover:shadow-red-500/40'
-                              : 'bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-400 hover:to-gray-500 text-white shadow-lg shadow-gray-500/25 hover:shadow-xl hover:shadow-gray-500/40'
-                          }`}
-                        >
-                          View {platformData.name}
-                        </a>
-                      ) : (
-                        <div className="w-full bg-gray-600/50 text-gray-300 text-center py-2 px-4 rounded-lg text-sm cursor-not-allowed">
-                          No Social Media
-                        </div>
-                      )}
+                    {/* Social Media Buttons */}
+                    <div className="space-y-2">
+                      {(() => {
+                        const socialPlatforms = getSocialMediaPlatforms(creator);
+                        
+                        if (socialPlatforms.length === 0) {
+                          return (
+                            <div className="w-full bg-gray-600/50 text-gray-300 text-center py-2 px-4 rounded-lg text-sm cursor-not-allowed">
+                              No Social Media
+                            </div>
+                          );
+                        }
+                        
+                        if (socialPlatforms.length === 1) {
+                          const platform = socialPlatforms[0];
+                          return (
+                             <a
+                               href={platform.url}
+                               target="_blank"
+                               rel="noopener noreferrer"
+                               onClick={() => trackInfluencerView(creator.full_name, platform.platform)}
+                               className={`w-full flex items-center justify-center gap-2 py-2 px-4 rounded-lg text-sm transition-all duration-300 transform hover:scale-105 bg-gradient-to-r ${platform.color} text-white shadow-lg ${platform.shadowColor} hover:shadow-xl`}
+                             >
+                               <span>View {platform.name}</span>
+                             </a>
+                           );
+                        }
+                        
+                        return (
+                          <div className="grid grid-cols-2 gap-2">
+                            {socialPlatforms.map((platform) => (
+                               <a
+                                 key={platform.platform}
+                                 href={platform.url}
+                                 target="_blank"
+                                 rel="noopener noreferrer"
+                                 onClick={() => trackInfluencerView(creator.full_name, platform.platform)}
+                                 className={`flex items-center justify-center gap-1 py-2 px-3 rounded-lg text-xs transition-all duration-300 transform hover:scale-105 bg-gradient-to-r ${platform.color} text-white shadow-lg ${platform.shadowColor} hover:shadow-xl`}
+                               >
+                                 <span>{platform.name}</span>
+                               </a>
+                             ))}
+                          </div>
+                        );
+                      })()}
                     </div>
                   </div>
                 );
