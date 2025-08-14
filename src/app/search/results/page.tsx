@@ -303,7 +303,6 @@ export default function SearchResultsPage() {
   };
 
   const searchCreators = async (categories: string[], isBitcoinSuitable: boolean) => {
-    console.log('[DEBUG searchCreators] Iniciando busca - categorias:', categories, 'isBitcoinSuitable:', isBitcoinSuitable);
     try {
       setSearchingCreators(true);
       let foundCreators: Creator[] = [];
@@ -323,9 +322,7 @@ export default function SearchResultsPage() {
 
         const data = await response.json();
         foundCreators = data.creators || [];
-        console.log('[DEBUG searchCreators] Busca principal bem-sucedida, encontrados:', foundCreators.length, 'criadores');
       } catch (searchError) {
-        console.error('[DEBUG searchCreators] Erro na busca principal, tentando fallback Bitcoin-only:', searchError);
         // Se a busca principal falhar, tentar diretamente o fallback Bitcoin-only
         try {
           const fallbackResponse = await fetch('/api/creators/search', {
@@ -338,9 +335,6 @@ export default function SearchResultsPage() {
           if (fallbackResponse.ok) {
             const fallbackData = await fallbackResponse.json();
             foundCreators = (fallbackData.creators || []).map((creator: Creator) => ({ ...creator, isFallback: true }));
-            console.log('[DEBUG searchCreators] Fallback interno bem-sucedido, encontrados:', foundCreators.length, 'criadores Bitcoin-only');
-          } else {
-            console.error('[DEBUG searchCreators] Fallback interno falhou com status:', fallbackResponse.status);
           }
         } catch (fallbackError) {
           console.error('[searchCreators] Erro no fallback Bitcoin-only:', fallbackError);
@@ -349,10 +343,8 @@ export default function SearchResultsPage() {
       }
 
       // Fallback logic: if less than 6 creators, fetch Bitcoin-only creators
-      console.log('[DEBUG searchCreators] Verificando se precisa de fallback adicional. Criadores encontrados:', foundCreators.length);
       if (foundCreators.length < 6) {
         try {
-          console.log('[DEBUG searchCreators] Poucos criadores encontrados, buscando fallback adicional is_btc_only');
           const fallbackRes = await fetch('/api/creators/search', {
             method: 'POST',
             headers: {
@@ -372,8 +364,6 @@ export default function SearchResultsPage() {
         }
       }
 
-      console.log('[DEBUG searchCreators] Busca finalizada. Total de criadores encontrados:', foundCreators.length);
-      console.log('[DEBUG searchCreators] Criadores finais:', foundCreators.map(c => ({ name: c.full_name, isFallback: c.isFallback })));
       setCreators(foundCreators);
 
       // Salvar os resultados na tabela user_matches
@@ -381,7 +371,7 @@ export default function SearchResultsPage() {
         await saveUserMatches(foundCreators, categories, onboardingData.id);
       }
     } catch (err) {
-      console.error('[DEBUG searchCreators] Erro geral na função searchCreators:', err);
+      console.error('Erro geral na função searchCreators:', err);
       setError('Failed to search creators');
     } finally {
       setSearchingCreators(false);
@@ -411,15 +401,11 @@ export default function SearchResultsPage() {
   useEffect(() => {
     const performSearch = async () => {
       if (onboardingData && searchExecutedRef.current !== onboardingData.id) {
-        console.log('[DEBUG] Iniciando busca com onboardingData:', onboardingData);
-        
         // Parse categories from the onboarding data
         const categories = onboardingData.product_category ? onboardingData.product_category.split(', ').map((cat: string) => cat.trim()).filter(Boolean) : [];
-        console.log('[DEBUG] Categorias parseadas:', categories);
         
         // Se não há categorias válidas, usar fallback Bitcoin-only diretamente
         if (categories.length === 0) {
-          console.log('[DEBUG] Nenhuma categoria válida encontrada, usando fallback Bitcoin-only');
           // Mark this onboarding data as processed
           searchExecutedRef.current = onboardingData.id;
           // Search for Bitcoin-only creators directly
@@ -429,7 +415,6 @@ export default function SearchResultsPage() {
           return;
         }
         
-        console.log('[DEBUG] Categorias válidas encontradas, prosseguindo com busca normal');
         // Mark this onboarding data as processed
         searchExecutedRef.current = onboardingData.id;
         // Search for creators using the new API

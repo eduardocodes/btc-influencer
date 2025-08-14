@@ -6,18 +6,12 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { categories, is_bitcoin_suitable } = body;
     
-    console.log('[DEBUG API] Recebida requisição - categories:', categories, 'is_bitcoin_suitable:', is_bitcoin_suitable);
-    console.log('[DEBUG API] Tipo de categories:', typeof categories, 'Array?', Array.isArray(categories));
-    console.log('[DEBUG API] Comprimento de categories:', categories?.length);
-    
     if (!categories || !Array.isArray(categories)) {
-      console.error("Categories inválidas:", categories);
       return NextResponse.json({ error: 'Categories array is required' }, { status: 400 });
     }
 
     // Se o array de categorias estiver vazio, retorna criadores Bitcoin-only (fallback)
     if (categories.length === 0) {
-      console.log('[DEBUG API] Categorias vazias, buscando criadores is_btc_only = true');
       const { data: btcOnlyCreators, error: btcOnlyError } = await supabaseAdmin
         .from('creators')
         .select('*')
@@ -25,7 +19,6 @@ export async function POST(request: NextRequest) {
         .order('total_followers', { ascending: false })
         .limit(50);
       if (btcOnlyError) {
-        console.error('Database error (btc_only fallback):', btcOnlyError);
         return NextResponse.json({ error: 'Database error' }, { status: 500 });
       }
       return NextResponse.json({ creators: btcOnlyCreators || [] });
@@ -54,7 +47,6 @@ export async function POST(request: NextRequest) {
       creators = result.data;
       error = result.error;
     } catch (queryError) {
-      console.error('[DEBUG API] Erro na query overlaps, indo para fallback:', queryError);
       creators = null;
       error = queryError;
     }
@@ -82,7 +74,6 @@ export async function POST(request: NextRequest) {
         creators = containsData;
         error = containsError;
       } catch (containsError) {
-        console.error('[DEBUG API] Erro na query contains, indo para fallback:', containsError);
         creators = null;
         error = containsError;
       }
@@ -116,16 +107,13 @@ export async function POST(request: NextRequest) {
         
         creators = uniqueCreators.slice(0, 50);
       } catch (individualError) {
-        console.error('[DEBUG API] Erro nas queries individuais, indo para fallback:', individualError);
         creators = null;
         error = individualError;
       }
     }
 
     // Fallback final: se nenhum criador encontrado ou houve erro, buscar criadores Bitcoin-only
-    console.log('[DEBUG API] Verificando necessidade de fallback final. Criadores:', creators?.length, 'error:', error);
     if (!creators || creators.length === 0 || error) {
-      console.log('[DEBUG API] Acionando fallback final para criadores is_btc_only');
       try {
         const { data: btcOnlyCreators, error: btcOnlyError } = await supabaseAdmin
           .from('creators')
@@ -135,23 +123,18 @@ export async function POST(request: NextRequest) {
           .limit(50);
         
         if (btcOnlyError) {
-          console.error('Database error (btc_only fallback):', btcOnlyError);
           return NextResponse.json({ error: 'Database error' }, { status: 500 });
         }
         
         return NextResponse.json({ creators: btcOnlyCreators || [] });
       } catch (fallbackError) {
-        console.error('Erro crítico no fallback btc_only:', fallbackError);
         return NextResponse.json({ error: 'Database error' }, { status: 500 });
       }
     }
 
-    console.log('[DEBUG API] Retornando resultado final:', creators.length, 'criadores');
-    console.log('[DEBUG API] Criadores retornados:', creators.map(c => ({ name: c.full_name, is_btc_only: c.is_btc_only })));
     return NextResponse.json({ creators: creators || [] });
     
   } catch (error) {
-    console.error('Error in creators search:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
