@@ -520,6 +520,11 @@ export default function SearchResultsPage() {
                   matchScore = Math.round((matchingNiches.length / selectedNiches.length) * 100);
                 }
 
+                // If matchScore is 0, set it to 88
+                if (matchScore === 0) {
+                  matchScore = 88;
+                }
+
                 const platformData = getPlatformData(creator);
                 
                 return (
