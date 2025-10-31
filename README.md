@@ -1,59 +1,93 @@
 # Bitcoin Influencer
 
-This is a [Next.js](https://nextjs.org) project for a cryptocurrency influencer platform, with integrated Supabase authentication.
+### Index
 
-## Setup
+- [Overview](#-overview)
+- [Demo](#-demo)
+- [Requirements](#-requirements)
+- [System Design](#-system-design)
+- [Technologies Used](#-technologies-used)
 
-1. Clone the repository
-2. Install dependencies:
+---
+
+## 📌 Overview
+
+Bitcoin Influencer is a modern web platform that helps users find high-performing Bitcoin-only influencers in seconds. It provides a curated database of crypto creators, saving hours of manual research for marketers, brands, and crypto startups looking for trusted collaborators.
+
+> This project simulates a real-world SaaS structure to showcase full-stack Next.js development with PostgresSQL.
+
+---
+
+## 🎥 Demo
+
+| Desktop Views | Mobile Views |
+|----------------|--------------|
+| ![Desktop 1](./public/Screenshot%20Web%201.jpg) | ![Mobile 1](./public/Screenshot%20Mobile%201.jpg) |
+| ![Desktop 2](./public/Screenshot%202.jpg) | ![Mobile 2](./public/Screenshot%20Mobile%202.jpg) |
+| ![Desktop 3](./public/Screenshot%203.jpg) | ![Mobile 3](./public/Screenshot%20Mobile%203.jpg) |
+| ![Desktop 4](./public/Screenshot%204.jpg) | ![Mobile 4](./public/Screenshot%20Mobile%204.jpg) |
+| ![Desktop 5](./public/Screenshot%205.jpg) | ![Mobile 5](./public/Screenshot%20Mobile%205.jpg) |
+
+### 🎬 Video
+> [![Watch the demo](https://img.youtube.com/vi/A0HSerebWps/maxresdefault.jpg)](https://youtu.be/A0HSerebWps "Watch the demo on YouTube")
+
+---
+
+## 📝 Requirements
+
+### 🌐 Online Test
+
+- https://www.btcinfluencer.com
+
+### 💻 Local Test
+
+Before getting started, make sure your machine has the following tools: [Git](https://git-scm.com/), and [Node.js](https://nodejs.org/en). It is important to have a code editor too, such as [VSCode](https://code.visualstudio.com/).
 
 ```bash
-npm install
+# Clone this repository
+$ git clone https://github.com/eduardocodes/btc-influencer.git
+
+# Access project folder
+$ cd btc-influencer
+
+# Install dependencies
+$ npm install
+
+# Set the environment variables as in .env.example file
+
+# Execute the project in development mode
+$ npm run dev
+
+# The server will open on port:3000 - access http://localhost:3000/
 ```
 
-3. Configure Supabase:
-   - Create an account on [Supabase](https://supabase.com)
-   - Create a new project
-   - Go to Settings > API and copy the URL and anonymous key
-   - Create a `.env.local` file in the project root with the following variables:
+---
 
-```
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-```
+## ⚙️ System Design
 
-4. Start the development server:
+### 🏗️ System Architecture
+![System Design](./public/System%20Design.jpg)
 
-```bash
-npm run dev
-```
+### ⚡ Scalable Architecture
+![Scalable System Design 1](./public/Scalable%20System%20Design%201.jpg)
 
-5. Open [http://localhost:3000](http://localhost:3000) in your browser to see the result.
+![Scalable System Design 2](./public/Scalable%20System%20Design%202.jpg)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load the [Geist](https://vercel.com/font) font.
+---
 
-## Features
+## 🛠️ Technologies used
 
-- **Authentication**: Complete login and registration system using Supabase Auth
-- **Route Protection**: Component to protect routes that require authentication
-- **User Profile**: Profile page for authenticated users
+- [**TypeScript**](https://www.typescriptlang.org/docs/) → Typed JavaScript
+- [**Node.js**](https://nodejs.org/en) → Server-side runtime    
+- [**React**](https://react.dev/) → UI library  
+- [**Next.js**](https://nextjs.org/) → Full-stack framework  
+- [**TailwindCSS**](https://tailwindcss.com/) → CSS utility framework  
+- [**PostgreSQL**](https://www.postgresql.org/) → Relational database  
+- [**Supabase**](https://supabase.com/) → Backend & authentication platform  
+- [**Trigger.dev**](https://trigger.dev/) → Background jobs & automation  
+- [**Poku**](https://poku.io/pt-BR/) → Testing framework
+- [**Stripe**](https://stripe.com/) → Payment processing platform
 
-## Technologies
+---
 
-- [Next.js](https://nextjs.org/) - React Framework
-- [Tailwind CSS](https://tailwindcss.com/) - CSS Framework
-- [Supabase](https://supabase.com/) - Backend as a service for authentication
-
-## Learn More
-
-To learn more about the technologies used:
-
-- [Next.js Documentation](https://nextjs.org/docs)
-- [Supabase Documentation](https://supabase.com/docs)
-- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Made with 💙 by eduardocodes 👋
