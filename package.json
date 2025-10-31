@@ -7,6 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "test": "poku",
+    "test:watch": "poku --watch",
     "trigger:dev": "NODE_NO_WARNINGS=1 npx trigger.dev@latest dev"
   },
   "dependencies": {
@@ -27,6 +29,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "poku": "^3.0.2",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
