@@ -2,8 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../contexts/AuthContext';
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '@/src/lib/supabase';
 import PlansModal from '@/src/components/PlansModal';
 import { trackPageView, trackUserAction } from '@/src/lib/analytics';
@@ -45,91 +44,20 @@ interface UserMatch {
   id: string;
   user_id: string;
   onboarding_answer_id: string;
-  search_criteria: string[];
+  search_criteria: string[] | string;
   creator_ids: string[];
   created_at: string;
 }
 
-interface OnboardingData {
-  id: string;
-  user_id: string;
+interface OnboardingAnswerRow {
   company_name: string;
   product_name: string;
   product_url: string;
   product_description: string;
-  product_category: string;
-  is_bitcoin_suitable: boolean;
+  product_category: string | string[];
   created_at: string;
 }
 
-// Onboarding Flow agora está em /onboarding/page.tsx
-// Bloco do antigo OnboardingFlow e funções relacionadas removidos
-
-
-const mockInfluencers: Influencer[] = [
-  {
-    id: '1',
-    name: 'bitcoinbros',
-    username: '@bitcoinbros',
-    followers: '24.8K',
-    views: '1.3K',
-    engagementRate: '5.0%',
-    profileImage: '🪙',
-    tags: ['Crypto'],
-    description: 'Crypto Enthusiasts bringing you content DAILY get our Beginner Crypto Guide! 🔥',
-    verified: true
-  },
-  {
-    id: '2',
-    name: 'cryptomegbzk',
-    username: '@cryptomegbzk',
-    followers: '17.8K',
-    views: '17.8K',
-    engagementRate: '9.0%',
-    profileImage: '👩',
-    tags: ['Crypto'],
-    description: 'Crypto | Trading | Money 💰 Inner Circle, Social, Collab, etc. 📧',
-    verified: false
-  },
-  {
-    id: '3',
-    name: 'cryptorobies',
-    username: '@cryptorobies',
-    followers: '886.3K',
-    views: '85.8K',
-    engagementRate: '2.0%',
-    profileImage: '👨',
-    tags: ['Crypto'],
-    description: 'Memecoins & Crypto Sm1 Investors 💎 Miami 🌴 Jesus! LIVE daily ✅ #robiesbackup',
-    verified: true
-  },
-  {
-    id: '4',
-    name: 'xlmcrypto',
-    username: '@xlmcrypto',
-    followers: '45.2K',
-    views: '12.1K',
-    engagementRate: '4.8%',
-    profileImage: '⭐',
-    tags: ['Crypto'],
-    description: 'Stellar Lumens enthusiast and crypto educator',
-    verified: false
-  },
-  {
-    id: '5',
-    name: 'joshtalkscrypto',
-    username: '@joshtalkscrypto',
-    followers: '128.5K',
-    views: '45.2K',
-    engagementRate: '4.7%',
-    profileImage: '🎯',
-    tags: ['Crypto'],
-    description: 'Daily crypto insights and market analysis',
-    verified: true
-  }
-];
-
-// Mock creators para exibir na Home
 const mockCreators: Creator[] = [
   {
     id: 'mock-1',
@@ -226,30 +154,35 @@ const mockCreators: Creator[] = [
 export default function Home() {
   const router = useRouter();
   const { user, signOut, isLoading } = useAuth();
-  const [isFirstVisit, setIsFirstVisit] = useState(true)
-  const [showOnboarding, setShowOnboarding] = useState(false)
-  const [onboardingData, setOnboardingData] = useState<any>(null)
-  const [userMatches, setUserMatches] = useState<UserMatch[]>([])
-  const [matchedCreators, setMatchedCreators] = useState<Creator[]>([])
-  const [loadingMatches, setLoadingMatches] = useState(false)
-  const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
-  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
 
-  // Utility functions from search results page
+  const [isFirstVisit, setIsFirstVisit] = useState(true);
+  const [onboardingData, setOnboardingData] = useState<any>(null);
+  const [userMatches, setUserMatches] = useState<UserMatch[]>([]);
+  const [matchedCreators, setMatchedCreators] = useState<Creator[]>([]);
+  const [loadingMatches, setLoadingMatches] = useState(false);
+  const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+
+  // 👇 Proteção contra o duplo disparo do StrictMode no dev
+  const didInitRef = useRef(false);
+
+  // Utils
   const formatNumber = (num: number) => {
-    if (num >= 1000000) {
-      return (num / 1000000).toFixed(1) + 'M';
-    } else if (num >= 1000) {
-      return (num / 1000).toFixed(1) + 'K';
+    if (typeof num !== 'number' || Number.isNaN(num)) return '0';
+    if (num >= 1_000_000) {
+      return (num / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M';
     }
-    return num?.toString() || '0';
+    if (num >= 1_000) {
+      return (num / 1_000).toFixed(1).replace(/\.0$/, '') + 'K';
+    }
+    return num.toString();
   };
 
   const getCountryFlag = (location: string) => {
     if (!location) return '🌍';
-    
+
     const normalizedLocation = location.toLowerCase().trim();
-    
+
     const countryFlags: { [key: string]: string } = {
       'austrália': '🇦🇺', 'australia': '🇦🇺', 'au': '🇦🇺',
       'bangladesh': '🇧🇩', 'bd': '🇧🇩',
@@ -272,13 +205,18 @@ export default function Home() {
       'estados unidos': '🇺🇸', 'united states': '🇺🇸', 'usa': '🇺🇸', 'us': '🇺🇸', 'america': '🇺🇸',
       'uruguai': '🇺🇾', 'uruguay': '🇺🇾', 'uy': '🇺🇾'
     };
-    
+
     return countryFlags[normalizedLocation] || '🌍';
   };
 
   const getSocialMediaPlatforms = (creator: Creator) => {
-    const platforms = [];
-    
+    const platforms: Array<{
+      url: string;
+      name: string;
+      color: string;
+      shadowColor: string;
+    }> = [];
+
     if (creator.youtube_url) {
       platforms.push({
         url: creator.youtube_url,
@@ -287,7 +225,7 @@ export default function Home() {
         shadowColor: 'shadow-red-500/25 hover:shadow-red-500/40'
       });
     }
-    
+
     if (creator.tiktok_url) {
       platforms.push({
         url: creator.tiktok_url,
@@ -296,7 +234,7 @@ export default function Home() {
         shadowColor: 'shadow-gray-500/25 hover:shadow-gray-500/40'
       });
     }
-    
+
     if (creator.x_url) {
       platforms.push({
         url: creator.x_url,
@@ -305,7 +243,7 @@ export default function Home() {
         shadowColor: 'shadow-gray-800/25 hover:shadow-gray-800/40'
       });
     }
-    
+
     if (creator.insta_url) {
       platforms.push({
         url: creator.insta_url,
@@ -314,7 +252,7 @@ export default function Home() {
         shadowColor: 'shadow-purple-500/25 hover:shadow-purple-500/40'
       });
     }
-    
+
     return platforms;
   };
 
@@ -333,129 +271,141 @@ export default function Home() {
   };
 
   const getMatchingNiches = (creatorCategories: string[], selectedNiches: string[]) => {
-    return creatorCategories.filter(category => 
-      selectedNiches.some(niche => 
+    return creatorCategories.filter(category =>
+      selectedNiches.some(niche =>
         category.toLowerCase().includes(niche.toLowerCase()) ||
         niche.toLowerCase().includes(category.toLowerCase())
       )
     );
   };
 
-  // Check subscription status
-  const checkSubscriptionStatus = async () => {
-    if (!user) {
+  // --- DATA LOADERS -------------------------------------------------
 
-      setHasActiveSubscription(false);
-      return false;
-    }
+  const loadMatchedCreators = useCallback(
+    async (creatorIds: string[]) => {
+      if (!creatorIds || creatorIds.length === 0) return;
 
-    
-    try {
-  
-      
-      // Simple count query to check if user has any active subscription
-      const { count, error } = await supabase
-        .from('subscriptions')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id)
-        .eq('status', 'active');
-      
-  
-      
-      if (error) {
-          console.error('Error checking subscription count:', error);
-          setHasActiveSubscription(false);
-        return false;
-      }
-      
-      const hasSubscription = Boolean(count && count > 0);
-   
-       
-       setHasActiveSubscription(hasSubscription);
-      return hasSubscription;
-    } catch (error) {
-        console.error('Exception checking subscription:', error);
-        setHasActiveSubscription(false);
-      return false;
-    }
-  };
-
-  // Load user matches from database
-  const loadUserMatches = async (forceUserId?: string) => {
-    const userId = forceUserId || user?.id;
-    
-    if (!userId) {
-      return;
-    }
-    
-    try {
-      setLoadingMatches(true);
-
-      const { data, error } = await supabase
-        .from('user_matches')
-        .select('*')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false })
-        .limit(1);
-
-      if (error) {
-          console.error('Erro ao carregar matches:', error);
-          return;
-      }
-
-      setUserMatches(data || []);
-      
-      // Load creators if we have matches
-      if (data && data.length > 0 && data[0].creator_ids) {
-        await loadMatchedCreators(data[0].creator_ids);
-      }
-      
-    } catch (err) {
-        console.error('Erro inesperado ao carregar matches:', err);
-      } finally {
-      setLoadingMatches(false);
-    }
-  };
-
-  // Load creators data based on IDs
-  const loadMatchedCreators = async (creatorIds: string[]) => {
-    try {
       const { data, error } = await supabase
         .from('creators')
         .select('*')
         .in('id', creatorIds);
 
-      if (error) {
-          console.error('Erro ao carregar criadores:', error);
-          return;
+      if (!error) {
+        setMatchedCreators(data || []);
+      } else {
+        console.error('Erro ao carregar criadores:', error);
+      }
+    },
+    []
+  );
+
+  const loadUserMatches = useCallback(
+    async (userId: string) => {
+      setLoadingMatches(true);
+
+      try {
+        const { data, error } = await supabase
+          .from('user_matches')
+          .select('*')
+          .eq('user_id', userId)
+          .order('created_at', { ascending: false })
+          .limit(1);
+
+        if (error) {
+          console.error('Erro ao carregar matches:', error);
+          setUserMatches([]);
+        } else {
+          setUserMatches(data || []);
+
+          if (data && data.length > 0 && data[0].creator_ids) {
+            await loadMatchedCreators(data[0].creator_ids);
+          }
+        }
+      } catch (err) {
+        console.error('Erro inesperado ao carregar matches:', err);
+      } finally {
+        setLoadingMatches(false);
+      }
+    },
+    [loadMatchedCreators]
+  );
+
+  const checkSubscriptionStatus = useCallback(
+    async (userId?: string) => {
+      if (!userId) {
+        setHasActiveSubscription(false);
+        return false;
       }
 
-      setMatchedCreators(data || []);
-      
-    } catch (err) {
-        console.error('Erro inesperado ao carregar criadores:', err);
+      try {
+        const { count, error } = await supabase
+          .from('subscriptions')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', userId)
+          .eq('status', 'active');
+
+        if (error) {
+          console.error('Error checking subscription count:', error);
+          setHasActiveSubscription(false);
+          return false;
+        }
+
+        const next = Boolean(count && count > 0);
+        setHasActiveSubscription(prev => (prev === next ? prev : next));
+        return next;
+      } catch (err) {
+        console.error('Exception checking subscription:', err);
+        setHasActiveSubscription(false);
+        return false;
       }
-  };
+    },
+    []
+  );
+
+  // --- ORCHESTRATOR EFFECT (single source of truth) -----------------
 
   useEffect(() => {
-    const loadOnboardingData = async () => {
-      
-      const hasVisited = localStorage.getItem('hasVisitedBefore')
-      const savedOnboardingData = localStorage.getItem('onboardingData')
-      
-      // Try to load from Supabase if user is authenticated
-      if (user) {
+    // prevenção do duplo disparo no StrictMode e também evita corrida em unmount
+    let cancelled = false;
+
+    const run = async () => {
+      // Se já rodou uma vez e ainda não temos user, não roda de novo à toa
+      if (didInitRef.current && !user?.id) {
+        setHasActiveSubscription(false);
+
+        // tenta recuperar onboarding localmente
+        const hasVisited = localStorage.getItem('hasVisitedBefore');
+        const savedOnboardingData = localStorage.getItem('onboardingData');
+
+        if (hasVisited && savedOnboardingData) {
+          if (!cancelled) {
+            setIsFirstVisit(false);
+            setOnboardingData(JSON.parse(savedOnboardingData));
+          }
+        } else {
+          if (!cancelled) {
+            setIsFirstVisit(true);
+          }
+        }
+        return;
+      }
+
+      // marca que rodamos
+      if (!didInitRef.current) {
+        didInitRef.current = true;
+      }
+
+      // Se tem usuário logado
+      if (user?.id) {
         try {
+          // carrega onboarding do Supabase
           const { data, error } = await supabase
             .from('onboarding_answers')
             .select('*')
             .eq('user_id', user.id)
-            .maybeSingle()
-          
-          if (error) {
-            console.log('Supabase query error:', error)
-            // Continue without onboarding data
-          } else if (data) {
+            .maybeSingle<OnboardingAnswerRow>();
+
+          if (!cancelled && !error && data) {
             const supabaseData = {
               companyName: data.company_name,
               productName: data.product_name,
@@ -463,84 +413,82 @@ export default function Home() {
               productDescription: data.product_description,
               productCategory: data.product_category,
               completedAt: data.created_at
-            }
-            setOnboardingData(supabaseData)
-            localStorage.setItem('onboardingData', JSON.stringify(supabaseData))
-            localStorage.setItem('hasVisitedBefore', 'true')
-            setIsFirstVisit(false)
+            };
+
+            setOnboardingData(supabaseData);
+            localStorage.setItem('onboardingData', JSON.stringify(supabaseData));
+            localStorage.setItem('hasVisitedBefore', 'true');
+            setIsFirstVisit(false);
+          } else if (!cancelled && error) {
+            console.log('Supabase query error (onboarding):', error);
           }
-          
-          // Always load user matches and check subscription status
-          await loadUserMatches()
-          await checkSubscriptionStatus()
-          return
-        } catch (error) {
-          console.log('Could not load from Supabase:', error)
+
+          // roda em paralelo depois do onboarding
+          await Promise.all([
+            loadUserMatches(user.id),
+            checkSubscriptionStatus(user.id)
+          ]);
+
+          // pageview não mexe em estado crítico
+          trackPageView('Home');
+        } catch (err) {
+          console.log('Could not load from Supabase:', err);
+          if (!cancelled) {
+            setHasActiveSubscription(false);
+          }
         }
-        
-        // If no onboarding data but user is logged in, still check for matches
-      await loadUserMatches()
-      // Check subscription status
-      await checkSubscriptionStatus()
+        return;
       }
-      
-      // Fallback to localStorage
-      if (hasVisited && savedOnboardingData) {
-        setIsFirstVisit(false)
-        setOnboardingData(JSON.parse(savedOnboardingData))
-      } else {
-        setIsFirstVisit(true)
-      }
-    }
-    
-    loadOnboardingData()
-  }, [user])
 
-  useEffect(() => {
-    if (showOnboarding) {
-      router.push("/onboarding");
-    }
-  }, [showOnboarding, router]);
-
-  // Additional effect to ensure subscription check runs when user changes
-  useEffect(() => {
-
-    if (user) {
-
-      checkSubscriptionStatus();
-      // Track page view
-      trackPageView('Home');
-    } else {
-
+      // Caso NÃO tenha user logado
       setHasActiveSubscription(false);
-    }
-  }, [user]);
 
-  // Debug effect to log subscription status changes
-  useEffect(() => {
+      const hasVisited = localStorage.getItem('hasVisitedBefore');
+      const savedOnboardingData = localStorage.getItem('onboardingData');
 
-  }, [hasActiveSubscription]);
-  
+      if (!cancelled) {
+        if (hasVisited && savedOnboardingData) {
+          setIsFirstVisit(false);
+          setOnboardingData(JSON.parse(savedOnboardingData));
+        } else {
+          setIsFirstVisit(true);
+        }
+      }
+    };
+
+    run();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.id, loadUserMatches, checkSubscriptionStatus]);
+
+  // --- HANDLERS -----------------------------------------------------
+
   const handleLogout = async () => {
     await signOut();
     router.push('/login');
   };
 
   const handleGetMatches = () => {
-    setShowOnboarding(true)
-  }
+    // antes: setShowOnboarding(true) e useEffect fazia push
+    // agora: navega direto
+    router.push('/onboarding');
+  };
 
   const handleDatabaseClick = () => {
     if (hasActiveSubscription) {
-      router.push('/database')
+      router.push('/database');
     } else {
-      setShowUpgradeModal(true)
+      setShowUpgradeModal(true);
     }
-  }
+  };
 
   const handleAccountClick = () => {
-    router.push('/account')
-  }
+    router.push('/account');
+  };
+
+  // --- RENDER -------------------------------------------------------
 
   if (isLoading) {
     return (
@@ -558,27 +506,36 @@ export default function Home() {
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-8">
               <div className="flex items-center">
-                <img 
-                  src="/btc-influencer-icon.svg" 
-                  alt="Bitcoin Influencer" 
-                  className="h-10 w-auto cursor-pointer hover:opacity-80 transition-opacity" 
+                <img
+                  src="/btc-influencer-icon.svg"
+                  alt="Bitcoin Influencer"
+                  className="h-10 w-auto cursor-pointer hover:opacity-80 transition-opacity"
                   onClick={() => router.push('/home')}
                 />
               </div>
-              
+
               <nav className="flex space-x-6">
-                <a href="#" className="text-white hover:text-gray-300 px-3 py-2 text-sm font-medium">Matches</a>
-                <button onClick={handleDatabaseClick} className={`px-3 py-2 text-sm font-medium cursor-pointer flex items-center gap-2 ${
-                  hasActiveSubscription 
-                    ? 'text-gray-300 hover:text-white' 
-                    : 'text-gray-500 hover:text-gray-400'
-                }`}>
+                <button
+                  className="text-white hover:text-gray-300 px-3 py-2 text-sm font-medium cursor-pointer"
+                  onClick={() => router.push('/home')}
+                >
+                  Matches
+                </button>
+
+                <button
+                  onClick={handleDatabaseClick}
+                  className={`px-3 py-2 text-sm font-medium cursor-pointer flex items-center gap-2 ${
+                    hasActiveSubscription
+                      ? 'text-gray-300 hover:text-white'
+                      : 'text-gray-500 hover:text-gray-400'
+                  }`}
+                >
                   Database
                   {!hasActiveSubscription && <span className="text-xs">🔒</span>}
                 </button>
               </nav>
             </div>
-            
+
             <div className="flex items-center space-x-4">
               <button
                 onClick={handleAccountClick}
@@ -601,6 +558,7 @@ export default function Home() {
                   />
                 </svg>
               </button>
+
               <button
                 onClick={handleLogout}
                 className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-sm transition-colors flex items-center justify-center cursor-pointer"
@@ -636,50 +594,67 @@ export default function Home() {
           </div>
         </div>
       ) : matchedCreators.length > 0 ? (
+        // === HAS MATCHES ============================================
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="mb-8">
             <h1 className="text-3xl font-bold mb-2">
-              <span>🔥</span> <span className="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">Your Creator Matches</span>
+              <span>🔥</span>{' '}
+              <span className="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                Your Creator Matches
+              </span>
             </h1>
             <p className="text-gray-400">Creators that match your product</p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {(() => {
-              const combinedCreators = hasActiveSubscription ? matchedCreators : [...matchedCreators, ...mockCreators];
-              const selectedNiches = onboardingData?.productCategory && Array.isArray(onboardingData.productCategory)
-                ? onboardingData.productCategory
-                : typeof onboardingData?.productCategory === 'string'
-                  ? onboardingData.productCategory.split(',').map((niche: string) => niche.trim()).filter(Boolean)
+              const combinedCreators = hasActiveSubscription
+                ? matchedCreators
+                : [...matchedCreators, ...mockCreators];
+
+              const selectedNiches =
+                onboardingData?.productCategory && Array.isArray(onboardingData.productCategory)
+                  ? onboardingData.productCategory
+                  : typeof onboardingData?.productCategory === 'string'
+                  ? onboardingData.productCategory
+                      .split(',')
+                      .map((niche: string) => niche.trim())
+                      .filter(Boolean)
                   : [];
-              
-              // Parse search_criteria se for string JSON, senão use selectedNiches
+
+              // tenta usar search_criteria salvo
               let searchCriteria = selectedNiches;
               if (userMatches[0]?.search_criteria) {
                 try {
-                  searchCriteria = typeof userMatches[0].search_criteria === 'string' 
-                    ? JSON.parse(userMatches[0].search_criteria)
-                    : userMatches[0].search_criteria;
+                  searchCriteria =
+                    typeof userMatches[0].search_criteria === 'string'
+                      ? JSON.parse(userMatches[0].search_criteria)
+                      : userMatches[0].search_criteria;
                 } catch (e) {
-                    console.error('Erro ao fazer parse de search_criteria:', e);
-                    searchCriteria = selectedNiches;
+                  console.error('Erro ao fazer parse de search_criteria:', e);
+                  searchCriteria = selectedNiches;
                 }
               }
-              
+
               const mockNiches = ['Bitcoin', 'Cryptocurrency'];
-              
+
               return combinedCreators.slice(0, 6).map((creator) => {
-                const isRealMatch = matchedCreators.some(mc => mc.id === creator.id);
-                const matchingNiches = isRealMatch 
+                const isRealMatch = matchedCreators.some((mc) => mc.id === creator.id);
+                const matchingNiches = isRealMatch
                   ? getMatchingNiches(creator.categories, searchCriteria)
                   : getMatchingNiches(creator.categories, mockNiches);
-                
+
                 return (
-                  <div key={creator.id} className="bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800 rounded-xl p-6 border border-gray-600/50 shadow-2xl shadow-black/50 backdrop-blur-sm hover:border-orange-500 hover:scale-110 hover:-translate-y-2 hover:shadow-3xl hover:z-10 transition-all duration-300 cursor-pointer">
+                  <div
+                    key={creator.id}
+                    className="bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800 rounded-xl p-6 border border-gray-600/50 shadow-2xl shadow-black/50 backdrop-blur-sm hover:border-orange-500 hover:scale-110 hover:-translate-y-2 hover:shadow-3xl hover:z-10 transition-all duration-300 cursor-pointer"
+                  >
                     {/* Creator Header */}
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex-1">
-                        <h3 className="text-xl font-bold text-white mb-1">{creator.full_name}</h3>
+                        <h3 className="text-xl font-bold text-white mb-1">
+                          {creator.full_name}
+                        </h3>
                         <p className="text-gray-400 text-sm mb-2">@{creator.username}</p>
                         <div className="flex items-center gap-2 mb-3">
                           <span className="text-xs px-2 py-1 bg-gray-700 rounded text-gray-300">
@@ -696,8 +671,8 @@ export default function Home() {
                     <div className="mb-4">
                       <div className="flex flex-wrap gap-1">
                         {creator.categories.slice(0, 3).map((category, index) => (
-                          <span 
-                            key={index} 
+                          <span
+                            key={index}
                             className={`text-xs px-2 py-1 rounded ${
                               matchingNiches.includes(category)
                                 ? 'bg-orange-500 text-white'
@@ -712,14 +687,12 @@ export default function Home() {
                             +{creator.categories.length - 3}
                           </span>
                         )}
-
-
                       </div>
                     </div>
 
                     {/* Platform Stats */}
                     <div className="space-y-3 mb-4">
-                      {/* YouTube Stats - Only show if YouTube URL exists */}
+                      {/* YouTube Stats */}
                       {creator.youtube_url && (
                         <div className="p-3 bg-gray-900 rounded">
                           <div className="flex items-center justify-between mb-2">
@@ -728,26 +701,35 @@ export default function Home() {
                               <span className="text-sm font-medium">YouTube</span>
                             </div>
                             <div className="text-right">
-                              <div className="text-sm font-bold">{formatNumber(creator.youtube_followers)}</div>
+                              <div className="text-sm font-bold">
+                                {formatNumber(creator.youtube_followers)}
+                              </div>
                             </div>
                           </div>
-                          {/* Engagement Rate */}
+
                           <div>
                             <div className="flex justify-between text-sm mb-1">
                               <span className="text-white/60">Engagement Rate</span>
-                              <span className="text-white">{creator.youtube_engagement_rate?.toFixed(1) || '0.0'}%</span>
+                              <span className="text-white">
+                                {creator.youtube_engagement_rate?.toFixed(1) || '0.0'}%
+                              </span>
                             </div>
                             <div className="w-full bg-white/20 rounded-full h-2">
-                              <div 
+                              <div
                                 className="h-2 rounded-full bg-orange-400"
-                                style={{ width: `${Math.min(creator.youtube_engagement_rate || 0, 100)}%` }}
-                              ></div>
+                                style={{
+                                  width: `${Math.min(
+                                    creator.youtube_engagement_rate || 0,
+                                    100
+                                  )}%`
+                                }}
+                              />
                             </div>
                           </div>
                         </div>
                       )}
 
-                      {/* TikTok Stats - Only show if TikTok URL exists */}
+                      {/* TikTok Stats */}
                       {creator.tiktok_url && creator.tiktok_followers && (
                         <div className="p-3 bg-gray-900 rounded">
                           <div className="flex items-center justify-between mb-2">
@@ -756,20 +738,29 @@ export default function Home() {
                               <span className="text-sm font-medium">TikTok</span>
                             </div>
                             <div className="text-right">
-                              <div className="text-sm font-bold">{formatNumber(creator.tiktok_followers)}</div>
+                              <div className="text-sm font-bold">
+                                {formatNumber(creator.tiktok_followers)}
+                              </div>
                             </div>
                           </div>
-                          {/* Engagement Rate */}
+
                           <div>
                             <div className="flex justify-between text-sm mb-1">
                               <span className="text-white/60">Engagement Rate</span>
-                              <span className="text-white">{creator.tiktok_engagement_rate?.toFixed(1) || '0.0'}%</span>
+                              <span className="text-white">
+                                {creator.tiktok_engagement_rate?.toFixed(1) || '0.0'}%
+                              </span>
                             </div>
                             <div className="w-full bg-white/20 rounded-full h-2">
-                              <div 
+                              <div
                                 className="h-2 rounded-full bg-orange-400"
-                                style={{ width: `${Math.min(creator.tiktok_engagement_rate || 0, 100)}%` }}
-                              ></div>
+                                style={{
+                                  width: `${Math.min(
+                                    creator.tiktok_engagement_rate || 0,
+                                    100
+                                  )}%`
+                                }}
+                              />
                             </div>
                           </div>
                         </div>
@@ -780,7 +771,7 @@ export default function Home() {
                     <div>
                       {(() => {
                         const socialPlatforms = getSocialMediaPlatforms(creator);
-                        
+
                         if (socialPlatforms.length === 0) {
                           return (
                             <div className="text-center py-2 text-gray-400 text-sm">
@@ -788,7 +779,7 @@ export default function Home() {
                             </div>
                           );
                         }
-                        
+
                         if (socialPlatforms.length === 1) {
                           const platform = socialPlatforms[0];
                           return (
@@ -797,13 +788,19 @@ export default function Home() {
                               target="_blank"
                               rel="noopener noreferrer"
                               className={`block w-full bg-gradient-to-r ${platform.color} hover:scale-105 text-white text-sm py-2 px-3 rounded text-center shadow-lg ${platform.shadowColor} hover:shadow-xl transform transition-all duration-300`}
-                              onClick={() => trackUserAction('Social Media Click', 'Creator Card', `${platform.name} - ${creator.full_name}`)}
+                              onClick={() =>
+                                trackUserAction(
+                                  'Social Media Click',
+                                  'Creator Card',
+                                  `${platform.name} - ${creator.full_name}`
+                                )
+                              }
                             >
                               {platform.name}
                             </a>
                           );
                         }
-                        
+
                         return (
                           <div className="grid grid-cols-2 gap-2">
                             {socialPlatforms.map((platform, index) => (
@@ -813,104 +810,104 @@ export default function Home() {
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className={`bg-gradient-to-r ${platform.color} hover:scale-105 text-white text-xs py-2 px-2 rounded text-center shadow-lg ${platform.shadowColor} hover:shadow-xl transform transition-all duration-300`}
-                                onClick={() => trackUserAction('Social Media Click', 'Creator Card', `${platform.name} - ${creator.full_name}`)}
+                                onClick={() =>
+                                  trackUserAction(
+                                    'Social Media Click',
+                                    'Creator Card',
+                                    `${platform.name} - ${creator.full_name}`
+                                  )
+                                }
                               >
                                 {platform.name}
                               </a>
                             ))}
                           </div>
                         );
-                      })()} 
+                      })()}
                     </div>
                   </div>
                 );
               });
             })()}
-            
-            {/* Mock Blurred Results - Only show if user doesn't have active subscription */}
-            {!hasActiveSubscription && [...Array(6)].map((_, index) => (
-              <div key={`mock-blurred-${index}`} className="bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800 rounded-xl p-6 border border-gray-600/50 shadow-2xl shadow-black/50 backdrop-blur-sm relative overflow-hidden">
-                {/* Blur overlay */}
-                <div className="absolute inset-0 backdrop-blur-sm bg-white/5 z-10"></div>
-                
-                {/* Mock content */}
-                <div className="relative">
-                  {/* Creator Header */}
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex-1">
-                      <div className="h-6 bg-white/20 rounded mb-2 w-3/4"></div>
-                      <div className="h-4 bg-white/15 rounded mb-2 w-1/2"></div>
-                      <div className="flex items-center gap-2 mb-3">
-                        <div className="h-5 bg-gray-700 rounded w-20"></div>
-                      </div>
-                    </div>
-                  </div>
 
-                  {/* Bio */}
-                  <div className="mb-4">
-                    <div className="h-3 bg-white/15 rounded mb-1 w-full"></div>
-                    <div className="h-3 bg-white/15 rounded w-3/4"></div>
-                  </div>
-
-                  {/* Categories */}
-                  <div className="mb-4">
-                    <div className="flex flex-wrap gap-1">
-                      <div className="h-6 bg-orange-500/30 rounded w-16"></div>
-                      <div className="h-6 bg-gray-700 rounded w-20"></div>
-                      <div className="h-6 bg-gray-700 rounded w-14"></div>
-                    </div>
-                  </div>
-
-                  {/* Platform Stats */}
-                  <div className="space-y-3 mb-4">
-                    {/* YouTube Stats */}
-                    <div className="flex items-center justify-between p-3 bg-gray-900 rounded">
-                      <div className="flex items-center gap-2">
-                        <div className="h-4 w-4 bg-red-500/50 rounded"></div>
-                        <div className="h-4 bg-white/20 rounded w-16"></div>
-                      </div>
-                      <div className="text-right">
-                        <div className="h-4 bg-white/20 rounded w-12 mb-1"></div>
-                        <div className="h-3 bg-white/15 rounded w-10"></div>
+            {/* Blurred Mock Cards if user is FREE plan */}
+            {!hasActiveSubscription &&
+              [...Array(6)].map((_, index) => (
+                <div
+                  key={`mock-blurred-${index}`}
+                  className="bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800 rounded-xl p-6 border border-gray-600/50 shadow-2xl shadow-black/50 backdrop-blur-sm relative overflow-hidden"
+                >
+                  <div className="absolute inset-0 backdrop-blur-sm bg-white/5 z-10" />
+                  <div className="relative">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1">
+                        <div className="h-6 bg-white/20 rounded mb-2 w-3/4" />
+                        <div className="h-4 bg-white/15 rounded mb-2 w-1/2" />
+                        <div className="flex items-center gap-2 mb-3">
+                          <div className="h-5 bg-gray-700 rounded w-20" />
+                        </div>
                       </div>
                     </div>
 
-                    {/* TikTok Stats */}
-                    <div className="flex items-center justify-between p-3 bg-gray-900 rounded">
-                      <div className="flex items-center gap-2">
-                        <div className="h-4 w-4 bg-pink-500/50 rounded"></div>
-                        <div className="h-4 bg-white/20 rounded w-14"></div>
-                      </div>
-                      <div className="text-right">
-                        <div className="h-4 bg-white/20 rounded w-12 mb-1"></div>
-                        <div className="h-3 bg-white/15 rounded w-10"></div>
+                    <div className="mb-4">
+                      <div className="h-3 bg-white/15 rounded mb-1 w-full" />
+                      <div className="h-3 bg-white/15 rounded w-3/4" />
+                    </div>
+
+                    <div className="mb-4">
+                      <div className="flex flex-wrap gap-1">
+                        <div className="h-6 bg-orange-500/30 rounded w-16" />
+                        <div className="h-6 bg-gray-700 rounded w-20" />
+                        <div className="h-6 bg-gray-700 rounded w-14" />
                       </div>
                     </div>
-                  </div>
 
-                  {/* Action Buttons */}
-                  <div className="flex gap-2">
-                    <div className="flex-1 h-8 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-400 hover:to-red-500 rounded shadow-lg shadow-red-500/25 hover:shadow-xl hover:shadow-red-500/40 hover:scale-105 transform transition-all duration-300 cursor-pointer"></div>
-                    <div className="flex-1 h-8 bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-400 hover:to-gray-500 rounded shadow-lg shadow-gray-500/25 hover:shadow-xl hover:shadow-gray-500/40 hover:scale-105 transform transition-all duration-300 cursor-pointer"></div>
+                    <div className="space-y-3 mb-4">
+                      <div className="flex items-center justify-between p-3 bg-gray-900 rounded">
+                        <div className="flex items-center gap-2">
+                          <div className="h-4 w-4 bg-red-500/50 rounded" />
+                          <div className="h-4 bg-white/20 rounded w-16" />
+                        </div>
+                        <div className="text-right">
+                          <div className="h-4 bg-white/20 rounded w-12 mb-1" />
+                          <div className="h-3 bg-white/15 rounded w-10" />
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between p-3 bg-gray-900 rounded">
+                        <div className="flex items-center gap-2">
+                          <div className="h-4 w-4 bg-pink-500/50 rounded" />
+                          <div className="h-4 bg-white/20 rounded w-14" />
+                        </div>
+                        <div className="text-right">
+                          <div className="h-4 bg-white/20 rounded w-12 mb-1" />
+                          <div className="h-3 bg-white/15 rounded w-10" />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2">
+                      <div className="flex-1 h-8 bg-gradient-to-r from-red-500 to-red-600 rounded shadow-lg shadow-red-500/25" />
+                      <div className="flex-1 h-8 bg-gradient-to-r from-gray-500 to-gray-600 rounded shadow-lg shadow-gray-500/25" />
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
           </div>
-          
-          {/* Database Button - Only show if user has active subscription */}
-           {hasActiveSubscription && (
-             <div className="mt-8 text-center">
-               <button 
-                 onClick={() => router.push('/database')}
-                 className="cursor-pointer px-8 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold rounded-lg hover:from-orange-600 hover:to-orange-700 transition-all transform hover:scale-105 shadow-lg"
-               >
-                 View Complete Database
-               </button>
-             </div>
-           )}
-          
-          {/* CTA Section - Only show if user doesn't have active subscription */}
+
+          {/* Database button (Pro only) */}
+          {hasActiveSubscription && (
+            <div className="mt-8 text-center">
+              <button
+                onClick={() => router.push('/database')}
+                className="cursor-pointer px-8 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold rounded-lg hover:from-orange-600 hover:to-orange-700 transition-all transform hover:scale-105 shadow-lg"
+              >
+                View Complete Database
+              </button>
+            </div>
+          )}
+
+          {/* CTA Upgrade (Free) */}
           {!hasActiveSubscription && (
             <div className="mt-12 text-center">
               <div className="bg-gradient-to-r from-orange-500/20 to-yellow-500/20 backdrop-blur-sm rounded-2xl p-8 border border-orange-500/30">
@@ -920,19 +917,19 @@ export default function Home() {
                     Preview Only - Subscribe to Unlock More
                   </h3>
                   <p className="text-white/70 mb-6">
-                     Get access to hundreds of high-quality content creators that match your product.
-                   </p>
+                    Get access to hundreds of high-quality content creators that match your product.
+                  </p>
                 </div>
-                
+
                 <div className="flex justify-center items-center">
-                  <button 
+                  <button
                     onClick={() => setShowUpgradeModal(true)}
                     className="cursor-pointer px-8 py-3 bg-gradient-to-r from-orange-500 to-yellow-500 text-white font-semibold rounded-lg hover:from-orange-600 hover:to-yellow-600 transition-all transform hover:scale-105"
                   >
                     Upgrade to Pro
                   </button>
                 </div>
-                
+
                 <div className="mt-6 flex justify-center items-center gap-6 text-sm text-white/60">
                   <div className="flex items-center gap-2">
                     <span className="text-green-400">✓</span>
@@ -950,12 +947,10 @@ export default function Home() {
               </div>
             </div>
           )}
-
-
         </div>
       ) : (
+        // === NO MATCHES YET =========================================
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Welcome Section */}
           <div className="flex flex-col items-center justify-center text-center mb-16">
             <div className="max-w-2xl w-full">
               <div className="bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800 rounded-xl p-12 border border-gray-600/50 shadow-2xl shadow-black/50 backdrop-blur-sm">
@@ -966,34 +961,35 @@ export default function Home() {
                     <span>🎯</span>
                   </div>
                 </div>
-                
+
                 <h1 className="text-4xl font-bold mb-6">
-                  <span>🔥</span> <span className="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">Find Your Perfect Bitcoin Influencers</span>
+                  <span>🔥</span>{' '}
+                  <span className="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                    Find Your Perfect Bitcoin Influencers
+                  </span>
                 </h1>
+
                 <p className="text-gray-400 text-lg mb-8">
-                  Get matched with the most relevant bitcoin-only and crypto content creators for your brand in seconds.
+                  Get matched with the most relevant bitcoin-only and crypto content creators
+                  for your brand in seconds.
                 </p>
-                
+
                 <button
                   onClick={handleGetMatches}
                   className="cursor-pointer bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 text-white font-bold py-4 px-8 rounded-xl text-lg shadow-lg shadow-orange-500/25 hover:shadow-xl hover:shadow-orange-500/40 hover:scale-105 transform transition-all duration-300 mb-8"
                 >
                   Get My Matches
                 </button>
-                
-
               </div>
             </div>
           </div>
-
-
         </div>
       )}
-      
+
       {/* Plans Modal */}
-      <PlansModal 
-        isOpen={showUpgradeModal} 
-        onClose={() => setShowUpgradeModal(false)} 
+      <PlansModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
       />
     </div>
   );
