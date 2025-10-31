@@ -43,7 +43,7 @@ export default function PlansModal({ isOpen, onClose }: PlansModalProps) {
     }
   };
 
-  // Fechar com ESC
+  // Close with ESC
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {

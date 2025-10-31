@@ -229,7 +229,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
                     onKeyDown={(e) => e.key === 'Enter' && isStepValid() && handleNext()}
                   />
                   </div>
-                  <p className="text-white/50 text-xs mt-1">Opcional: Inclua se você tiver uma landing page</p>
+                  <p className="text-white/50 text-xs mt-1">Optional: Include if you have a landing page</p>
                 </div>
               </div>
             </div>

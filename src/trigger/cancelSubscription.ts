@@ -3,26 +3,26 @@ import { supabaseAdmin } from '../lib/supabase/admin';
 
 export const cleanupcanceledSubscriptions = schedules.task({
   id: "cleanup-canceled-subscriptions",
-  // Roda diariamente às 00h (meia-noite)
+  // Runs daily at 00h (midnight)
   cron: "0 0 * * *",
-  // Timeout de 5 minutos para a operação
+  // 5 minute timeout for the operation
   maxDuration: 300,
   run: async (payload, { ctx }) => {
-    logger.log("Iniciando limpeza de assinaturas inativas", {
+    logger.log("Starting cleanup of inactive subscriptions", {
       timestamp: payload.timestamp,
       timezone: payload.timezone
     });
 
     try {
-      // Obter a data atual no formato YYYY-MM-DD
+      // Get current date in YYYY-MM-DD format
       const today = new Date();
       const todayString = today.toISOString().split('T')[0];
       
-      logger.log("Data de hoje para comparação", { todayString });
+      logger.log("Today's date for comparison", { todayString });
 
-      // Buscar registros que atendem aos critérios:
+      // Search for records that meet the criteria:
       // 1. status = 'canceled'
-      // 2. current_period_end = data atual (comparando apenas a data, não o horário)
+      // 2. current_period_end = current date (comparing only date, not time)
       const { data: subscriptionsToDelete, error: selectError } = await supabaseAdmin
         .from('subscriptions')
         .select('id, user_id, status, current_period_end')
@@ -31,20 +31,20 @@ export const cleanupcanceledSubscriptions = schedules.task({
         .filter('current_period_end', 'lt', `${todayString}T23:59:59.999Z`);
 
       if (selectError) {
-        logger.error("Erro ao buscar assinaturas para deletar", { error: selectError });
+        logger.error("Error searching for subscriptions to delete", { error: selectError });
         throw selectError;
       }
 
       if (!subscriptionsToDelete || subscriptionsToDelete.length === 0) {
-        logger.log("Nenhuma assinatura inativa encontrada para remoção hoje");
+        logger.log("No inactive subscriptions found for removal today");
         return;
       }
 
-      logger.log(`Encontradas ${subscriptionsToDelete.length} assinaturas para remoção`, {
+      logger.log(`Found ${subscriptionsToDelete.length} subscriptions for removal`, {
         subscriptions: subscriptionsToDelete
       });
 
-      // Deletar os registros
+      // Delete the records
       const { error: deleteError } = await supabaseAdmin
         .from('subscriptions')
         .delete()
@@ -53,11 +53,11 @@ export const cleanupcanceledSubscriptions = schedules.task({
         .filter('current_period_end', 'lt', `${todayString}T23:59:59.999Z`);
 
       if (deleteError) {
-        logger.error("Erro ao deletar assinaturas", { error: deleteError });
+        logger.error("Error deleting subscriptions", { error: deleteError });
         throw deleteError;
       }
 
-      logger.log(`Limpeza concluída com sucesso! ${subscriptionsToDelete.length} assinaturas removidas`, {
+      logger.log(`Cleanup completed successfully! ${subscriptionsToDelete.length} subscriptions removed`, {
         removedSubscriptions: subscriptionsToDelete.map(sub => ({
           id: sub.id,
           user_id: sub.user_id,
@@ -66,7 +66,7 @@ export const cleanupcanceledSubscriptions = schedules.task({
       });
 
     } catch (error) {
-      logger.error("Erro durante a limpeza de assinaturas", { error });
+      logger.error("Error during subscription cleanup", { error });
       throw error;
     }
   },

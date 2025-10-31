@@ -19,7 +19,6 @@ const AVAILABLE_CATEGORIES = [
   "btc-only",
   "content-creation",
   "courses",
-  "crypto",
   "custody",
   "education",
   "environment",

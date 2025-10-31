@@ -164,7 +164,7 @@ export default function SearchResultsPage() {
   };
 
   const getPlatformData = (creator: Creator) => {
-    // Prioriza YouTube se tiver URL, usa TikTok como fallback se tiver URL
+    // Prioritizes YouTube if it has URL, uses TikTok as fallback if it has URL
     if (creator.youtube_url && creator.youtube_followers) {
       return {
         platform: 'youtube',
@@ -323,7 +323,7 @@ export default function SearchResultsPage() {
         const data = await response.json();
         foundCreators = data.creators || [];
       } catch (searchError) {
-        // Se a busca principal falhar, tentar diretamente o fallback Bitcoin-only
+        // If main search fails, try Bitcoin-only fallback directly
         try {
           const fallbackResponse = await fetch('/api/creators/search', {
             method: 'POST',
@@ -337,7 +337,7 @@ export default function SearchResultsPage() {
             foundCreators = (fallbackData.creators || []).map((creator: Creator) => ({ ...creator, isFallback: true }));
           }
         } catch (fallbackError) {
-          console.error('[searchCreators] Erro no fallback Bitcoin-only:', fallbackError);
+          console.error('[searchCreators] Error in Bitcoin-only fallback:', fallbackError);
           foundCreators = [];
         }
       }
@@ -404,7 +404,7 @@ export default function SearchResultsPage() {
         // Parse categories from the onboarding data
         const categories = onboardingData.product_category ? onboardingData.product_category.split(', ').map((cat: string) => cat.trim()).filter(Boolean) : [];
         
-        // Se não há categorias válidas, usar fallback Bitcoin-only diretamente
+        // If there are no valid categories, use Bitcoin-only fallback directly
         if (categories.length === 0) {
           // Mark this onboarding data as processed
           searchExecutedRef.current = onboardingData.id;

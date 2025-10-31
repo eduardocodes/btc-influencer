@@ -55,7 +55,7 @@ export default function Profile() {
             onClick={() => router.push('/home')}
             className="px-6 py-3 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
           >
-            Voltar para Home
+            Back to Home
           </button>
           
           <button

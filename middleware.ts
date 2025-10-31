@@ -41,25 +41,25 @@ export async function middleware(req: NextRequest) {
     }
   );
 
-  // Verificar se o usuário está autenticado
+  // Check if user is authenticated
   const {
     data: { session },
   } = await supabase.auth.getSession();
 
-  // Rotas que requerem autenticação
+  // Routes that require authentication
   const protectedRoutes = ['/profile'];
   const isProtectedRoute = protectedRoutes.some(route => req.nextUrl.pathname.startsWith(route));
 
-  // Rotas de autenticação (não devem ser acessadas se já estiver autenticado)
+  // Authentication routes (should not be accessed if already authenticated)
   const authRoutes = ['/login', '/register'];
   const isAuthRoute = authRoutes.some(route => req.nextUrl.pathname.startsWith(route));
 
-  // Redirecionar usuários não autenticados para login se tentarem acessar rotas protegidas
+  // Redirect unauthenticated users to login if they try to access protected routes
   if (isProtectedRoute && !session) {
     return NextResponse.redirect(new URL('/login', req.url));
   }
 
-  // Redirecionar usuários autenticados para a página inicial se tentarem acessar rotas de autenticação
+  // Redirect authenticated users to home page if they try to access authentication routes
   if (isAuthRoute && session) {
     return NextResponse.redirect(new URL('/', req.url));
   }
@@ -67,7 +67,7 @@ export async function middleware(req: NextRequest) {
   return res;
 }
 
-// Configurar quais rotas o middleware deve ser executado
+// Configure which routes the middleware should run on
 export const config = {
   matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
 };

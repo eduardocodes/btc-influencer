@@ -1,56 +1,56 @@
 # Bitcoin Influencer
 
-Este é um projeto [Next.js](https://nextjs.org) para uma plataforma de influenciadores de criptomoedas, com autenticação integrada ao Supabase.
+This is a [Next.js](https://nextjs.org) project for a cryptocurrency influencer platform, with integrated Supabase authentication.
 
-## Configuração
+## Setup
 
-1. Clone o repositório
-2. Instale as dependências:
+1. Clone the repository
+2. Install dependencies:
 
 ```bash
 npm install
 ```
 
-3. Configure o Supabase:
-   - Crie uma conta no [Supabase](https://supabase.com)
-   - Crie um novo projeto
-   - Vá para Settings > API e copie a URL e a chave anônima
-   - Crie um arquivo `.env.local` na raiz do projeto com as seguintes variáveis:
+3. Configure Supabase:
+   - Create an account on [Supabase](https://supabase.com)
+   - Create a new project
+   - Go to Settings > API and copy the URL and anonymous key
+   - Create a `.env.local` file in the project root with the following variables:
 
 ```
-NEXT_PUBLIC_SUPABASE_URL=sua_url_do_supabase
-NEXT_PUBLIC_SUPABASE_ANON_KEY=sua_chave_anon_do_supabase
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
-4. Inicie o servidor de desenvolvimento:
+4. Start the development server:
 
 ```bash
 npm run dev
 ```
 
-5. Abra [http://localhost:3000](http://localhost:3000) no seu navegador para ver o resultado.
+5. Open [http://localhost:3000](http://localhost:3000) in your browser to see the result.
 
-Este projeto usa [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) para otimizar e carregar automaticamente a fonte [Geist](https://vercel.com/font).
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load the [Geist](https://vercel.com/font) font.
 
-## Funcionalidades
+## Features
 
-- **Autenticação**: Sistema completo de login e registro usando Supabase Auth
-- **Proteção de Rotas**: Componente para proteger rotas que exigem autenticação
-- **Perfil de Usuário**: Página de perfil para usuários autenticados
+- **Authentication**: Complete login and registration system using Supabase Auth
+- **Route Protection**: Component to protect routes that require authentication
+- **User Profile**: Profile page for authenticated users
 
-## Tecnologias
+## Technologies
 
-- [Next.js](https://nextjs.org/) - Framework React
-- [Tailwind CSS](https://tailwindcss.com/) - Framework CSS
-- [Supabase](https://supabase.com/) - Backend como serviço para autenticação
+- [Next.js](https://nextjs.org/) - React Framework
+- [Tailwind CSS](https://tailwindcss.com/) - CSS Framework
+- [Supabase](https://supabase.com/) - Backend as a service for authentication
 
-## Saiba Mais
+## Learn More
 
-Para saber mais sobre as tecnologias utilizadas:
+To learn more about the technologies used:
 
-- [Documentação do Next.js](https://nextjs.org/docs)
-- [Documentação do Supabase](https://supabase.com/docs)
-- [Documentação do Tailwind CSS](https://tailwindcss.com/docs)
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Supabase Documentation](https://supabase.com/docs)
+- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
 
 ## Deploy on Vercel
 
