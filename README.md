@@ -37,7 +37,7 @@ Bitcoin Influencer is a modern web platform that helps users find high-performin
 
 ### 🌐 Online Test
 
-- https://www.btcinfluencer.com
+- https://btc-influencer.vercel.app
 
 ### 💻 Local Test
 
@@ -86,6 +86,7 @@ $ npm run dev
 - [**Supabase**](https://supabase.com/) → Backend & authentication platform  
 - [**Trigger.dev**](https://trigger.dev/) → Background jobs & automation  
 - [**Poku**](https://poku.io/pt-BR/) → Testing framework
+- [**Google Analytics**](https://developers.google.com/analytics) → Tracking insights  
 - [**Stripe**](https://stripe.com/) → Payment processing platform
 
 ---
