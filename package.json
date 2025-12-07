@@ -17,10 +17,10 @@
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.52.1",
     "@trigger.dev/sdk": "^3.3.17",
-    "next": "^15.4.5",
+    "next": "^16.0.7",
     "openai": "^5.11.0",
-    "react": "19.1.0",
-    "react-dom": "19.1.0",
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1",
     "stripe": "^18.4.0"
   },
   "devDependencies": {
